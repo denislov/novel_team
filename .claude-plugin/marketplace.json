@@ -1,0 +1,19 @@
+{
+  "name": "novel-local-marketplace",
+  "owner": {
+    "name": "Local Novel Creator"
+  },
+  "metadata": {
+    "description": "Local marketplace for structured fiction-writing workflows and long-form novel project tooling.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "novel",
+      "description": "Structured long-form fiction workflow with project setup, arc planning, chapter pipelines, research, review, and state-driven orchestration.",
+      "version": "0.1.0",
+      "source": "./plugins/novel",
+      "category": "writing"
+    }
+  ]
+}

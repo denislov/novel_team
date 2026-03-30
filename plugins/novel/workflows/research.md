@@ -1,0 +1,165 @@
+<purpose>
+独立研究流程：围绕某个历史、专业、地域或时代细节主题进行考据，产出可追溯的研究报告，供项目设定、章节写作和审核复用。
+</purpose>
+
+<required_reading>
+Read all files referenced by the invoking prompt's execution_context before starting.
+</required_reading>
+
+<available_agent_types>
+Valid novel-creator subagent types (use exact names):
+- novel-researcher — 考据研究与资料整理
+</available_agent_types>
+
+<process>
+
+## 1. 解析参数
+
+```bash
+TOPIC=""
+MODE="standard"
+OUTPUT_NAME=""
+
+for arg in "$ARGUMENTS"; do
+  case $arg in
+    --quick)
+      MODE="quick"
+      ;;
+    --deep)
+      MODE="deep"
+      ;;
+    --file=*)
+      OUTPUT_NAME="${arg#*=}"
+      ;;
+    *)
+      if [[ -z "$TOPIC" ]]; then
+        TOPIC="$arg"
+      else
+        TOPIC="$TOPIC $arg"
+      fi
+      ;;
+  esac
+done
+```
+
+### 参数说明
+
+| 参数 | 说明 |
+|------|------|
+| `[主题]` | 研究主题，如 `1980年香港警队`、`清朝会试流程` |
+| `--quick` | 快速核实，适合单个细节 |
+| `--deep` | 深度研究，适合阶段背景或专业领域 |
+| `--file=name` | 自定义输出文件名 |
+
+</process>
+
+<initialization>
+
+## 2. 初始化
+
+### 2.1 处理缺失主题
+
+如果未提供 `TOPIC`，使用 AskUserQuestion 询问：
+
+```
+AskUserQuestion(
+  header: "研究主题",
+  question: "你要研究什么内容？",
+  followUp: "建议尽量具体，如“1984年前后香港股市散户交易方式”"
+)
+```
+
+### 2.2 准备目录与上下文
+
+```bash
+mkdir -p .novel/research
+
+if [[ -f ".novel/PROJECT.md" ]]; then
+  PROJECT=$(cat .novel/PROJECT.md)
+fi
+
+if [[ -z "$OUTPUT_NAME" ]]; then
+  OUTPUT_NAME=$(echo "$TOPIC" | tr ' /' '--' | tr -cd '[:alnum:]-_' | sed 's/--*/-/g' | sed 's/^-//; s/-$//')
+fi
+```
+
+</initialization>
+
+<research_flow>
+
+## 3. 研究执行
+
+### 3.1 构建研究输入
+
+```xml
+<research_request>
+  <topic>${TOPIC}</topic>
+  <mode>${MODE}</mode>
+  <project_context>
+    ${PROJECT}
+  </project_context>
+  <output_file>.novel/research/${OUTPUT_NAME}.md</output_file>
+</research_request>
+```
+
+### 3.2 调用 Researcher
+
+```
+SpawnAgent(
+  agent: novel-researcher,
+  input: research_request,
+  output: .novel/research/${OUTPUT_NAME}.md
+)
+```
+
+### 3.3 研究要求
+
+- 至少交叉验证关键事实
+- 区分“可直接采用”与“需要艺术加工”
+- 记录来源，便于后续追溯
+- 如果有项目上下文，补充“对当前项目的影响”
+
+</research_flow>
+
+<output>
+
+## 4. 输出
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ 🔎 研究完成
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+【主题】${TOPIC}
+【模式】${MODE}
+【文件】.novel/research/${OUTPUT_NAME}.md
+
+【建议下一步】
+1. 将关键结论回写到 PROJECT.md 或 TIMELINE.md
+2. 章节写作前优先查看这份研究报告
+3. 如仍有存疑点，继续追加细分研究
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+</output>
+
+<examples>
+
+## 命令示例
+
+```bash
+# 标准研究
+/novel:research 1980年香港黑帮社团结构
+
+# 快速核实
+/novel:research 80年代香港出租车起步价 --quick
+
+# 深度研究
+/novel:research 明朝万历年间京官考成法 --deep
+
+# 指定输出文件
+/novel:research 港岛警队等级体系 --file=hk-police-ranks
+```
+
+</examples>

@@ -1,0 +1,16 @@
+{
+  "name": "novel",
+  "version": "0.1.0",
+  "description": "Structured web-novel workflow plugin with commands, agents, skills, templates, and state-driven orchestration for long-form fiction projects.",
+  "author": {
+    "name": "Local Novel Creator"
+  },
+  "keywords": [
+    "writing",
+    "novel",
+    "web-novel",
+    "story-planning",
+    "character-design",
+    "timeline-management"
+  ]
+}
