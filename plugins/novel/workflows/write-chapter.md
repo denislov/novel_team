@@ -25,6 +25,7 @@ SKIP_PLAN=false
 SKIP_POLISH=false
 SKIP_VERIFY=false
 DRAFT_MODE=false
+USE_NEXT=false
 
 # 解析参数
 for arg in "$ARGUMENTS"; do
@@ -47,15 +48,14 @@ for arg in "$ARGUMENTS"; do
       SKIP_VERIFY=true
       ;;
     --next)
-      # 自动获取下一章
+      USE_NEXT=true
       ;;
   esac
 done
 
-# 如果是 --next，从 STATE.md 获取下一章号
-if [[ "$arg" == "--next" ]]; then
-  CURRENT=$(grep "当前章节" .novel/STATE.md | grep -oE "[0-9]+")
-  CHAPTER_NUMBER=$((CURRENT + 1))
+# 如果启用了 --next，优先用共享状态脚本获取下一章号
+if [[ "$USE_NEXT" == true ]]; then
+  CHAPTER_NUMBER=$(python3 scripts/novel_state.py write-target --root . --next --field target_chapter)
 fi
 ```
 
@@ -80,24 +80,24 @@ fi
 
 ```bash
 # 检查项目文件
-if [[ ! -f ".novel/PROJECT.md" ]]; then
+if [[ ! -f "PROJECT.md" ]]; then
   echo "错误：未找到项目文件"
-  echo "请先运行 /novel:new-project 创建项目"
+  echo "空目录请先运行 /novel:new-project；已有资料请先运行 /novel:map-base"
   exit 1
 fi
 
 # 读取项目状态
-cat .novel/STATE.md
-cat .novel/PROJECT.md
-cat .novel/CHARACTERS.md
-cat .novel/TIMELINE.md
+cat STATE.md
+cat PROJECT.md
+cat CHARACTERS.md
+cat TIMELINE.md
 ```
 
 ### 2.2 检查章节状态
 
 ```bash
 # 检查目标章节是否已存在
-if [[ -f ".novel/chapters/chapter-${CHAPTER_NUMBER}.md" ]]; then
+if [[ -f "chapters/chapter-${CHAPTER_NUMBER}.md" ]]; then
   echo "警告：第 ${CHAPTER_NUMBER} 章已存在"
   AskUserQuestion(
     header: "章节已存在",
@@ -109,7 +109,7 @@ fi
 # 检查前一章是否存在（第一章除外）
 if [[ $CHAPTER_NUMBER -gt 1 ]]; then
   PREV=$((CHAPTER_NUMBER - 1))
-  if [[ ! -f ".novel/chapters/chapter-${PREV}.md" ]]; then
+  if [[ ! -f "chapters/chapter-${PREV}.md" ]]; then
     echo "错误：第 ${PREV} 章不存在，请先创作前一章"
     exit 1
   fi
@@ -147,15 +147,15 @@ fi
 
 ```bash
 # 读取项目设定
-PROJECT=$(cat .novel/PROJECT.md)
-ROADMAP=$(cat .novel/ROADMAP.md)
-CHARACTERS=$(cat .novel/CHARACTERS.md)
-TIMELINE=$(cat .novel/TIMELINE.md)
-STATE=$(cat .novel/STATE.md)
+PROJECT=$(cat PROJECT.md)
+ROADMAP=$(cat ROADMAP.md)
+CHARACTERS=$(cat CHARACTERS.md)
+TIMELINE=$(cat TIMELINE.md)
+STATE=$(cat STATE.md)
 
 # 读取前文大纲（如果存在）
-if [[ -f ".novel/chapters/outlines/outline-$((CHAPTER_NUMBER - 1)).md" ]]; then
-  PREV_OUTLINE=$(cat .novel/chapters/outlines/outline-$((CHAPTER_NUMBER - 1)).md)
+if [[ -f "chapters/outlines/outline-$((CHAPTER_NUMBER - 1)).md" ]]; then
+  PREV_OUTLINE=$(cat chapters/outlines/outline-$((CHAPTER_NUMBER - 1)).md)
 fi
 ```
 
@@ -173,7 +173,7 @@ SpawnAgent(
     state: STATE,
     prev_outline: PREV_OUTLINE
   },
-  output: .novel/chapters/outlines/outline-${CHAPTER_NUMBER}.md
+  output: chapters/outlines/outline-${CHAPTER_NUMBER}.md
 )
 ```
 
@@ -249,21 +249,21 @@ AskUserQuestion(
 
 ```bash
 # 读取项目设定
-PROJECT=$(cat .novel/PROJECT.md)
-CHARACTERS=$(cat .novel/CHARACTERS.md)
-TIMELINE=$(cat .novel/TIMELINE.md)
-STATE=$(cat .novel/STATE.md)
+PROJECT=$(cat PROJECT.md)
+CHARACTERS=$(cat CHARACTERS.md)
+TIMELINE=$(cat TIMELINE.md)
+STATE=$(cat STATE.md)
 
 # 读取章节大纲（如果有）
-if [[ -f ".novel/chapters/outlines/outline-${CHAPTER_NUMBER}.md" ]]; then
-  OUTLINE=$(cat .novel/chapters/outlines/outline-${CHAPTER_NUMBER}.md)
+if [[ -f "chapters/outlines/outline-${CHAPTER_NUMBER}.md" ]]; then
+  OUTLINE=$(cat chapters/outlines/outline-${CHAPTER_NUMBER}.md)
 fi
 
 # 读取前文章节（确保连贯）
 PREV_CHAPTERS=""
 for i in $(seq $((CHAPTER_NUMBER - 3)) $((CHAPTER_NUMBER - 1))); do
-  if [[ $i -gt 0 ]] && [[ -f ".novel/chapters/chapter-${i}.md" ]]; then
-    PREV_CHAPTERS="${PREV_CHAPTERS}$(cat .novel/chapters/chapter-${i}.md)\n\n"
+  if [[ $i -gt 0 ]] && [[ -f "chapters/chapter-${i}.md" ]]; then
+    PREV_CHAPTERS="${PREV_CHAPTERS}$(cat chapters/chapter-${i}.md)\n\n"
   fi
 done
 ```
@@ -282,7 +282,7 @@ SpawnAgent(
     outline: OUTLINE,
     prev_chapters: PREV_CHAPTERS
   },
-  output: .novel/chapters/draft/chapter-${CHAPTER_NUMBER}-draft.md
+  output: chapters/draft/chapter-${CHAPTER_NUMBER}-draft.md
 )
 ```
 
@@ -338,11 +338,11 @@ SpawnAgent(
     chapter_number: CHAPTER_NUMBER,
     project: PROJECT,
     characters: CHARACTERS,
-    draft: .novel/chapters/draft/chapter-${CHAPTER_NUMBER}-draft.md
+    draft: chapters/draft/chapter-${CHAPTER_NUMBER}-draft.md
   },
   output: [
-    .novel/reviews/edit-report-${CHAPTER_NUMBER}.md,
-    .novel/chapters/chapter-${CHAPTER_NUMBER}.md
+    reviews/edit-report-${CHAPTER_NUMBER}.md,
+    chapters/draft/chapter-${CHAPTER_NUMBER}-polished.md
   ]
 )
 ```
@@ -354,7 +354,7 @@ SpawnAgent(
   - 代入感增强
   - 句式优化
   - 冗余删减
-- `chapter-${CHAPTER_NUMBER}.md`：修订后章节
+- `chapter-${CHAPTER_NUMBER}-polished.md`：润色后的候选正式稿
 
 ### 5.3 展示润色结果
 
@@ -400,9 +400,25 @@ AskUserQuestion(
 - **查看报告**：展示详细修改，再决定
 - **保留原稿**：使用草稿版本
 
+接受润色版时，运行：
+
+```bash
+python3 scripts/chapter_ops.py apply-polish --root . --chapter ${CHAPTER_NUMBER} --force
+```
+
+保留草稿版时，运行：
+
+```bash
+python3 scripts/chapter_ops.py use-draft --root . --chapter ${CHAPTER_NUMBER} --force
+```
+
 **如果 `SKIP_POLISH = true`：**
 - 直接使用草稿版本
-- 复制 `draft/chapter-${CHAPTER_NUMBER}-draft.md` 为 `chapter-${CHAPTER_NUMBER}.md`
+- 运行：
+
+```bash
+python3 scripts/chapter_ops.py use-draft --root . --chapter ${CHAPTER_NUMBER} --force
+```
 
 </polish_phase>
 
@@ -423,10 +439,10 @@ SpawnAgent(
     characters: CHARACTERS,
     timeline: TIMELINE,
     state: STATE,
-    chapter: .novel/chapters/chapter-${CHAPTER_NUMBER}.md,
+    chapter: chapters/chapter-${CHAPTER_NUMBER}.md,
     prev_chapters: PREV_CHAPTERS
   },
-  output: .novel/reviews/review-${CHAPTER_NUMBER}.md
+  output: reviews/review-${CHAPTER_NUMBER}.md
 )
 ```
 
@@ -505,18 +521,19 @@ AskUserQuestion(
 ### 7.1 更新 STATE.md
 
 ```bash
-# 更新当前章节
-sed -i "s/当前章节：第 [0-9]* 章/当前章节：第 ${CHAPTER_NUMBER} 章/" .novel/STATE.md
-
-# 更新总字数
-TOTAL_WORDS=$(grep "总字数" .novel/STATE.md | grep -oE "[0-9]+")
-NEW_WORDS=$(wc -c < .novel/chapters/chapter-${CHAPTER_NUMBER}.md)
-sed -i "s/总字数：[0-9]*/总字数：$((TOTAL_WORDS + NEW_WORDS))/" .novel/STATE.md
-
-# 更新进度表
-# 更新人物状态（如有变化）
-# 更新伏笔追踪（如有新伏笔）
+# 用共享状态脚本统一刷新 STATE.md，避免重写章节时累计字数失真
+python3 scripts/novel_state.py refresh \
+  --root . \
+  --status 连载中 \
+  --latest-completed "已完成第 ${CHAPTER_NUMBER} 章" \
+  --next-goal "第 $((CHAPTER_NUMBER + 1)) 章规划或核对"
 ```
+
+然后再补正文区块里更细的内容：
+- 当前创作焦点
+- 人物当前状态
+- 未回收伏笔
+- 最近决策
 
 ### 7.2 更新时间线
 
@@ -540,9 +557,9 @@ sed -i "s/总字数：[0-9]*/总字数：$((TOTAL_WORDS + NEW_WORDS))/" .novel/S
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 【文件位置】
-- 章节：.novel/chapters/chapter-${CHAPTER_NUMBER}.md
-- 大纲：.novel/chapters/outlines/outline-${CHAPTER_NUMBER}.md
-- 审核：.novel/reviews/review-${CHAPTER_NUMBER}.md
+- 章节：chapters/chapter-${CHAPTER_NUMBER}.md
+- 大纲：chapters/outlines/outline-${CHAPTER_NUMBER}.md
+- 审核：reviews/review-${CHAPTER_NUMBER}.md
 
 【创作统计】
 - 字数：[XXXX] 字
@@ -552,7 +569,7 @@ sed -i "s/总字数：[0-9]*/总字数：$((TOTAL_WORDS + NEW_WORDS))/" .novel/S
 
 【下一步】
 - 创作下一章：/novel:write-chapter --next
-- 查看章节：cat .novel/chapters/chapter-${CHAPTER_NUMBER}.md
+- 查看章节：cat chapters/chapter-${CHAPTER_NUMBER}.md
 - 批量创作：/novel:plan-batch $((CHAPTER_NUMBER + 1))-$((CHAPTER_NUMBER + 10))
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -613,7 +630,7 @@ AskUserQuestion(
 ### 项目不存在
 ```
 错误：未找到项目文件
-解决：请先运行 /novel:new-project 创建项目
+解决：空目录请先运行 /novel:new-project；已有资料请先运行 /novel:map-base
 ```
 
 ### 前章不存在

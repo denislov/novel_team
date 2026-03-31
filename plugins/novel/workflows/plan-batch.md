@@ -54,22 +54,29 @@ done
 ## 2. 初始化检查
 
 ```bash
-if [[ ! -f ".novel/PROJECT.md" ]]; then
+if [[ ! -f "PROJECT.md" ]]; then
   echo "错误：未找到项目文件"
+  echo "空目录请先运行 /novel:new-project；已有资料请先运行 /novel:map-base"
   exit 1
 fi
 
-if [[ ! -f ".novel/ROADMAP.md" ]]; then
+if [[ ! -f "ROADMAP.md" ]]; then
   echo "错误：未找到 ROADMAP.md"
   exit 1
 fi
 
-mkdir -p .novel/chapters/outlines
+mkdir -p chapters/outlines
 ```
 
 ### 2.1 缺失范围时询问
 
 如果未提供范围，使用 AskUserQuestion：
+
+也可以先用共享状态脚本给出默认建议范围：
+
+```bash
+python3 scripts/novel_state.py range-target --root . --kind plan --field range_text
+```
 
 ```
 AskUserQuestion(
@@ -100,11 +107,11 @@ AskUserQuestion(
 ### 3.1 加载上下文
 
 ```bash
-PROJECT=$(cat .novel/PROJECT.md)
-ROADMAP=$(cat .novel/ROADMAP.md)
-CHARACTERS=$(cat .novel/CHARACTERS.md)
-TIMELINE=$(cat .novel/TIMELINE.md)
-STATE=$(cat .novel/STATE.md)
+PROJECT=$(cat PROJECT.md)
+ROADMAP=$(cat ROADMAP.md)
+CHARACTERS=$(cat CHARACTERS.md)
+TIMELINE=$(cat TIMELINE.md)
+STATE=$(cat STATE.md)
 ```
 
 ### 3.2 确定阶段目标
@@ -132,7 +139,7 @@ for CHAPTER in $(seq $START $END); do
       state: STATE,
       previous_outlines: [已有前文大纲和本批前序大纲]
     },
-    output: .novel/chapters/outlines/outline-${CHAPTER}.md
+    output: chapters/outlines/outline-${CHAPTER}.md
   )
 done
 ```
@@ -140,7 +147,7 @@ done
 ### 3.4 生成批量概要
 
 生成：
-`.novel/chapters/outlines/batch-${START}-${END}.md`
+`chapters/outlines/batch-${START}-${END}.md`
 
 内容包括：
 - 本批章节的总体目标
@@ -148,6 +155,18 @@ done
 - 节奏分布
 - 关键伏笔埋设/回收点
 - 建议优先写作章节
+
+### 3.5 刷新共享状态
+
+批量规划完成后运行：
+
+```bash
+python3 scripts/novel_state.py refresh \
+  --root . \
+  --next-goal "第 ${START} 章写作或核对"
+```
+
+让 `STATE.md` 的章节队列、下一目标和 frontmatter 与大纲目录保持一致。
 
 </planning_flow>
 
@@ -164,8 +183,8 @@ done
 【目标】${GOAL}
 
 【输出文件】
-- .novel/chapters/outlines/outline-${START}.md ... outline-${END}.md
-- .novel/chapters/outlines/batch-${START}-${END}.md
+- chapters/outlines/outline-${START}.md ... outline-${END}.md
+- chapters/outlines/batch-${START}-${END}.md
 
 【建议下一步】
 1. 用 /novel:write-chapter ${START} 开始逐章写作

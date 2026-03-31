@@ -4,27 +4,28 @@ argument-hint: "[--list|--add|--view NAME|--update NAME|--check NAME|--delete NA
 allowed-tools:
   - Read
   - Write
+  - Edit
   - Bash
   - Glob
   - Grep
-  - Task
-  - AskUserQuestion
 ---
 <objective>
-Manage character records for a `.novel/` project.
+Manage character records for a root-level novel project.
 
 **Creates/Updates:**
-- `.novel/CHARACTERS.md`
-- `.novel/characters/[NAME].md`
+- `CHARACTERS.md`
+- `characters/[NAME].md`
 
 Use this command to keep the cast list and single-character cards synchronized as the story evolves.
 </objective>
 
 <execution_context>
-@${CLAUDE_PLUGIN_ROOT}/workflows/character.md
-@${CLAUDE_PLUGIN_ROOT}/skills/novel-writing/SKILL.md
-@${CLAUDE_PLUGIN_ROOT}/templates/CHARACTERS.md
-@${CLAUDE_PLUGIN_ROOT}/templates/CHARACTER-CARD.md
+@commands/_codex-conventions.md
+@workflows/character.md
+@skills/novel-command-center/SKILL.md
+@skills/novel-writing/SKILL.md
+@templates/CHARACTERS.md
+@templates/CHARACTER-CARD.md
 </execution_context>
 
 <context>
@@ -40,6 +41,7 @@ If only a name is provided, the workflow defaults to viewing that character.
 </context>
 
 <process>
-Execute the character workflow from @${CLAUDE_PLUGIN_ROOT}/workflows/character.md end-to-end.
+Execute the character workflow from @workflows/character.md end-to-end.
+Interpret Claude-style workflow primitives using @commands/_codex-conventions.md.
 Preserve all workflow gates (project checks, information gathering, character-card generation, total-table synchronization).
 </process>

@@ -30,9 +30,9 @@ color: green
 
 **CRITICAL: Mandatory Initial Read**
 必须先读取以下文件：
-1. `.novel/PROJECT.md` — 核心设定和禁忌
-2. `.novel/CHARACTERS.md` — 本章出场人物设定
-3. `.novel/TIMELINE.md` — 时间线锚点
+1. `PROJECT.md` — 核心设定和禁忌
+2. `CHARACTERS.md` — 本章出场人物设定
+3. `TIMELINE.md` — 时间线锚点
 4. 章节大纲（如果有）
 5. 前文1-3章（确保连贯）
 </role>
@@ -42,32 +42,32 @@ color: green
 
 **项目设定：**
 ```
-.novel/PROJECT.md     # 世界观、主角、金手指、禁忌
-.novel/CHARACTERS.md  # 人物档案
-.novel/TIMELINE.md    # 时间线
-.novel/STATE.md       # 当前状态（伏笔、人物状态）
+PROJECT.md     # 世界观、主角、金手指、禁忌
+CHARACTERS.md  # 人物档案
+TIMELINE.md    # 时间线
+STATE.md       # 当前状态（伏笔、人物状态）
 ```
 
 **章节大纲：**
 ```
-.novel/chapters/outlines/outline-{N}.md  # 本章大纲
+chapters/outlines/outline-{N}.md  # 本章大纲
 ```
 
 **前文上下文：**
 ```
-.novel/chapters/chapter-{N-1}.md  # 上一章
-.novel/chapters/chapter-{N-2}.md  # 上上章
+chapters/chapter-{N-1}.md  # 上一章
+chapters/chapter-{N-2}.md  # 上上章
 ```
 
 **小说写作技能：**
-加载 `${CLAUDE_PLUGIN_ROOT}/skills/novel-writing/`：
+加载 `skills/novel-writing/`：
 1. `SKILL.md` — 核心原则和自检清单
 2. `references/creative-principles.md` — 创作原则详解
 3. `references/immersion-techniques.md` — 代入感技巧
 
 **模板目录：**
-- `${CLAUDE_PLUGIN_ROOT}/templates/CHAPTER.md`
-- `${CLAUDE_PLUGIN_ROOT}/templates/STATE.md`
+- `templates/CHAPTER.md`
+- `templates/STATE.md`
 
 **如果跳过大纲直接写作：**
 先在脑中形成本章的：
@@ -385,7 +385,7 @@ foreshadowing: [本章伏笔]
 ```xml
 <writer_result>
   <status>success|needs_revision</status>
-  <file>.novel/chapters/chapter-{N}.md</file>
+  <file>chapters/chapter-{N}.md</file>
   <summary>
     [本章概要，100字内]
   </summary>

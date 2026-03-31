@@ -20,6 +20,7 @@ Valid novel-creator subagent types (use exact names):
 ```bash
 START_CHAPTER=""
 END_CHAPTER=""
+COUNT=""
 BATCH_SIZE=3
 PAUSE_ON_ISSUE=true
 SKIP_VERIFY=false
@@ -34,7 +35,6 @@ for arg in "$ARGUMENTS"; do
       ;;
     --chapters=*)
       COUNT="${arg#*=}"
-      END_CHAPTER=$((START_CHAPTER + COUNT - 1))
       ;;
     --batch=*)
       BATCH_SIZE="${arg#*=}"
@@ -48,10 +48,16 @@ for arg in "$ARGUMENTS"; do
   esac
 done
 
-# 从 STATE.md 获取当前位置
+# 从 STATE.md frontmatter 获取当前位置
 if [[ -z "$START_CHAPTER" ]]; then
-  CURRENT=$(grep "当前章节" .novel/STATE.md | grep -oE "[0-9]+")
+  CURRENT=$(grep -m1 '^current_chapter:' STATE.md 2>/dev/null | grep -oE "[0-9]+")
+  [[ -z "$CURRENT" ]] && CURRENT=0
   START_CHAPTER=$((CURRENT + 1))
+fi
+
+# 如果用户给了 --chapters=N，在确定 START_CHAPTER 后再算 END_CHAPTER
+if [[ -n "$COUNT" && -z "$END_CHAPTER" ]]; then
+  END_CHAPTER=$((START_CHAPTER + COUNT - 1))
 fi
 
 # 默认创作5章
@@ -79,13 +85,14 @@ fi
 
 ```bash
 # 检查项目
-if [[ ! -f ".novel/PROJECT.md" ]]; then
+if [[ ! -f "PROJECT.md" ]]; then
   echo "错误：未找到项目文件"
+  echo "空目录请先运行 /novel:new-project；已有资料请先运行 /novel:map-base"
   exit 1
 fi
 
 # 检查 ROADMAP
-if [[ ! -f ".novel/ROADMAP.md" ]]; then
+if [[ ! -f "ROADMAP.md" ]]; then
   echo "警告：未找到 ROADMAP.md，将自动规划章节"
 fi
 
@@ -177,7 +184,12 @@ while [[ $CURRENT_CHAPTER -le $END_CHAPTER ]]; do
   
   # 步骤4: 更新状态
   echo "[4/4] 更新状态..."
-  UpdateState $CURRENT_CHAPTER
+  CHAPTER_WORDS=$(wc -m < "chapters/chapter-${CURRENT_CHAPTER}.md" | tr -d ' ')
+  TOTAL_WORDS=$(grep -m1 '^total_words:' STATE.md 2>/dev/null | grep -oE '[0-9]+')
+  [[ -z "$TOTAL_WORDS" ]] && TOTAL_WORDS=0
+  UPDATED_TOTAL=$((TOTAL_WORDS + CHAPTER_WORDS))
+  perl -0pi -e "s/^status:\\s*.*/status: 连载中/m; s/^current_chapter:\\s*\\d+/current_chapter: ${CURRENT_CHAPTER}/m; s/^total_words:\\s*\\d+/total_words: ${UPDATED_TOTAL}/m" STATE.md
+  # 需要时再同步正文区块中的“最近完成内容 / 下一目标 / 风险与阻塞”
   
   COMPLETED=$((COMPLETED + 1))
   BATCH_COUNT=$((BATCH_COUNT + 1))
@@ -361,9 +373,9 @@ C. [走向C] - [后果描述]
 [如果有问题，列出]
 
 【文件位置】
-- 章节：.novel/chapters/chapter-{N}.md
-- 大纲：.novel/chapters/outlines/outline-{N}.md
-- 审核：.novel/reviews/review-{N}.md
+- 章节：chapters/chapter-{N}.md
+- 大纲：chapters/outlines/outline-{N}.md
+- 审核：reviews/review-{N}.md
 
 【下一步】
 - 继续创作：/novel:autonomous --from=$((END + 1)) --chapters=5
@@ -392,7 +404,7 @@ C. [走向C] - [后果描述]
 /novel:autonomous --from=25 --chapters=5
 ```
 
-状态保存在 `.novel/STATE.md` 中。
+状态保存在 `STATE.md` 中。
 
 </resume>
 

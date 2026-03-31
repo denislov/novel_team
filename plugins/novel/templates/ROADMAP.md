@@ -1,6 +1,6 @@
 # ROADMAP.md Template
 
-Template for `.novel/ROADMAP.md` — the multi-arc story plan that turns the project contract into staged narrative execution.
+Template for `ROADMAP.md` — the multi-arc story plan that turns the project contract into staged narrative execution.
 
 <template>
 

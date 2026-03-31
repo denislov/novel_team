@@ -72,10 +72,10 @@ AskUserQuestion(
 ### 2.2 准备目录与上下文
 
 ```bash
-mkdir -p .novel/research
+mkdir -p research
 
-if [[ -f ".novel/PROJECT.md" ]]; then
-  PROJECT=$(cat .novel/PROJECT.md)
+if [[ -f "PROJECT.md" ]]; then
+  PROJECT=$(cat PROJECT.md)
 fi
 
 if [[ -z "$OUTPUT_NAME" ]]; then
@@ -98,7 +98,7 @@ fi
   <project_context>
     ${PROJECT}
   </project_context>
-  <output_file>.novel/research/${OUTPUT_NAME}.md</output_file>
+  <output_file>research/${OUTPUT_NAME}.md</output_file>
 </research_request>
 ```
 
@@ -108,7 +108,7 @@ fi
 SpawnAgent(
   agent: novel-researcher,
   input: research_request,
-  output: .novel/research/${OUTPUT_NAME}.md
+  output: research/${OUTPUT_NAME}.md
 )
 ```
 
@@ -132,7 +132,7 @@ SpawnAgent(
 
 【主题】${TOPIC}
 【模式】${MODE}
-【文件】.novel/research/${OUTPUT_NAME}.md
+【文件】research/${OUTPUT_NAME}.md
 
 【建议下一步】
 1. 将关键结论回写到 PROJECT.md 或 TIMELINE.md

@@ -1,6 +1,6 @@
 # PROJECT.md Template
 
-Template for `.novel/PROJECT.md` — the canonical story contract for the novel project.
+Template for `PROJECT.md` — the canonical story contract for the novel project.
 
 <template>
 
@@ -207,8 +207,8 @@ updated: YYYY-MM-DD
 
 | 主题 | 状态 | 文件 | 备注 |
 |------|------|------|------|
-| 时代背景 | 待考据 | `.novel/research/background.md` | |
-| 专业知识 | 待考据 | `.novel/research/` | |
+| 时代背景 | 待考据 | `research/background.md` | |
+| 专业知识 | 待考据 | `research/` | |
 
 ## 变更记录
 

@@ -25,10 +25,10 @@ color: red
 
 **CRITICAL: Mandatory Initial Read**
 必须先读取以下文件：
-1. `.novel/PROJECT.md` — 设定和禁忌
-2. `.novel/CHARACTERS.md` — 人物档案
-3. `.novel/TIMELINE.md` — 时间线
-4. `.novel/STATE.md` — 当前状态
+1. `PROJECT.md` — 设定和禁忌
+2. `CHARACTERS.md` — 人物档案
+3. `TIMELINE.md` — 时间线
+4. `STATE.md` — 当前状态
 5. 待审核章节
 6. 前文相关章节（上下文）
 </role>
@@ -38,32 +38,32 @@ color: red
 
 **项目设定：**
 ```
-.novel/PROJECT.md     # 世界观、禁忌清单
-.novel/CHARACTERS.md  # 人物档案（行为准则、性格标签）
-.novel/TIMELINE.md    # 时间线锚点
-.novel/STATE.md       # 伏笔追踪、人物状态
+PROJECT.md     # 世界观、禁忌清单
+CHARACTERS.md  # 人物档案（行为准则、性格标签）
+TIMELINE.md    # 时间线锚点
+STATE.md       # 伏笔追踪、人物状态
 ```
 
 **待审核内容：**
 ```
-.novel/chapters/chapter-{N}.md  # 待审核章节
+chapters/chapter-{N}.md  # 待审核章节
 ```
 
 **前文上下文（用于一致性检查）：**
 ```
-.novel/chapters/chapter-{N-1}.md
-.novel/chapters/chapter-{N-2}.md
+chapters/chapter-{N-1}.md
+chapters/chapter-{N-2}.md
 ```
 
 **小说写作技能：**
-加载 `${CLAUDE_PLUGIN_ROOT}/skills/novel-writing/`：
+加载 `skills/novel-writing/`：
 1. `SKILL.md` — 自检清单
 2. `references/common-pitfalls.md` — 18个常见雷点详解
 
 **模板目录：**
-- `${CLAUDE_PLUGIN_ROOT}/templates/REVIEW.md`
-- `${CLAUDE_PLUGIN_ROOT}/templates/STATE.md`
-- `${CLAUDE_PLUGIN_ROOT}/templates/TIMELINE.md`
+- `templates/REVIEW.md`
+- `templates/STATE.md`
+- `templates/TIMELINE.md`
 
 </project_context>
 
@@ -405,17 +405,17 @@ status: passed|needs_revision|failed
 
 ```bash
 # 读取项目设定
-cat .novel/PROJECT.md
-cat .novel/CHARACTERS.md
-cat .novel/TIMELINE.md
-cat .novel/STATE.md
+cat PROJECT.md
+cat CHARACTERS.md
+cat TIMELINE.md
+cat STATE.md
 
 # 读取待审核章节
-cat .novel/chapters/chapter-{N}.md
+cat chapters/chapter-{N}.md
 
 # 读取前文
-cat .novel/chapters/chapter-{N-1}.md
-cat .novel/chapters/chapter-{N-2}.md
+cat chapters/chapter-{N-1}.md
+cat chapters/chapter-{N-2}.md
 ```
 
 ### Step 2: 提取章节信息
@@ -454,7 +454,7 @@ cat .novel/chapters/chapter-{N-2}.md
 ```xml
 <verification_result>
   <status>passed|needs_revision|failed</status>
-  <file>.novel/reviews/review-{N}.md</file>
+  <file>reviews/review-{N}.md</file>
   <critical_issues>[严重问题数]</critical_issues>
   <suggestions>[建议修改数]</suggestions>
   <summary>

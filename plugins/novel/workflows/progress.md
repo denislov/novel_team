@@ -4,6 +4,7 @@
 
 <required_reading>
 Read all files referenced by the invoking prompt's execution_context before starting.
+Use `scripts/novel_state.py stats` as the source of truth for all project counters and next-step recommendation.
 </required_reading>
 
 <process>
@@ -12,8 +13,8 @@ Read all files referenced by the invoking prompt's execution_context before star
 检查项目是否存在：
 
 ```bash
-if [[ ! -f ".novel/PROJECT.md" ]]; then
-  echo "未检测到小说项目。运行 /novel:new-project 开始。"
+if [[ ! -f "PROJECT.md" ]]; then
+  echo "未检测到结构化小说项目。空目录请运行 /novel:new-project；已有资料请运行 /novel:map-base。"
   exit 0
 fi
 ```
@@ -23,7 +24,7 @@ fi
 ```bash
 MISSING=()
 for f in CHARACTERS.md TIMELINE.md ROADMAP.md STATE.md; do
-  [[ -f ".novel/$f" ]] || MISSING+=("$f")
+  [[ -f "$f" ]] || MISSING+=("$f")
 done
 ```
 
@@ -34,58 +35,31 @@ done
 读取项目快照：
 
 ```bash
-TITLE=$(grep -m1 '^title:' .novel/PROJECT.md 2>/dev/null | sed 's/^title:[[:space:]]*//')
-STATUS=$(grep -m1 '^status:' .novel/STATE.md 2>/dev/null | sed 's/^status:[[:space:]]*//')
-CURRENT_ARC=$(grep -m1 '^current_arc:' .novel/STATE.md 2>/dev/null | sed 's/^current_arc:[[:space:]]*//')
-CURRENT_CHAPTER=$(grep -m1 '^current_chapter:' .novel/STATE.md 2>/dev/null | grep -oE '[0-9]+')
-TOTAL_WORDS=$(grep -m1 '^total_words:' .novel/STATE.md 2>/dev/null | grep -oE '[0-9]+')
+TITLE=$(python3 scripts/novel_state.py stats --root . --field title)
+STATUS=$(python3 scripts/novel_state.py stats --root . --field status)
+CURRENT_ARC=$(python3 scripts/novel_state.py stats --root . --field current_arc)
+CURRENT_CHAPTER=$(python3 scripts/novel_state.py stats --root . --field current_chapter)
+TOTAL_WORDS=$(python3 scripts/novel_state.py stats --root . --field total_words)
+LATEST_OUTLINE=$(python3 scripts/novel_state.py stats --root . --field latest_outline)
+LATEST_CHAPTER=$(python3 scripts/novel_state.py stats --root . --field latest_chapter)
+LATEST_REVIEW=$(python3 scripts/novel_state.py stats --root . --field latest_review)
+OUTLINE_BUFFER=$(python3 scripts/novel_state.py stats --root . --field outline_buffer)
+REVIEW_GAP=$(python3 scripts/novel_state.py stats --root . --field review_gap)
+RECOMMENDED_COMMAND=$(python3 scripts/novel_state.py stats --root . --field recommended_command)
+RECOMMENDED_ARGS=$(python3 scripts/novel_state.py stats --root . --field recommended_args)
+RECOMMENDED_REASON=$(python3 scripts/novel_state.py stats --root . --field recommended_reason)
 
-[[ -z "$CURRENT_CHAPTER" ]] && CURRENT_CHAPTER=0
-[[ -z "$TOTAL_WORDS" ]] && TOTAL_WORDS=0
-[[ -z "$STATUS" ]] && STATUS="规划中"
+CHAPTER_COUNT=$(find chapters -maxdepth 1 -type f | grep -E '/chapter-[0-9]+\.md$' | wc -l)
+OUTLINE_COUNT=$(find chapters/outlines -maxdepth 1 -type f | grep -E '/outline-[0-9]+\.md$' | wc -l)
+REVIEW_COUNT=$(find reviews -maxdepth 1 -type f | grep -E '/review-[0-9]+\.md$' | wc -l)
+DRAFT_COUNT=$(find chapters/draft -maxdepth 1 -type f 2>/dev/null | wc -l)
+RESEARCH_COUNT=$(find research -maxdepth 1 -type f 2>/dev/null | wc -l)
+CHARACTER_CARD_COUNT=$(find characters -maxdepth 1 -type f 2>/dev/null | wc -l)
+TODO_COUNT=$(rg -c "^- \\[ \\]" STATE.md 2>/dev/null || echo 0)
+LATEST_CHAPTER_FILE=$(find chapters -maxdepth 1 -type f | grep -E '/chapter-[0-9]+\.md$' | sort -V | tail -1)
+LATEST_REVIEW_FILE=$(find reviews -maxdepth 1 -type f | grep -E '/review-[0-9]+\.md$' | sort -V | tail -1)
+LATEST_RESEARCH_FILE=$(find research -maxdepth 1 -type f 2>/dev/null | sort | tail -1)
 ```
-
-统计主要产物数量：
-
-```bash
-CHAPTER_COUNT=$(ls .novel/chapters/chapter-*.md 2>/dev/null | wc -l)
-OUTLINE_COUNT=$(ls .novel/chapters/outlines/outline-*.md 2>/dev/null | wc -l)
-REVIEW_COUNT=$(ls .novel/reviews/review-*.md 2>/dev/null | wc -l)
-DRAFT_COUNT=$(ls .novel/chapters/draft/*.md 2>/dev/null | wc -l)
-RESEARCH_COUNT=$(find .novel/research -maxdepth 1 -type f 2>/dev/null | wc -l)
-CHARACTER_CARD_COUNT=$(find .novel/characters -maxdepth 1 -type f 2>/dev/null | wc -l)
-TODO_COUNT=$(rg -c "^- \\[ \\]" .novel/STATE.md 2>/dev/null || echo 0)
-```
-
-找最近产物：
-
-```bash
-LATEST_CHAPTER_FILE=$(ls -t .novel/chapters/chapter-*.md 2>/dev/null | head -1)
-LATEST_REVIEW_FILE=$(ls -t .novel/reviews/review-*.md 2>/dev/null | head -1)
-LATEST_RESEARCH_FILE=$(ls -t .novel/research/*.md 2>/dev/null | head -1)
-```
-</step>
-
-<step name="coverage">
-计算两个覆盖指标：
-
-```bash
-LATEST_OUTLINE=$(ls .novel/chapters/outlines/outline-*.md 2>/dev/null | grep -oE '[0-9]+' | sort -n | tail -1)
-LATEST_CHAPTER=$(ls .novel/chapters/chapter-*.md 2>/dev/null | grep -oE '[0-9]+' | sort -n | tail -1)
-LATEST_REVIEW=$(ls .novel/reviews/review-*.md 2>/dev/null | grep -oE '[0-9]+' | sort -n | tail -1)
-
-[[ -z "$LATEST_OUTLINE" ]] && LATEST_OUTLINE=0
-[[ -z "$LATEST_CHAPTER" ]] && LATEST_CHAPTER=0
-[[ -z "$LATEST_REVIEW" ]] && LATEST_REVIEW=0
-
-OUTLINE_BUFFER=$((LATEST_OUTLINE - CURRENT_CHAPTER))
-[[ "$OUTLINE_BUFFER" -lt 0 ]] && OUTLINE_BUFFER=0
-
-REVIEW_GAP=$((LATEST_CHAPTER - LATEST_REVIEW))
-[[ "$REVIEW_GAP" -lt 0 ]] && REVIEW_GAP=0
-```
-
-再沿用 `/novel:next` 的路由逻辑，计算推荐下一步命令，但不要自动执行。
 </step>
 
 <step name="report">
@@ -123,16 +97,16 @@ REVIEW_GAP=$((LATEST_CHAPTER - LATEST_REVIEW))
 - 未完成待办：[TODO_COUNT]
 
 ## 下一步建议
-`/novel:[command] [args]`
+`/novel:[RECOMMENDED_COMMAND] [RECOMMENDED_ARGS]`
 
-[一句话解释为什么推荐这一步]
+[RECOMMENDED_REASON]
 ```
 </step>
 
 </process>
 
 <success_criteria>
-- [ ] 能在 `.novel/` 项目中正确汇总进度
+- [ ] 能在根目录结构项目中正确汇总进度
 - [ ] 能显示规划、写作、审核三层覆盖度
 - [ ] 能给出明确的下一步建议
 - [ ] 不自动执行下一步，只做汇报

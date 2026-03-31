@@ -1,0 +1,7 @@
+interface:
+  display_name: "Novel Command Center"
+  short_description: "Route $novel-* skills and root-level novel project work inside Codex"
+  default_prompt: "Use $novel-command-center to route this novel project request to the right $novel-* skill and keep root-level project files updated."
+
+policy:
+  allow_implicit_invocation: true

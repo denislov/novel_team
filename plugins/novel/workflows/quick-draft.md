@@ -64,13 +64,14 @@ done
 
 ```bash
 # 只检查 PROJECT.md
-if [[ ! -f ".novel/PROJECT.md" ]]; then
+if [[ ! -f "PROJECT.md" ]]; then
   echo "错误：未找到项目文件"
+  echo "空目录请先运行 /novel:new-project；已有资料请先运行 /novel:map-base"
   exit 1
 fi
 
 # 加载最小上下文
-PROJECT=$(cat .novel/PROJECT.md)
+PROJECT=$(cat PROJECT.md)
 ```
 
 </initialization>
@@ -87,7 +88,7 @@ PROJECT=$(cat .novel/PROJECT.md)
   <word_target>${WORD_COUNT}</word_target>
   <mode>quick_draft</mode>
   <project>
-    @.novel/PROJECT.md
+    @PROJECT.md
   </project>
   <additional_context>
     ${CONTEXT}
@@ -101,7 +102,7 @@ PROJECT=$(cat .novel/PROJECT.md)
 SpawnAgent(
   agent: novel-writer,
   input: writer_input,
-  output: .novel/chapters/draft/chapter-${CHAPTER_NUMBER}-quick.md
+  output: chapters/draft/chapter-${CHAPTER_NUMBER}-quick.md
 )
 ```
 
@@ -125,7 +126,7 @@ SpawnAgent(
  ⚡ 草稿完成
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-【文件】.novel/chapters/draft/chapter-${CHAPTER_NUMBER}-quick.md
+【文件】chapters/draft/chapter-${CHAPTER_NUMBER}-quick.md
 【字数】[XXXX] 字
 
 【提示】这是快速草稿，建议后续：

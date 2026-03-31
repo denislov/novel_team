@@ -4,10 +4,10 @@ argument-hint: "[N|START-END] [--quick] [--json]"
 allowed-tools:
   - Read
   - Write
+  - Edit
   - Bash
   - Glob
   - Grep
-  - Task
 ---
 <objective>
 Run the review workflow as a verification-focused pass.
@@ -15,17 +15,19 @@ Run the review workflow as a verification-focused pass.
 This is a thin alias over `/novel:review`, optimized for consistency checking after drafting or editing.
 
 **Creates:**
-- `.novel/reviews/review-[N].md`
+- `reviews/review-[N].md`
 - Batch verification summaries when reviewing a range
 </objective>
 
 <execution_context>
-@${CLAUDE_PLUGIN_ROOT}/workflows/review.md
-@${CLAUDE_PLUGIN_ROOT}/skills/novel-writing/SKILL.md
-@${CLAUDE_PLUGIN_ROOT}/skills/novel-writing/references/common-pitfalls.md
-@${CLAUDE_PLUGIN_ROOT}/templates/REVIEW.md
-@${CLAUDE_PLUGIN_ROOT}/templates/STATE.md
-@${CLAUDE_PLUGIN_ROOT}/templates/TIMELINE.md
+@commands/_codex-conventions.md
+@workflows/review.md
+@skills/novel-command-center/SKILL.md
+@skills/novel-writing/SKILL.md
+@skills/novel-writing/references/common-pitfalls.md
+@templates/REVIEW.md
+@templates/STATE.md
+@templates/TIMELINE.md
 </execution_context>
 
 <context>
@@ -41,6 +43,7 @@ If no chapter is provided, the workflow defaults to the latest chapter.
 </context>
 
 <process>
-Execute the review workflow from @${CLAUDE_PLUGIN_ROOT}/workflows/review.md end-to-end as a consistency-verification alias.
+Execute the review workflow from @workflows/review.md end-to-end as a consistency-verification alias.
+Interpret Claude-style workflow primitives using @commands/_codex-conventions.md.
 Preserve all workflow gates (project checks, verifier pass, per-chapter reporting, batch aggregation).
 </process>

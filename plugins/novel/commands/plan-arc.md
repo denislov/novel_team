@@ -4,34 +4,35 @@ argument-hint: "[arc name] [--chapters=N] [--goal=\"...\"] [--research=\"...\"]"
 allowed-tools:
   - Read
   - Write
+  - Edit
   - Bash
-  - Task
-  - AskUserQuestion
   - WebSearch
   - WebFetch
 ---
 <objective>
-Plan a new story arc, volume, or major stage for an existing `.novel/` project.
+Plan a new story arc, volume, or major stage for an existing root-level novel project.
 
 **Creates/Updates:**
-- `.novel/ROADMAP.md`
-- `.novel/TIMELINE.md`
-- `.novel/CHARACTERS.md`
-- `.novel/PROJECT.md` when the new arc expands the setting
-- `.novel/research/arc-*.md` when research is requested
+- `ROADMAP.md`
+- `TIMELINE.md`
+- `CHARACTERS.md`
+- `PROJECT.md` when the new arc expands the setting
+- `research/arc-*.md` when research is requested
 
 Use this command after one arc is stable and you need the next major stage designed before drafting chapters.
 </objective>
 
 <execution_context>
-@${CLAUDE_PLUGIN_ROOT}/workflows/plan-arc.md
-@${CLAUDE_PLUGIN_ROOT}/skills/novel-writing/SKILL.md
-@${CLAUDE_PLUGIN_ROOT}/templates/PROJECT.md
-@${CLAUDE_PLUGIN_ROOT}/templates/ROADMAP.md
-@${CLAUDE_PLUGIN_ROOT}/templates/CHARACTERS.md
-@${CLAUDE_PLUGIN_ROOT}/templates/TIMELINE.md
-@${CLAUDE_PLUGIN_ROOT}/templates/STATE.md
-@${CLAUDE_PLUGIN_ROOT}/templates/RESEARCH.md
+@commands/_codex-conventions.md
+@workflows/plan-arc.md
+@skills/novel-command-center/SKILL.md
+@skills/novel-writing/SKILL.md
+@templates/PROJECT.md
+@templates/ROADMAP.md
+@templates/CHARACTERS.md
+@templates/TIMELINE.md
+@templates/STATE.md
+@templates/RESEARCH.md
 </execution_context>
 
 <context>
@@ -45,6 +46,7 @@ Use this command after one arc is stable and you need the next major stage desig
 </context>
 
 <process>
-Execute the plan-arc workflow from @${CLAUDE_PLUGIN_ROOT}/workflows/plan-arc.md end-to-end.
+Execute the plan-arc workflow from @workflows/plan-arc.md end-to-end.
+Interpret Claude-style workflow primitives using @commands/_codex-conventions.md.
 Preserve all workflow gates (project load, optional research, architect pass, roadmap/timeline/cast updates).
 </process>

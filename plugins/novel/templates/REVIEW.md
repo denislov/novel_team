@@ -1,6 +1,6 @@
 # REVIEW.md Template
 
-Template for `.novel/reviews/review-[N].md` or other chapter review artifacts — the unified report for consistency, prose quality, and revision guidance.
+Template for `reviews/review-[N].md` or other chapter review artifacts — the unified report for consistency, prose quality, and revision guidance.
 
 <template>
 

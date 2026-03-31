@@ -12,10 +12,12 @@ Output ONLY the reference content below. Do NOT add:
 </objective>
 
 <execution_context>
-@${CLAUDE_PLUGIN_ROOT}/workflows/help.md
+@commands/_codex-conventions.md
+@workflows/help.md
+@skills/novel-command-center/SKILL.md
 </execution_context>
 
 <process>
-Output the complete novel command reference from @${CLAUDE_PLUGIN_ROOT}/workflows/help.md.
+Output the complete novel command reference from @workflows/help.md.
 Display the reference content directly with no additions or modifications.
 </process>

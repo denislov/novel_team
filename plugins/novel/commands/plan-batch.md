@@ -4,28 +4,30 @@ argument-hint: "START-END [--goal=\"...\"] [--force]"
 allowed-tools:
   - Read
   - Write
+  - Edit
   - Bash
   - Glob
   - Grep
-  - Task
-  - AskUserQuestion
 ---
 <objective>
 Plan multiple upcoming chapters in one pass so chapter goals, pacing, and hooks stay coherent across a range.
 
 **Creates:**
-- `.novel/chapters/outlines/outline-[N].md` for each chapter in range
-- `.novel/chapters/outlines/batch-[START]-[END].md`
+- `chapters/outlines/outline-[N].md` for each chapter in range
+- `chapters/outlines/batch-[START]-[END].md`
 
 This is the batch-outline companion to `/novel:write-chapter`.
 </objective>
 
 <execution_context>
-@${CLAUDE_PLUGIN_ROOT}/workflows/plan-batch.md
-@${CLAUDE_PLUGIN_ROOT}/skills/novel-writing/SKILL.md
-@${CLAUDE_PLUGIN_ROOT}/templates/CHAPTER-OUTLINE.md
-@${CLAUDE_PLUGIN_ROOT}/templates/STATE.md
-@${CLAUDE_PLUGIN_ROOT}/templates/TIMELINE.md
+@commands/_codex-conventions.md
+@workflows/plan-batch.md
+@scripts/novel_state.py
+@skills/novel-command-center/SKILL.md
+@skills/novel-writing/SKILL.md
+@templates/CHAPTER-OUTLINE.md
+@templates/STATE.md
+@templates/TIMELINE.md
 </execution_context>
 
 <context>
@@ -38,6 +40,8 @@ This is the batch-outline companion to `/novel:write-chapter`.
 </context>
 
 <process>
-Execute the plan-batch workflow from @${CLAUDE_PLUGIN_ROOT}/workflows/plan-batch.md end-to-end.
+Execute the plan-batch workflow from @workflows/plan-batch.md end-to-end.
+Interpret Claude-style workflow primitives using @commands/_codex-conventions.md.
+Use @scripts/novel_state.py to refresh queue and next-target data after batch planning.
 Preserve all workflow gates (range validation, context loading, per-chapter planner passes, batch summary generation).
 </process>

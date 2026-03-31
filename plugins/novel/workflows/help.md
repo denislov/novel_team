@@ -4,7 +4,7 @@
 
 ## 核心思路
 
-`novel` 工具不是单次写文提示词，而是围绕 `.novel/` 工作区运转：
+`novel` 工具不是单次写文提示词，而是围绕“根目录结构项目”运转：
 
 - `PROJECT.md`：全书契约
 - `CHARACTERS.md`：人物总表
@@ -26,6 +26,13 @@
 4. `/novel:write-chapter 1`
 5. `/novel:review 1`
 
+### 接手已有资料
+
+1. `/novel:map-base`
+2. `/novel:progress`
+3. `/novel:plan-batch 1-10`
+4. `/novel:write-chapter --next`
+
 ### 快速试写
 
 1. `/novel:new-project --quick`
@@ -46,8 +53,16 @@
 
 `/novel:new-project [--auto] [--from-doc @idea.md] [--skip-research] [--quick]`
 
-- 初始化 `.novel/` 项目骨架
+- 初始化根目录结构项目骨架
 - 创建 `PROJECT.md`、`CHARACTERS.md`、`TIMELINE.md`、`ROADMAP.md`、`STATE.md`
+
+### 整理已有资料
+
+`/novel:map-base [--from=DIR] [--merge] [--force] [--dry-run]`
+
+- 扫描当前目录或指定目录中的已有小说资料
+- 将资料整理为根目录结构项目
+- 生成或补齐 `PROJECT.md`、`CHARACTERS.md`、`TIMELINE.md`、`ROADMAP.md`、`STATE.md`
 
 ### 新卷规划
 
@@ -177,6 +192,13 @@
 2. `/novel:quick-polish 21-25`
 3. `/novel:review 21-25 --full`
 
+### 接手旧稿后继续连载
+
+1. `/novel:map-base`
+2. `/novel:progress`
+3. `/novel:review 已导入范围`
+4. `/novel:write-chapter --next`
+
 ### 中断后恢复
 
 1. `/novel:progress`
@@ -189,20 +211,21 @@
 
 ## 文件约定
 
-- 项目文件：`.novel/PROJECT.md`
-- 人物总表：`.novel/CHARACTERS.md`
-- 时间线：`.novel/TIMELINE.md`
-- 路线图：`.novel/ROADMAP.md`
-- 当前状态：`.novel/STATE.md`
-- 章节大纲：`.novel/chapters/outlines/outline-[N].md`
-- 章节正文：`.novel/chapters/chapter-[N].md`
-- 人物卡：`.novel/characters/[NAME].md`
-- 研究资料：`.novel/research/[topic].md`
-- 审核报告：`.novel/reviews/review-[N].md`
+- 项目文件：`PROJECT.md`
+- 人物总表：`CHARACTERS.md`
+- 时间线：`TIMELINE.md`
+- 路线图：`ROADMAP.md`
+- 当前状态：`STATE.md`
+- 章节大纲：`chapters/outlines/outline-[N].md`
+- 章节正文：`chapters/chapter-[N].md`
+- 人物卡：`characters/[NAME].md`
+- 研究资料：`research/[topic].md`
+- 审核报告：`reviews/review-[N].md`
 
 ## 使用原则
 
-- 长篇创作优先维护 `.novel/` 文件，不要只保留聊天记录。
+- 长篇创作优先维护根目录结构文件，不要只保留聊天记录。
+- 当前目录已有散落资料时，先 `/novel:map-base`，不要直接 `/novel:new-project`。
 - 有真实历史或专业细节时，先用 `/novel:research`。
 - 需要长期稳定连载时，先规划再写，不要连续裸写正文。
 - `quick-*` 命令适合试写，不适合作为唯一正式流程。

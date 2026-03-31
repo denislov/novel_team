@@ -1,6 +1,6 @@
 # CHAPTER-OUTLINE.md Template
 
-Template for `.novel/chapters/outlines/outline-[N].md` — the chapter blueprint used by the writer before drafting prose.
+Template for `chapters/outlines/outline-[N].md` — the chapter blueprint used by the writer before drafting prose.
 
 <template>
 

@@ -60,12 +60,13 @@ done
 ## 2. 初始化检查
 
 ```bash
-if [[ ! -f ".novel/PROJECT.md" ]]; then
+if [[ ! -f "PROJECT.md" ]]; then
   echo "错误：未找到项目文件"
+  echo "空目录请先运行 /novel:new-project；已有资料请先运行 /novel:map-base"
   exit 1
 fi
 
-if [[ ! -f ".novel/ROADMAP.md" ]]; then
+if [[ ! -f "ROADMAP.md" ]]; then
   echo "错误：未找到 ROADMAP.md"
   exit 1
 fi
@@ -104,15 +105,15 @@ AskUserQuestion(
 如果设置了 `RESEARCH_TOPIC`：
 
 ```bash
-mkdir -p .novel/research
+mkdir -p research
 SpawnAgent(
   agent: novel-researcher,
   input: {
     topic: RESEARCH_TOPIC,
     mode: "standard",
-    project: .novel/PROJECT.md
+    project: PROJECT.md
   },
-  output: .novel/research/arc-$(echo "$ARC_NAME" | tr ' ' '-').md
+  output: research/arc-$(echo "$ARC_NAME" | tr ' ' '-').md
 )
 ```
 
@@ -125,11 +126,11 @@ SpawnAgent(
 ### 4.1 加载当前项目
 
 ```bash
-PROJECT=$(cat .novel/PROJECT.md)
-ROADMAP=$(cat .novel/ROADMAP.md)
-CHARACTERS=$(cat .novel/CHARACTERS.md)
-TIMELINE=$(cat .novel/TIMELINE.md)
-STATE=$(cat .novel/STATE.md)
+PROJECT=$(cat PROJECT.md)
+ROADMAP=$(cat ROADMAP.md)
+CHARACTERS=$(cat CHARACTERS.md)
+TIMELINE=$(cat TIMELINE.md)
+STATE=$(cat STATE.md)
 ```
 
 ### 4.2 构建输入
@@ -139,12 +140,12 @@ STATE=$(cat .novel/STATE.md)
   <arc_name>${ARC_NAME}</arc_name>
   <target_chapters>${CHAPTERS}</target_chapters>
   <arc_goal>${ARC_GOAL}</arc_goal>
-  <project>@.novel/PROJECT.md</project>
-  <roadmap>@.novel/ROADMAP.md</roadmap>
-  <characters>@.novel/CHARACTERS.md</characters>
-  <timeline>@.novel/TIMELINE.md</timeline>
-  <state>@.novel/STATE.md</state>
-  <research>@.novel/research/arc-*.md</research>
+  <project>@PROJECT.md</project>
+  <roadmap>@ROADMAP.md</roadmap>
+  <characters>@CHARACTERS.md</characters>
+  <timeline>@TIMELINE.md</timeline>
+  <state>@STATE.md</state>
+  <research>@research/arc-*.md</research>
 </plan_arc_request>
 ```
 
@@ -155,10 +156,10 @@ SpawnAgent(
   agent: novel-architect,
   input: plan_arc_request,
   output: [
-    .novel/PROJECT.md,
-    .novel/ROADMAP.md,
-    .novel/CHARACTERS.md,
-    .novel/TIMELINE.md
+    PROJECT.md,
+    ROADMAP.md,
+    CHARACTERS.md,
+    TIMELINE.md
   ]
 )
 ```
@@ -186,10 +187,10 @@ SpawnAgent(
 【核心目标】${ARC_GOAL}
 
 【更新文件】
-- .novel/ROADMAP.md
-- .novel/TIMELINE.md
-- .novel/CHARACTERS.md
-- .novel/PROJECT.md（如有世界观扩展）
+- ROADMAP.md
+- TIMELINE.md
+- CHARACTERS.md
+- PROJECT.md（如有世界观扩展）
 
 【建议下一步】
 1. 使用 /novel:plan-batch 规划本卷前 5-10 章

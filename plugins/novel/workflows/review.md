@@ -43,10 +43,9 @@ for arg in "$ARGUMENTS"; do
   esac
 done
 
-# 默认：审核最新章节
+# 默认：审核最新正式章节
 if [[ -z "$CHAPTER_RANGE" ]]; then
-  LATEST=$(ls .novel/chapters/chapter-*.md 2>/dev/null | tail -1 | grep -oE '[0-9]+')
-  CHAPTER_RANGE=$LATEST
+  CHAPTER_RANGE=$(python3 scripts/novel_state.py range-target --root . --kind review --field range_text)
 fi
 ```
 
@@ -68,16 +67,17 @@ fi
 
 ```bash
 # 检查项目
-if [[ ! -f ".novel/PROJECT.md" ]]; then
+if [[ ! -f "PROJECT.md" ]]; then
   echo "错误：未找到项目文件"
+  echo "空目录请先运行 /novel:new-project；已有资料请先运行 /novel:map-base"
   exit 1
 fi
 
 # 加载设定
-PROJECT=$(cat .novel/PROJECT.md)
-CHARACTERS=$(cat .novel/CHARACTERS.md)
-TIMELINE=$(cat .novel/TIMELINE.md)
-STATE=$(cat .novel/STATE.md)
+PROJECT=$(cat PROJECT.md)
+CHARACTERS=$(cat CHARACTERS.md)
+TIMELINE=$(cat TIMELINE.md)
+STATE=$(cat STATE.md)
 ```
 
 </initialization>
@@ -97,10 +97,10 @@ SpawnAgent(
     characters: CHARACTERS,
     timeline: TIMELINE,
     state: STATE,
-    chapter: .novel/chapters/chapter-${CHAPTER_NUMBER}.md,
+    chapter: chapters/chapter-${CHAPTER_NUMBER}.md,
     prev_chapters: [前3章]
   },
-  output: .novel/reviews/review-${CHAPTER_NUMBER}.md
+  output: reviews/review-${CHAPTER_NUMBER}.md
 )
 ```
 
@@ -198,7 +198,17 @@ done
 ### 4.3 生成详细报告
 
 每章的详细报告保存在：
-`.novel/reviews/review-${N}.md`
+`reviews/review-${N}.md`
+
+### 4.4 刷新共享状态
+
+批量或单章审核完成后，运行：
+
+```bash
+python3 scripts/novel_state.py refresh --root .
+```
+
+保证 `STATE.md` 的下一步建议基于最新审核覆盖。
 
 </batch_review>
 

@@ -1,0 +1,20 @@
+{
+  "name": "novel-local-marketplace",
+  "interface": {
+    "displayName": "Novel Local Marketplace"
+  },
+  "plugins": [
+    {
+      "name": "novel",
+      "source": {
+        "source": "local",
+        "path": "./plugins/novel"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

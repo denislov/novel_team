@@ -74,7 +74,7 @@ fi
 
 ```bash
 # 读取 CHARACTERS.md
-cat .novel/CHARACTERS.md
+cat CHARACTERS.md
 ```
 
 ```
@@ -177,7 +177,7 @@ SpawnAgent(
     project: PROJECT,
     existing_characters: CHARACTERS
   },
-  output: .novel/characters/${CHARACTER_NAME}.md
+  output: characters/${CHARACTER_NAME}.md
 )
 ```
 
@@ -232,7 +232,7 @@ SpawnAgent(
 第 [N] 章
 
 【文件位置】
-.novel/characters/[姓名].md
+characters/[姓名].md
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
@@ -245,8 +245,8 @@ SpawnAgent(
 
 ```bash
 # 查看指定人物
-if [[ -f ".novel/characters/${CHARACTER_NAME}.md" ]]; then
-  cat .novel/characters/${CHARACTER_NAME}.md
+if [[ -f "characters/${CHARACTER_NAME}.md" ]]; then
+  cat characters/${CHARACTER_NAME}.md
 else
   echo "未找到人物：${CHARACTER_NAME}"
   echo "使用 /novel:character --list 查看所有人物"
@@ -350,7 +350,7 @@ AskUserQuestion(
 
 ```bash
 # 扫描所有章节，提取人物出场记录
-for chapter in .novel/chapters/chapter-*.md; do
+for chapter in $(find chapters -maxdepth 1 -type f | grep -E '/chapter-[0-9]+\.md$' | sort -V); do
   # 检查人物是否出场
   # 提取人物行为
   # 对比人设
@@ -400,7 +400,7 @@ AskUserQuestion(
 ```
 
 如果确认：
-1. 删除 `.novel/characters/[姓名].md`
+1. 删除 `characters/[姓名].md`
 2. 从 `CHARACTERS.md` 移除条目
 3. 记录删除日志
 

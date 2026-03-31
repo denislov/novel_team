@@ -13,10 +13,15 @@ Use this when you need situational awareness before continuing work.
 </objective>
 
 <execution_context>
-@${CLAUDE_PLUGIN_ROOT}/workflows/progress.md
+@commands/_codex-conventions.md
+@workflows/progress.md
+@scripts/novel_state.py
+@skills/novel-command-center/SKILL.md
 </execution_context>
 
 <process>
-Execute the progress workflow from @${CLAUDE_PLUGIN_ROOT}/workflows/progress.md end-to-end.
+Execute the progress workflow from @workflows/progress.md end-to-end.
+Interpret Claude-style workflow primitives using @commands/_codex-conventions.md.
+Use @scripts/novel_state.py as the source of truth for stats and next-step recommendation.
 Preserve all reporting logic and next-step recommendation logic.
 </process>

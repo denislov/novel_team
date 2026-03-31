@@ -12,8 +12,8 @@ Read all files referenced by the invoking prompt's execution_context before star
 先检查项目是否存在：
 
 ```bash
-if [[ ! -f ".novel/PROJECT.md" ]]; then
-  echo "未检测到小说项目。先运行 /novel:new-project"
+if [[ ! -f "PROJECT.md" ]]; then
+  echo "未检测到结构化小说项目。空目录先运行 /novel:new-project；已有资料先运行 /novel:map-base"
   exit 0
 fi
 ```
@@ -21,17 +21,17 @@ fi
 读取核心文件和产物统计：
 
 ```bash
-TITLE=$(grep -m1 '^title:' .novel/PROJECT.md 2>/dev/null | sed 's/^title:[[:space:]]*//')
-STATUS=$(grep -m1 '^status:' .novel/STATE.md 2>/dev/null | sed 's/^status:[[:space:]]*//')
-CURRENT_ARC=$(grep -m1 '^current_arc:' .novel/STATE.md 2>/dev/null | sed 's/^current_arc:[[:space:]]*//')
-CURRENT_CHAPTER=$(grep -m1 '^current_chapter:' .novel/STATE.md 2>/dev/null | grep -oE '[0-9]+')
+TITLE=$(grep -m1 '^title:' PROJECT.md 2>/dev/null | sed 's/^title:[[:space:]]*//')
+STATUS=$(grep -m1 '^status:' STATE.md 2>/dev/null | sed 's/^status:[[:space:]]*//')
+CURRENT_ARC=$(grep -m1 '^current_arc:' STATE.md 2>/dev/null | sed 's/^current_arc:[[:space:]]*//')
+CURRENT_CHAPTER=$(grep -m1 '^current_chapter:' STATE.md 2>/dev/null | grep -oE '[0-9]+')
 [[ -z "$CURRENT_CHAPTER" ]] && CURRENT_CHAPTER=0
 
-OUTLINE_COUNT=$(ls .novel/chapters/outlines/outline-*.md 2>/dev/null | wc -l)
-CHAPTER_COUNT=$(ls .novel/chapters/chapter-*.md 2>/dev/null | wc -l)
-REVIEW_COUNT=$(ls .novel/reviews/review-*.md 2>/dev/null | wc -l)
-RESEARCH_COUNT=$(find .novel/research -maxdepth 1 -type f 2>/dev/null | wc -l)
-CHARACTER_CARD_COUNT=$(find .novel/characters -maxdepth 1 -type f 2>/dev/null | wc -l)
+OUTLINE_COUNT=$(ls chapters/outlines/outline-*.md 2>/dev/null | wc -l)
+CHAPTER_COUNT=$(find chapters -maxdepth 1 -type f | grep -E '/chapter-[0-9]+\.md$' | wc -l)
+REVIEW_COUNT=$(ls reviews/review-*.md 2>/dev/null | wc -l)
+RESEARCH_COUNT=$(find research -maxdepth 1 -type f 2>/dev/null | wc -l)
+CHARACTER_CARD_COUNT=$(find characters -maxdepth 1 -type f 2>/dev/null | wc -l)
 ```
 
 再用与 `/novel:progress` 相同的逻辑推导：

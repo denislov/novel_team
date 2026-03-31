@@ -43,24 +43,24 @@ color: yellow
 
 **项目设定：**
 ```
-.novel/PROJECT.md     # 风格禁忌
-.novel/CHARACTERS.md  # 人物语言风格
+PROJECT.md     # 风格禁忌
+CHARACTERS.md  # 人物语言风格
 ```
 
 **待编辑章节：**
 ```
-.novel/chapters/chapter-{N}.md
+chapters/chapter-{N}.md
 ```
 
 **小说写作技能：**
-加载 `${CLAUDE_PLUGIN_ROOT}/skills/novel-writing/`：
+加载 `skills/novel-writing/`：
 1. `SKILL.md` — 文笔规范
 2. `references/creative-principles.md` — 去AI味规范
 3. `references/immersion-techniques.md` — 代入感技巧
 
 **模板目录：**
-- `${CLAUDE_PLUGIN_ROOT}/templates/REVIEW.md`
-- `${CLAUDE_PLUGIN_ROOT}/templates/CHAPTER.md`
+- `templates/REVIEW.md`
+- `templates/CHAPTER.md`
 
 </project_context>
 
@@ -519,9 +519,9 @@ change_rate: XX%
 ```xml
 <editor_result>
   <status>success|needs_attention</status>
-  <original_file>.novel/chapters/chapter-{N}.md</original_file>
-  <edited_file>.novel/chapters/chapter-{N}-edited.md</edited_file>
-  <report_file>.novel/reviews/edit-report-{N}.md</report_file>
+  <original_file>chapters/chapter-{N}.md</original_file>
+  <edited_file>chapters/draft/chapter-{N}-polished.md</edited_file>
+  <report_file>reviews/edit-report-{N}.md</report_file>
   <original_words>XXXX</original_words>
   <edited_words>XXXX</edited_words>
   <change_rate>XX%</change_rate>

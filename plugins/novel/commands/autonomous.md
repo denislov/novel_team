@@ -4,39 +4,40 @@ argument-hint: "[--from=N] [--to=N|--chapters=N] [--batch=N] [--no-pause] [--ski
 allowed-tools:
   - Read
   - Write
+  - Edit
   - Bash
   - Glob
   - Grep
-  - Task
-  - AskUserQuestion
 ---
 <objective>
-Run the autonomous serialization workflow for a structured `.novel/` project.
+Run the autonomous serialization workflow for a structured root-level novel project.
 
 **Flow:** repeated plan -> write -> optional review -> state update across a chapter range
 
 **Creates/Updates:**
-- `.novel/chapters/outlines/outline-[N].md`
-- `.novel/chapters/chapter-[N].md`
-- `.novel/reviews/review-[N].md` when review is enabled
-- `.novel/STATE.md`
+- `chapters/outlines/outline-[N].md`
+- `chapters/chapter-[N].md`
+- `reviews/review-[N].md` when review is enabled
+- `STATE.md`
 
 Designed for batch creation with controlled pause points rather than single-chapter manual flow.
 </objective>
 
 <execution_context>
-@${CLAUDE_PLUGIN_ROOT}/workflows/autonomous.md
-@${CLAUDE_PLUGIN_ROOT}/skills/novel-writing/SKILL.md
-@${CLAUDE_PLUGIN_ROOT}/templates/ROADMAP.md
-@${CLAUDE_PLUGIN_ROOT}/templates/STATE.md
-@${CLAUDE_PLUGIN_ROOT}/templates/CHAPTER-OUTLINE.md
-@${CLAUDE_PLUGIN_ROOT}/templates/CHAPTER.md
-@${CLAUDE_PLUGIN_ROOT}/templates/REVIEW.md
+@commands/_codex-conventions.md
+@workflows/autonomous.md
+@skills/novel-command-center/SKILL.md
+@skills/novel-writing/SKILL.md
+@templates/ROADMAP.md
+@templates/STATE.md
+@templates/CHAPTER-OUTLINE.md
+@templates/CHAPTER.md
+@templates/REVIEW.md
 </execution_context>
 
 <context>
 **Flags:**
-- `--from=N` — Starting chapter, default is the next chapter from `.novel/STATE.md`
+- `--from=N` — Starting chapter, default is the next chapter from `STATE.md`
 - `--to=N` — Explicit ending chapter
 - `--chapters=N` — Number of chapters to produce
 - `--batch=N` — Pause every `N` chapters, default `3`
@@ -45,6 +46,7 @@ Designed for batch creation with controlled pause points rather than single-chap
 </context>
 
 <process>
-Execute the autonomous workflow from @${CLAUDE_PLUGIN_ROOT}/workflows/autonomous.md end-to-end.
+Execute the autonomous workflow from @workflows/autonomous.md end-to-end.
+Interpret Claude-style workflow primitives using @commands/_codex-conventions.md.
 Preserve all workflow gates (range inference, batching, planner/writer/verifier orchestration, pause logic, state updates).
 </process>

@@ -1,6 +1,6 @@
 # STATE.md Template
 
-Template for `.novel/STATE.md` — the live project memory for current progress, open loops, and next actions.
+Template for `STATE.md` — the live project memory for current progress, open loops, and next actions.
 
 <template>
 
@@ -18,10 +18,10 @@ last_updated: YYYY-MM-DD
 
 ## 项目引用
 
-- **项目设定**：`.novel/PROJECT.md`
-- **故事规划**：`.novel/ROADMAP.md`
-- **人物总表**：`.novel/CHARACTERS.md`
-- **时间线**：`.novel/TIMELINE.md`
+- **项目设定**：`PROJECT.md`
+- **故事规划**：`ROADMAP.md`
+- **人物总表**：`CHARACTERS.md`
+- **时间线**：`TIMELINE.md`
 
 ## 进度快照
 
@@ -82,7 +82,7 @@ last_updated: YYYY-MM-DD
 
 | 问题 | 严重度 | 处理方式 | 状态 |
 |------|--------|----------|------|
-| 考据未完成 | 中 | 补 `.novel/research/` | 处理中 |
+| 考据未完成 | 中 | 补 `research/` | 处理中 |
 ```
 
 </template>

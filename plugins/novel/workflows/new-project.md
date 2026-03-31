@@ -4,6 +4,7 @@
 
 <required_reading>
 Read all files referenced by the invoking prompt's execution_context before starting.
+Use `scripts/novel_state.py refresh` after core files are created so the initial `STATE.md` matches the actual filesystem layout.
 </required_reading>
 
 <available_agent_types>
@@ -20,23 +21,32 @@ Valid novel-creator subagent types (use exact names):
 
 ```bash
 # 检查项目文件
-if [[ -f ".novel/PROJECT.md" ]]; then
+if [[ -f "PROJECT.md" ]]; then
   echo "项目已存在"
-  cat .novel/PROJECT.md | head -20
+  cat PROJECT.md | head -20
+  exit 1
+fi
+
+# 如果当前目录已经有较多小说资料，优先建议 map-base 而不是直接新建
+EXISTING_SOURCE_COUNT=$(find . -maxdepth 1 -type f \( -name '*.md' -o -name '*.txt' \) ! -name 'README.md' ! -name 'PROJECT.md' ! -name 'CHARACTERS.md' ! -name 'TIMELINE.md' ! -name 'ROADMAP.md' ! -name 'STATE.md' | wc -l)
+if [[ "$EXISTING_SOURCE_COUNT" -ge 3 ]]; then
+  echo "检测到当前目录已有较多资料文件。"
+  echo "如果这些是小说资料，优先运行 /novel:map-base 进行结构化整理。"
+  echo "如果你确定要从头新建，再继续执行 /novel:new-project。"
   exit 1
 fi
 
 # 创建目录结构
-mkdir -p .novel/chapters/draft
-mkdir -p .novel/chapters/outlines
-mkdir -p .novel/research
-mkdir -p .novel/reviews
-mkdir -p .novel/characters
+mkdir -p chapters/draft
+mkdir -p chapters/outlines
+mkdir -p research
+mkdir -p reviews
+mkdir -p characters
 ```
 
 目录结构：
 ```
-.novel/
+./
 ├── PROJECT.md              # 项目设定
 ├── CHARACTERS.md           # 人物档案总表
 ├── TIMELINE.md             # 时间线
@@ -227,7 +237,7 @@ fi
 
 ### 3.3 生成考据报告
 
-保存到 `.novel/research/background.md`
+保存到 `research/background.md`
 
 </research_phase>
 
@@ -270,7 +280,7 @@ fi
   </style>
   
   <research>
-    @.novel/research/background.md
+    @research/background.md
   </research>
 </architect_input>
 ```
@@ -282,10 +292,10 @@ SpawnAgent(
   agent: novel-architect,
   input: architect_input,
   output: [
-    .novel/PROJECT.md,
-    .novel/CHARACTERS.md,
-    .novel/TIMELINE.md,
-    .novel/ROADMAP.md
+    PROJECT.md,
+    CHARACTERS.md,
+    TIMELINE.md,
+    ROADMAP.md
   ]
 )
 ```
@@ -303,45 +313,53 @@ SpawnAgent(
 
 ## 5. 初始化状态文件
 
-创建 STATE.md：
+按 `templates/STATE.md` 的结构创建 STATE.md，尤其必须保留 frontmatter。创建完成后运行：
+
+```bash
+python3 scripts/novel_state.py refresh --root .
+```
+
+然后再根据新建项目的语义补这些字段：
 
 ```markdown
-# 小说状态
+---
+project: [书名]
+status: 规划中
+current_arc: 第一卷
+current_chapter: 0
+total_words: 0
+last_updated: YYYY-MM-DD
+---
 
-## 基本信息
-- 书名：《[书名]》
-- 当前章节：第 0 章 / 共 [N] 章
-- 当前卷：第一卷
-- 总字数：0
+# 当前状态
 
-## 进度
+## 进度快照
 
-| 卷 | 章节 | 状态 | 完成日期 |
-|----|------|------|----------|
-| 第一卷 | 1-[N] | 未开始 | - |
+| 项目 | 当前值 |
+|------|--------|
+| 当前卷 | 第一卷 |
+| 当前章节 | 第0章 |
+| 总字数 | 0 |
+| 最新完成内容 | 新建项目 |
+| 下一目标 | 第1章大纲 |
 
-## 伏笔追踪
+## 人物当前状态
 
-| 伏笔 | 埋设章节 | 计划回收 | 状态 |
-|------|----------|----------|------|
-| （暂无） | | | |
+| 人物 | 当前状态 | 最新相关章节 | 下次出场任务 |
+|------|----------|--------------|--------------|
+| [主角名] | 初始状态 | - | 立住人设 |
 
-## 人物状态
+## 待办清单
 
-| 人物 | 当前状态 | 最新章节 | 关键变化 |
-|------|----------|----------|----------|
-| [主角名] | 初始状态 | - | - |
-
-## 时间线位置
-当前故事时间：[起始时间]
-
-## 待处理
-- [ ] 开始第一章创作
-
-## 创建信息
-- 创建时间：[当前日期]
-- 最后更新：[当前日期]
+- [ ] 完成第1章大纲
+- [ ] 完成第1章正文
+- [ ] 回写时间线和人物状态
 ```
+
+说明：
+- `progress`、`next`、`manager` 读取 frontmatter
+- 作者日常查看主要看正文区块
+- 这两层信息都要维护，不能只写其中一层
 
 </state_initialization>
 
@@ -455,8 +473,8 @@ AskUserQuestion(
 ### 项目已存在
 ```
 错误：项目已存在
-说明：当前目录已有 .novel/PROJECT.md
-解决：删除 .novel 目录后重试，或切换到新目录
+说明：当前目录已有 PROJECT.md
+解决：如果这是空目录，切换到新目录后重试；如果当前目录已有小说资料，请改用 /novel:map-base
 ```
 
 ### 设定不完整
@@ -480,7 +498,7 @@ AskUserQuestion(
 ## 最终输出
 
 ```
-.novel/
+./
 ├── PROJECT.md          ✓ 项目设定
 ├── CHARACTERS.md       ✓ 人物档案
 ├── TIMELINE.md         ✓ 时间线

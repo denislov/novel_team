@@ -467,14 +467,14 @@ confidence: high/medium/low
 
 ### Step 5: 生成报告
 
-保存到 `.novel/research/[topic].md`
+保存到 `research/[topic].md`
 
 ### Step 6: 返回结果
 
 ```xml
 <research_result>
   <status>success|partial|failed</status>
-  <file>.novel/research/[topic].md</file>
+  <file>research/[topic].md</file>
   <topic>[研究主题]</topic>
   <sources>[来源数量]</sources>
   <confidence>high|medium|low</confidence>

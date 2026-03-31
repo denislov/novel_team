@@ -31,11 +31,11 @@ color: blue
 
 **CRITICAL: Mandatory Initial Read**
 必须先读取以下文件：
-1. `.novel/PROJECT.md` — 了解世界观和主线
-2. `.novel/ROADMAP.md` — 了解当前阶段规划
-3. `.novel/CHARACTERS.md` — 了解可用人物
-4. `.novel/TIMELINE.md` — 确认时间线位置
-5. `.novel/STATE.md` — 了解当前进度和待回收伏笔
+1. `PROJECT.md` — 了解世界观和主线
+2. `ROADMAP.md` — 了解当前阶段规划
+3. `CHARACTERS.md` — 了解可用人物
+4. `TIMELINE.md` — 确认时间线位置
+5. `STATE.md` — 了解当前进度和待回收伏笔
 6. 前文大纲（确保连贯）
 </role>
 
@@ -44,28 +44,28 @@ color: blue
 
 **项目设定：**
 ```
-.novel/PROJECT.md     # 世界观、主线、禁忌
-.novel/ROADMAP.md     # 故事阶段规划
-.novel/CHARACTERS.md  # 人物档案
-.novel/TIMELINE.md    # 时间线锚点
-.novel/STATE.md       # 当前进度、伏笔追踪
+PROJECT.md     # 世界观、主线、禁忌
+ROADMAP.md     # 故事阶段规划
+CHARACTERS.md  # 人物档案
+TIMELINE.md    # 时间线锚点
+STATE.md       # 当前进度、伏笔追踪
 ```
 
 **前文大纲：**
 ```
-.novel/chapters/outlines/outline-{N-1}.md
-.novel/chapters/outlines/outline-{N-2}.md
+chapters/outlines/outline-{N-1}.md
+chapters/outlines/outline-{N-2}.md
 ```
 
 **小说写作技能：**
-加载 `${CLAUDE_PLUGIN_ROOT}/skills/novel-writing/`：
+加载 `skills/novel-writing/`：
 1. `SKILL.md` — 核心原则
 2. `references/creative-principles.md` — 节奏控制、钩子设计
 
 **模板目录：**
-- `${CLAUDE_PLUGIN_ROOT}/templates/CHAPTER-OUTLINE.md`
-- `${CLAUDE_PLUGIN_ROOT}/templates/STATE.md`
-- `${CLAUDE_PLUGIN_ROOT}/templates/TIMELINE.md`
+- `templates/CHAPTER-OUTLINE.md`
+- `templates/STATE.md`
+- `templates/TIMELINE.md`
 
 </project_context>
 
@@ -449,14 +449,14 @@ planner: novel-planner
 
 ```bash
 # 读取项目设定
-cat .novel/PROJECT.md
-cat .novel/ROADMAP.md
-cat .novel/CHARACTERS.md
-cat .novel/TIMELINE.md
-cat .novel/STATE.md
+cat PROJECT.md
+cat ROADMAP.md
+cat CHARACTERS.md
+cat TIMELINE.md
+cat STATE.md
 
 # 读取前文大纲
-cat .novel/chapters/outlines/outline-{N-1}.md
+cat chapters/outlines/outline-{N-1}.md
 ```
 
 ### Step 2: 确定章节位置
@@ -498,7 +498,7 @@ cat .novel/chapters/outlines/outline-{N-1}.md
 ```xml
 <planner_result>
   <status>success|needs_input</status>
-  <file>.novel/chapters/outlines/outline-{N}.md</file>
+  <file>chapters/outlines/outline-{N}.md</file>
   <chapter>N</chapter>
   <title>章节名</title>
   <scenes>[场景数]</scenes>

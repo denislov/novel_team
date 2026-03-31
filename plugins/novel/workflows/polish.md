@@ -45,10 +45,9 @@ for arg in "$ARGUMENTS"; do
   esac
 done
 
-# 默认：润色最新章节
+# 默认：润色最新正式章节
 if [[ -z "$CHAPTER_RANGE" ]]; then
-  LATEST=$(ls .novel/chapters/chapter-*.md 2>/dev/null | tail -1 | grep -oE '[0-9]+')
-  CHAPTER_RANGE=$LATEST
+  CHAPTER_RANGE=$(python3 scripts/novel_state.py range-target --root . --kind polish --field range_text)
 fi
 ```
 
@@ -106,9 +105,9 @@ fi
 ### 3.1 加载上下文
 
 ```bash
-PROJECT=$(cat .novel/PROJECT.md)
-CHARACTERS=$(cat .novel/CHARACTERS.md)
-CHAPTER=$(cat .novel/chapters/chapter-${CHAPTER_NUMBER}.md)
+PROJECT=$(cat PROJECT.md)
+CHARACTERS=$(cat CHARACTERS.md)
+CHAPTER=$(cat chapters/chapter-${CHAPTER_NUMBER}.md)
 ```
 
 ### 3.2 调用 Editor
@@ -124,8 +123,8 @@ SpawnAgent(
     mode: MODE
   },
   output: [
-    .novel/reviews/edit-report-${CHAPTER_NUMBER}.md,
-    .novel/chapters/chapter-${CHAPTER_NUMBER}-edited.md
+    reviews/edit-report-${CHAPTER_NUMBER}.md,
+    chapters/draft/chapter-${CHAPTER_NUMBER}-polished.md
   ]
 )
 ```
@@ -180,6 +179,12 @@ AskUserQuestion(
 - **查看对比**：显示修改对比
 - **保留原稿**：不修改原文件
 - **详细报告**：查看完整修改报告
+
+如果接受修改并覆盖正式章节，运行：
+
+```bash
+python3 scripts/chapter_ops.py apply-polish --root . --chapter ${CHAPTER_NUMBER} --force
+```
 
 </single_polish>
 

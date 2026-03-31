@@ -1,6 +1,6 @@
 # TIMELINE.md Template
 
-Template for `.novel/TIMELINE.md` — the chronology ledger for real-world anchors, story dates, and foreshadow timing.
+Template for `TIMELINE.md` — the chronology ledger for real-world anchors, story dates, and foreshadow timing.
 
 <template>
 

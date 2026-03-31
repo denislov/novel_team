@@ -19,10 +19,10 @@ Read all files referenced by the invoking prompt's execution_context before star
 </step>
 
 <step name="check_project">
-检查当前目录是否存在 `.novel/` 项目：
+检查当前目录是否存在根目录结构项目：
 
 ```bash
-if [[ -f ".novel/PROJECT.md" ]]; then
+if [[ -f "PROJECT.md" ]]; then
   PROJECT_EXISTS=true
 else
   PROJECT_EXISTS=false
@@ -38,6 +38,7 @@ fi
 | 用户意图 | 路由到 | 原因 |
 |----------|--------|------|
 | “开始写小说”“创建项目”“初始化设定”“搭建小说工程” | `/novel:new-project` | 需要初始化项目骨架 |
+| “整理已有资料”“导入旧稿”“接手现有小说”“把当前目录映射成项目” | `/novel:map-base` | 需要把现有资料整理成结构化项目 |
 | “研究”“查资料”“考据”“核实年代/制度/术语/历史” | `/novel:research` | 需要独立研究 |
 | “规划新卷”“下一卷怎么写”“设计阶段”“卷结构” | `/novel:plan-arc` | 需要阶段级架构规划 |
 | “规划接下来几章”“先出10章大纲”“批量大纲” | `/novel:plan-batch` | 需要连续章节大纲 |
@@ -54,14 +55,15 @@ fi
 | “不知道用哪个命令”“给我命令总览”“帮助” | `/novel:help` | 查看命令参考 |
 
 **需要已有项目的命令：**
-- 除 `/novel:new-project`、`/novel:help`、`/novel:research` 之外，都默认要求 `.novel/` 已存在。
+- 除 `/novel:new-project`、`/novel:map-base`、`/novel:help`、`/novel:research` 之外，都默认要求根目录结构项目已存在。
 
 如果命中了一个需要项目的命令，但 `PROJECT_EXISTS=false`，改为输出：
 
 ```markdown
-当前目录还没有 `.novel/` 项目。
+当前目录还没有结构化的 novel 项目。
 
-先运行：`/novel:new-project`
+空目录开新书：`/novel:new-project`
+已有散落资料要整理：`/novel:map-base`
 如果你只是想先查资料，也可以直接用：`/novel:research ...`
 ```
 

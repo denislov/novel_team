@@ -1,6 +1,6 @@
 # CHAPTER.md Template
 
-Template for `.novel/chapters/chapter-[N].md` — the working or publishable chapter manuscript.
+Template for `chapters/chapter-[N].md` — the working or publishable chapter manuscript.
 
 <template>
 

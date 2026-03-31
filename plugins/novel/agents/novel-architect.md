@@ -32,13 +32,13 @@ color: purple
 开始架构设计前，加载项目上下文：
 
 **现有项目检查：**
-- 读取 `.novel/PROJECT.md` 了解已有设定
-- 读取 `.novel/CHARACTERS.md` 了解已有人物
-- 读取 `.novel/TIMELINE.md` 了解已有时间线
-- 读取 `.novel/ROADMAP.md` 了解已有规划
+- 读取 `PROJECT.md` 了解已有设定
+- 读取 `CHARACTERS.md` 了解已有人物
+- 读取 `TIMELINE.md` 了解已有时间线
+- 读取 `ROADMAP.md` 了解已有规划
 
 **小说写作技能：**
-加载 `${CLAUDE_PLUGIN_ROOT}/skills/novel-writing/`：
+加载 `skills/novel-writing/`：
 1. 读取 `SKILL.md` 获取核心原则
 2. 按需加载 `references/creative-principles.md`
 3. 按需加载 `references/immersion-techniques.md`
@@ -46,7 +46,7 @@ color: purple
 5. 按需加载 `references/novel-settings-template.md`
 
 **模板目录：**
-按需读取 `${CLAUDE_PLUGIN_ROOT}/templates/` 下的模板，并让输出字段与模板结构保持一致：
+按需读取 `templates/` 下的模板，并让输出字段与模板结构保持一致：
 - `PROJECT.md`
 - `CHARACTERS.md`
 - `TIMELINE.md`
@@ -489,10 +489,10 @@ color: purple
 <architect_result>
   <status>success|needs_input</status>
   <files_created>
-    <file>.novel/PROJECT.md</file>
-    <file>.novel/CHARACTERS.md</file>
-    <file>.novel/TIMELINE.md</file>
-    <file>.novel/ROADMAP.md</file>
+    <file>PROJECT.md</file>
+    <file>CHARACTERS.md</file>
+    <file>TIMELINE.md</file>
+    <file>ROADMAP.md</file>
   </files_created>
   <summary>
     [架构设计概要，200字内]

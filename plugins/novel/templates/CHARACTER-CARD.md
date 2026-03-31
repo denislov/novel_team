@@ -1,6 +1,6 @@
 # CHARACTER-CARD.md Template
 
-Template for `.novel/characters/[姓名].md` — the detailed single-character dossier used to keep a major character coherent over long serialization.
+Template for `characters/[姓名].md` — the detailed single-character dossier used to keep a major character coherent over long serialization.
 
 <template>
 

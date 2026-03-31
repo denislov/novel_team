@@ -4,28 +4,31 @@ argument-hint: "[N|START-END] [--quick] [--deep] [--compare] [--in-place]"
 allowed-tools:
   - Read
   - Write
+  - Edit
   - Bash
   - Glob
   - Grep
-  - Task
-  - AskUserQuestion
 ---
 <objective>
 Run the chapter polish workflow on one chapter or a chapter range.
 
 **Creates/Updates:**
-- `.novel/reviews/review-[N].md` or compatible edit report artifacts
+- `reviews/review-[N].md` or compatible edit report artifacts
 - Edited chapter files, either as side-by-side outputs or in place depending on mode
 
 Default target: the latest completed chapter if no explicit chapter argument is provided.
 </objective>
 
 <execution_context>
-@${CLAUDE_PLUGIN_ROOT}/workflows/polish.md
-@${CLAUDE_PLUGIN_ROOT}/skills/novel-writing/SKILL.md
-@${CLAUDE_PLUGIN_ROOT}/skills/novel-writing/references/immersion-techniques.md
-@${CLAUDE_PLUGIN_ROOT}/templates/REVIEW.md
-@${CLAUDE_PLUGIN_ROOT}/templates/CHAPTER.md
+@commands/_codex-conventions.md
+@workflows/polish.md
+@scripts/novel_state.py
+@scripts/chapter_ops.py
+@skills/novel-command-center/SKILL.md
+@skills/novel-writing/SKILL.md
+@skills/novel-writing/references/immersion-techniques.md
+@templates/REVIEW.md
+@templates/CHAPTER.md
 </execution_context>
 
 <context>
@@ -41,6 +44,9 @@ Default target: the latest completed chapter if no explicit chapter argument is 
 </context>
 
 <process>
-Execute the polish workflow from @${CLAUDE_PLUGIN_ROOT}/workflows/polish.md end-to-end.
+Execute the polish workflow from @workflows/polish.md end-to-end.
+Interpret Claude-style workflow primitives using @commands/_codex-conventions.md.
+Use @scripts/novel_state.py to select the default latest formal chapter and refresh state if accepted edits replace the source chapter.
+Use @scripts/chapter_ops.py to apply polished drafts onto the formal chapter file with backup handling.
 Preserve all workflow gates (chapter selection, mode handling, editor pass, report generation, result acceptance).
 </process>

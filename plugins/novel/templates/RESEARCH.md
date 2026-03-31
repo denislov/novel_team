@@ -1,6 +1,6 @@
 # RESEARCH.md Template
 
-Template for `.novel/research/[topic].md` — a sourced research memo for historical, professional, and setting-specific fact checks.
+Template for `research/[topic].md` — a sourced research memo for historical, professional, and setting-specific fact checks.
 
 <template>
 

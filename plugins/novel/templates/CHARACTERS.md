@@ -1,6 +1,6 @@
 # CHARACTERS.md Template
 
-Template for `.novel/CHARACTERS.md` — the roster, relationship index, and current-state summary for the cast.
+Template for `CHARACTERS.md` — the roster, relationship index, and current-state summary for the cast.
 
 <template>
 
@@ -16,7 +16,7 @@ total_characters: 0
 ## 使用规则
 
 - 这里只保留摘要、当前状态、关系变化。
-- 深度设定统一放到 `.novel/characters/[姓名].md`。
+- 深度设定统一放到 `characters/[姓名].md`。
 - 章节写完后，如果人物状态发生变化，先更新 `STATE.md`，再同步这里。
 
 ## 主角

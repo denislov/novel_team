@@ -9,7 +9,7 @@ developer_instructions = '''
 这个技能分两层工作：
 
 1. **写作原则层**：负责文风、节奏、代入感、去 AI 味。
-2. **项目结构层**：负责把长篇创作拆成稳定的 `.novel/` 产物链。
+2. **项目结构层**：负责把长篇创作拆成稳定的根目录结构产物链。
 
 如果任务是长期连载、项目化创作、批量章节规划，不要只输出零散文本，优先维护结构化文档。
 
@@ -29,15 +29,20 @@ developer_instructions = '''
 
 模板位置：
 
-- `${CLAUDE_PLUGIN_ROOT}/templates/PROJECT.md`
-- `${CLAUDE_PLUGIN_ROOT}/templates/CHARACTERS.md`
-- `${CLAUDE_PLUGIN_ROOT}/templates/TIMELINE.md`
-- `${CLAUDE_PLUGIN_ROOT}/templates/ROADMAP.md`
-- `${CLAUDE_PLUGIN_ROOT}/templates/STATE.md`
-- `${CLAUDE_PLUGIN_ROOT}/templates/CHARACTER-CARD.md`
-- `${CLAUDE_PLUGIN_ROOT}/templates/CHAPTER-OUTLINE.md`
-- `${CLAUDE_PLUGIN_ROOT}/templates/CHAPTER.md`
-- `${CLAUDE_PLUGIN_ROOT}/templates/REVIEW.md`
+- `../../templates/PROJECT.md`
+- `../../templates/CHARACTERS.md`
+- `../../templates/TIMELINE.md`
+- `../../templates/ROADMAP.md`
+- `../../templates/STATE.md`
+- `../../templates/CHARACTER-CARD.md`
+- `../../templates/CHAPTER-OUTLINE.md`
+- `../../templates/CHAPTER.md`
+- `../../templates/REVIEW.md`
+
+如果是通过 Codex 的 `/novel:*` 命令进入本插件，先同时读取：
+
+- `../../commands/_codex-conventions.md`
+- `../novel-command-center/SKILL.md`
 
 ## 工作顺序
 
@@ -104,5 +109,5 @@ developer_instructions = '''
 - 年代物价、制度、法规
 - 金融、法律、医学、军事等专业细节
 
-研究结果优先沉淀到 `.novel/research/`，再回写到 `PROJECT.md` 或 `TIMELINE.md`。
+研究结果优先沉淀到 `research/`，再回写到 `PROJECT.md` 或 `TIMELINE.md`。
 '''
