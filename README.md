@@ -1,94 +1,70 @@
 # Novel
 
-Structured long-form fiction workflow packaged for both Claude Code and Codex plugin marketplaces.
+Structured long-form fiction workflow for Claude Code and Codex, now installed through a CLI instead of plugin marketplace registration.
 
-## Included Plugin
+## Install
 
-- `novel`
+Use the installer directly from this repo:
 
-## Purpose
+```bash
+node bin/install.js install --all --global
+```
 
-This marketplace packages a structured long-form fiction workflow for Claude Code and Codex:
+Common operations:
 
-- project initialization
-- existing-material import and normalization
-- arc planning
-- batch chapter outlining
-- chapter drafting
-- polish and review
-- research and fact-checking
-- cast, timeline, roadmap, and state tracking
+```bash
+node bin/install.js install --claude --global
+node bin/install.js install --codex --global
+node bin/install.js update --all --global
+node bin/install.js uninstall --codex --global
+node bin/install.js validate --all --global
+```
+
+If you prefer `npx`, this repo now exposes the `novel-tool` binary via `package.json`.
+
+## Installed Layout
+
+The source of truth still lives under `plugins/novel/`, but the installer materializes runtime-specific surfaces:
+
+- Claude Code: `~/.claude/commands/novel/*.md`, `~/.claude/agents/novel-*.md`, `~/.claude/novel/*`
+- Codex: `~/.codex/skills/novel-*`, `~/.codex/agents/novel-*.toml`, `~/.codex/config.toml`, `~/.codex/novel/*`
+
+The extra `novel/` support bundle is intentional. It keeps command, workflow, template, script, and skill references stable after install instead of depending on plugin-root-relative paths.
+
+## Why This Changed
+
+The old local-plugin install flow had three reliability problems:
+
+- installation depended on plugin marketplace registration instead of a reproducible CLI entrypoint
+- command and skill files used plugin-root-relative paths that broke once materialized outside the repo
+- Codex and Claude do not recognize agents the same way, so one shared manifest was not enough
+
+The new installer fixes that by:
+
+- writing Claude slash commands and Claude agent markdown directly into Claude's config tree
+- writing Codex skills plus per-agent `.toml` configs and the matching `config.toml` sections for named agents
+- rewriting internal references to installed absolute paths
+- exposing `validate` so incomplete installs fail visibly
 
 ## Repository Layout
 
 ```text
-novel/
-├── .claude-plugin/marketplace.json
-├── .agents/plugins/marketplace.json
-└── plugins/
-    └── novel/
+novel_team/
+├── bin/install.js
+├── package.json
+├── plugins/novel/
+└── tests/
 ```
 
-Edit the actual plugin under `plugins/novel/`.
+`plugins/novel/` remains the editable source bundle for commands, workflows, templates, scripts, skills, and agent prompts.
 
-## Plugin Surfaces
+## Legacy Plugin Files
 
-- Claude marketplace entry: `.claude-plugin/marketplace.json`
-- Codex marketplace entry: `.agents/plugins/marketplace.json`
-- Claude plugin manifest: `plugins/novel/.claude-plugin/plugin.json`
-- Codex plugin manifest: `plugins/novel/.codex-plugin/plugin.json`
-- Shared commands, workflows, templates, and most skills live under `plugins/novel/`
+The old marketplace manifests are still in the repo for reference and source continuity:
 
-## Update Flow
+- `.claude-plugin/marketplace.json`
+- `.agents/plugins/marketplace.json`
+- `plugins/novel/.claude-plugin/plugin.json`
+- `plugins/novel/.codex-plugin/plugin.json`
 
-When the local plugin source changes:
-
-```bash
-claude plugin marketplace update novel-local-marketplace
-claude plugin update novel@novel-local-marketplace
-```
-
-For Codex, add this repo as a local plugin marketplace and then install `novel` from that marketplace. In Codex, the plugin is intended to be used through `$novel-*` skills rather than custom slash commands.
-
-## Install
-
-### Codex
-
-Inside Codex:
-
-```text
-/plugin marketplace add /home/wh/novel_team
-/plugin install novel@novel-local-marketplace
-```
-
-If your Codex build exposes plugin installation through UI instead of slash commands, use this repo root as the local marketplace path:
-
-- `/home/wh/novel_team`
-
-Codex will read:
-
-- [marketplace.json](/home/wh/novel_team/.agents/plugins/marketplace.json)
-- [plugin.json](/home/wh/novel_team/plugins/novel/.codex-plugin/plugin.json)
-
-After install, use skills such as:
-
-- `$novel-new-project`
-- `$novel-map-base`
-- `$novel-write-chapter`
-- `$novel-progress`
-
-### Claude Code
-
-```bash
-claude plugin marketplace add /home/adrian/dev_workspace/novel --scope user
-claude plugin install novel@novel-local-marketplace --scope user
-```
-
-## Notes
-
-- The plugin name is `novel`.
-- The current local marketplace name is `novel-local-marketplace`.
-- The structured project layout now lives at the working-directory root, not in a `.novel/` subdirectory.
-- Use `/novel:map-base` when the user already has scattered novel materials that need to be normalized.
-- Codex compatibility is implemented in-place on the same plugin source rather than a separate fork.
-- If you later publish this repo, you can rename the marketplace before distribution if needed.
+They are no longer the primary install path.

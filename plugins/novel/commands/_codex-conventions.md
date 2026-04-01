@@ -15,7 +15,13 @@ This plugin was originally authored as a Claude Code plugin. In Codex, keep the 
 - `AskUserQuestion(...)`
   Ask a concise plain-text question only when you are actually blocked. Otherwise make a reasonable default choice, state the assumption briefly, and continue.
 - `SpawnAgent(...)`
-  Execute inline by default. Only use sub-agents if the user explicitly asks for delegation or parallel agent work. When delegation is allowed, use the matching file under `agents/` as the role reference.
+  Use Codex named agents by default.
+  Map `SpawnAgent(agent: novel-x, input: Y, output: Z)` to `spawn_agent(agent_type="novel-x", message=...)`.
+  Treat `input` as the agent brief and required context.
+  Treat `output` as the file path the sub-agent should write directly if the workflow specifies one.
+  Use `fork_context: false` by default because the agent instructions already tell the sub-agent what project files to load.
+  Wait for the agent result, then continue the parent workflow.
+  Only fall back to inline execution if named agents are unavailable or the workflow is trivially small.
 - `SlashCommand`
   Treat it as routing to the corresponding file under `commands/`.
 - `Task`

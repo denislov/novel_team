@@ -1,6 +1,6 @@
-# Novel Plugin
+# Novel
 
-Structured long-form fiction workflow plugin for Claude Code and Codex.
+Structured long-form fiction workflow source bundle for Claude Code and Codex.
 
 ## What It Provides
 
@@ -10,14 +10,28 @@ Structured long-form fiction workflow plugin for Claude Code and Codex.
 - Templates for root-level project files
 - Workflows for progression, progress reporting, routing, and command-center style control
 
-## Codex Compatibility
+## Install Model
 
-This plugin now includes a Codex manifest and marketplace entry:
+The current install path is the repo CLI:
 
-- `plugins/novel/.codex-plugin/plugin.json`
-- `.agents/plugins/marketplace.json`
+```bash
+node bin/install.js install --all --global
+```
 
-The Codex port keeps the existing `commands/`, `workflows/`, `templates/`, and `agents/` directories, then adds a small compatibility layer:
+The runtime materialization logic now follows the same principle as `get-shit-done`: keep one source bundle here, then generate the correct installed surface for each runtime.
+
+## Runtime Split
+
+This source tree is shared, but the installed output is intentionally different:
+
+- Claude Code installs slash commands to `commands/novel/` and raw agent markdown to `agents/`
+- Codex installs top-level skills to `skills/`, support files to `novel/`, and named agent registrations to `config.toml` plus `agents/*.toml`
+
+That split is required because Claude discovers agents from markdown frontmatter, while Codex discovers named agents from its config and per-agent TOML files.
+
+## Codex Compatibility Layer
+
+The Codex port keeps the existing `commands/`, `workflows/`, `templates/`, and `agents/` directories, then adds a compatibility layer:
 
 - `commands/_codex-conventions.md` translates Claude-oriented workflow primitives such as `AskUserQuestion`, `SpawnAgent`, and `SlashCommand`
 - `skills/novel-command-center/SKILL.md` acts as the Codex router for `$novel-*` skills and natural-language requests
@@ -25,9 +39,9 @@ The Codex port keeps the existing `commands/`, `workflows/`, `templates/`, and `
 - `scripts/map_base.py` provides a real import/normalization implementation for `/novel:map-base`
 - `scripts/novel_state.py` provides shared state, target, and range resolution used across the core workflows
 
-## Codex Entry Pattern
+## Primary Entry Points
 
-In Codex, use skills rather than custom slash commands. The primary entrypoints are:
+In Codex, use skills rather than slash commands:
 
 - `$novel-new-project`
 - `$novel-map-base`
@@ -40,27 +54,19 @@ In Codex, use skills rather than custom slash commands. The primary entrypoints 
 - `$novel-next`
 - `$novel-help`
 
-The `/novel:*` forms remain in the repo as Claude compatibility aliases.
-
-## Key Commands
+In Claude Code, use slash commands such as:
 
 - `/novel:new-project`
 - `/novel:map-base`
 - `/novel:plan-arc`
 - `/novel:plan-batch`
 - `/novel:write-chapter`
-- `/novel:quick-draft`
-- `/novel:research`
 - `/novel:review`
-- `/novel:verify`
 - `/novel:progress`
-- `/novel:next`
-- `/novel:do`
-- `/novel:manager`
 
 ## Core Files
 
-The plugin is built around a root-level project layout:
+The installed workflow is built around a root-level project layout:
 
 - `PROJECT.md`
 - `CHARACTERS.md`
@@ -71,33 +77,3 @@ The plugin is built around a root-level project layout:
 - `chapters/`
 - `reviews/`
 - `research/`
-
-## Update Flow
-
-If this plugin is installed from the Claude local marketplace:
-
-```bash
-claude plugin marketplace update novel-local-marketplace
-claude plugin update novel@novel-local-marketplace
-```
-
-This plugin is intended to live under:
-
-- `plugins/novel/`
-
-inside the repository root that contains `.claude-plugin/marketplace.json` and `.agents/plugins/marketplace.json`.
-
-## Install In Codex
-
-From Codex, add this repo as a local marketplace and install the plugin:
-
-```text
-/plugin marketplace add /home/wh/novel_team
-/plugin install novel@novel-local-marketplace
-```
-
-If your Codex build uses a plugins UI instead of slash commands, use the repo root as the local marketplace path:
-
-- `/home/wh/novel_team`
-
-After installation, invoke the plugin through skills such as `$novel-new-project` or `$novel-map-base`.

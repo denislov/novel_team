@@ -1,0 +1,20 @@
+{
+  "name": "novel-tool",
+  "version": "0.2.0",
+  "description": "CLI installer for the Novel long-form fiction workflow across Claude Code and Codex.",
+  "bin": {
+    "novel-tool": "bin/install.js"
+  },
+  "files": [
+    "bin",
+    "plugins",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.cjs"
+  },
+  "license": "MIT"
+}
