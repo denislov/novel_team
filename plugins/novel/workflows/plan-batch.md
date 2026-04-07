@@ -75,7 +75,7 @@ mkdir -p chapters/outlines
 也可以先用共享状态脚本给出默认建议范围：
 
 ```bash
-python3 scripts/novel_state.py range-target --root . --kind plan --field range_text
+node scripts/novel_state.cjs range-target --root . --kind plan --field range_text
 ```
 
 ```
@@ -161,7 +161,7 @@ done
 批量规划完成后运行：
 
 ```bash
-python3 scripts/novel_state.py refresh \
+node scripts/novel_state.cjs refresh \
   --root . \
   --next-goal "第 ${START} 章写作或核对"
 ```

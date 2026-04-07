@@ -47,7 +47,7 @@ done
 
 # 默认：润色最新正式章节
 if [[ -z "$CHAPTER_RANGE" ]]; then
-  CHAPTER_RANGE=$(python3 scripts/novel_state.py range-target --root . --kind polish --field range_text)
+  CHAPTER_RANGE=$(node scripts/novel_state.cjs range-target --root . --kind polish --field range_text)
 fi
 ```
 
@@ -183,7 +183,7 @@ AskUserQuestion(
 如果接受修改并覆盖正式章节，运行：
 
 ```bash
-python3 scripts/chapter_ops.py apply-polish --root . --chapter ${CHAPTER_NUMBER} --force
+node scripts/chapter_ops.cjs apply-polish --root . --chapter ${CHAPTER_NUMBER} --force
 ```
 
 </single_polish>

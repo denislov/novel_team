@@ -4,7 +4,7 @@
 
 <required_reading>
 Read all files referenced by the invoking prompt's execution_context before starting.
-Use `scripts/novel_state.py refresh` after core files are created so the initial `STATE.md` matches the actual filesystem layout.
+Use `node scripts/novel_state.cjs refresh` after core files are created so the initial `STATE.md` matches the actual filesystem layout.
 </required_reading>
 
 <available_agent_types>
@@ -316,7 +316,7 @@ SpawnAgent(
 按 `templates/STATE.md` 的结构创建 STATE.md，尤其必须保留 frontmatter。创建完成后运行：
 
 ```bash
-python3 scripts/novel_state.py refresh --root .
+node scripts/novel_state.cjs refresh --root .
 ```
 
 然后再根据新建项目的语义补这些字段：

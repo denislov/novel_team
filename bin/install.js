@@ -701,7 +701,11 @@ function parseArgs(argv) {
       continue;
     }
     if (arg === '--config-dir' || arg === '-c') {
-      explicitConfigDir = args[index + 1];
+      const nextArg = args[index + 1];
+      if (!nextArg || nextArg.startsWith('-')) {
+        throw new Error(`${arg} requires a path argument`);
+      }
+      explicitConfigDir = nextArg;
       index += 1;
       continue;
     }

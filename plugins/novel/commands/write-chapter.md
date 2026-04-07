@@ -25,8 +25,8 @@ Run the standard chapter production pipeline for a novel project.
 <execution_context>
 @commands/_codex-conventions.md
 @workflows/write-chapter.md
-@scripts/novel_state.py
-@scripts/chapter_ops.py
+@scripts/novel_state.cjs
+@scripts/chapter_ops.cjs
 @skills/novel-command-center/SKILL.md
 @skills/novel-writing/SKILL.md
 @templates/CHAPTER-OUTLINE.md
@@ -50,7 +50,7 @@ Chapter number is taken from `$ARGUMENTS`.
 <process>
 Execute the write-chapter workflow from @workflows/write-chapter.md end-to-end.
 Interpret Claude-style workflow primitives using @commands/_codex-conventions.md.
-Use @scripts/novel_state.py to resolve `--next` and refresh `STATE.md` after chapter completion.
-Use @scripts/chapter_ops.py to promote draft or polished chapter artifacts into the formal chapter file safely.
+Use @scripts/novel_state.cjs to resolve `--next` and refresh `STATE.md` after chapter completion.
+Use @scripts/chapter_ops.cjs to promote draft or polished chapter artifacts into the formal chapter file safely.
 Preserve all workflow gates (project checks, chapter continuity checks, outline confirmation, write, polish, review, state updates).
 </process>

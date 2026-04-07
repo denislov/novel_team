@@ -15,12 +15,12 @@ Designed for low-friction serialization workflows where remembering whether to p
 <execution_context>
 @commands/_codex-conventions.md
 @workflows/next.md
-@scripts/novel_state.py
+@scripts/novel_state.cjs
 @skills/novel-command-center/SKILL.md
 </execution_context>
 
 <process>
 Execute the next workflow from @workflows/next.md end-to-end.
 Interpret Claude-style workflow primitives using @commands/_codex-conventions.md.
-Use @scripts/novel_state.py as the source of truth for route selection.
+Use @scripts/novel_state.cjs as the source of truth for route selection.
 </process>

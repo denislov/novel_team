@@ -4,7 +4,7 @@
 
 <required_reading>
 Read all files referenced by the invoking prompt's execution_context before starting.
-Use the bundled script `scripts/map_base.py` for scanning, classification, normalization, report generation, and baseline core-file synthesis.
+Use the bundled script `scripts/map_base.cjs` for scanning, classification, normalization, report generation, and baseline core-file synthesis.
 </required_reading>
 
 <available_agent_types>
@@ -90,7 +90,7 @@ mkdir -p "$SOURCE_DIR/reviews"
 先运行插件内置脚本：
 
 ```bash
-python3 scripts/map_base.py --from="$SOURCE_DIR" $([ "$MERGE" = true ] && echo --merge) $([ "$FORCE" = true ] && echo --force) $([ "$DRY_RUN" = true ] && echo --dry-run)
+node scripts/map_base.cjs --from="$SOURCE_DIR" $([ "$MERGE" = true ] && echo --merge) $([ "$FORCE" = true ] && echo --force) $([ "$DRY_RUN" = true ] && echo --dry-run)
 ```
 
 脚本负责：

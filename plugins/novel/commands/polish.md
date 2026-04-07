@@ -22,8 +22,8 @@ Default target: the latest completed chapter if no explicit chapter argument is 
 <execution_context>
 @commands/_codex-conventions.md
 @workflows/polish.md
-@scripts/novel_state.py
-@scripts/chapter_ops.py
+@scripts/novel_state.cjs
+@scripts/chapter_ops.cjs
 @skills/novel-command-center/SKILL.md
 @skills/novel-writing/SKILL.md
 @skills/novel-writing/references/immersion-techniques.md
@@ -46,7 +46,7 @@ Default target: the latest completed chapter if no explicit chapter argument is 
 <process>
 Execute the polish workflow from @workflows/polish.md end-to-end.
 Interpret Claude-style workflow primitives using @commands/_codex-conventions.md.
-Use @scripts/novel_state.py to select the default latest formal chapter and refresh state if accepted edits replace the source chapter.
-Use @scripts/chapter_ops.py to apply polished drafts onto the formal chapter file with backup handling.
+Use @scripts/novel_state.cjs to select the default latest formal chapter and refresh state if accepted edits replace the source chapter.
+Use @scripts/chapter_ops.cjs to apply polished drafts onto the formal chapter file with backup handling.
 Preserve all workflow gates (chapter selection, mode handling, editor pass, report generation, result acceptance).
 </process>

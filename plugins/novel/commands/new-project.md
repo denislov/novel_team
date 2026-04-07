@@ -27,7 +27,7 @@ Initialize a new novel project end-to-end from concept to a working root-level p
 <execution_context>
 @commands/_codex-conventions.md
 @workflows/new-project.md
-@scripts/novel_state.py
+@scripts/novel_state.cjs
 @skills/novel-command-center/SKILL.md
 @skills/novel-writing/SKILL.md
 @skills/novel-writing/references/novel-settings-template.md
@@ -50,6 +50,6 @@ Initialize a new novel project end-to-end from concept to a working root-level p
 <process>
 Execute the new-project workflow from @workflows/new-project.md end-to-end.
 Interpret Claude-style workflow primitives using @commands/_codex-conventions.md.
-Use @scripts/novel_state.py when the workflow needs to initialize or refresh shared project state.
+Use @scripts/novel_state.cjs when the workflow needs to initialize or refresh shared project state.
 Preserve all workflow gates (existing project check, setup questioning, research decision, architecture generation, state initialization).
 </process>

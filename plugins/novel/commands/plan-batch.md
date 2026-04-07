@@ -22,7 +22,7 @@ This is the batch-outline companion to `/novel:write-chapter`.
 <execution_context>
 @commands/_codex-conventions.md
 @workflows/plan-batch.md
-@scripts/novel_state.py
+@scripts/novel_state.cjs
 @skills/novel-command-center/SKILL.md
 @skills/novel-writing/SKILL.md
 @templates/CHAPTER-OUTLINE.md
@@ -42,6 +42,6 @@ This is the batch-outline companion to `/novel:write-chapter`.
 <process>
 Execute the plan-batch workflow from @workflows/plan-batch.md end-to-end.
 Interpret Claude-style workflow primitives using @commands/_codex-conventions.md.
-Use @scripts/novel_state.py to refresh queue and next-target data after batch planning.
+Use @scripts/novel_state.cjs to refresh queue and next-target data after batch planning.
 Preserve all workflow gates (range validation, context loading, per-chapter planner passes, batch summary generation).
 </process>

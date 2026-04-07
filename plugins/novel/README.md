@@ -36,8 +36,8 @@ The Codex port keeps the existing `commands/`, `workflows/`, `templates/`, and `
 - `commands/_codex-conventions.md` translates Claude-oriented workflow primitives such as `AskUserQuestion`, `SpawnAgent`, and `SlashCommand`
 - `skills/novel-command-center/SKILL.md` acts as the Codex router for `$novel-*` skills and natural-language requests
 - `skills/novel-writing/SKILL.md` remains the core writing/style/project-memory skill
-- `scripts/map_base.py` provides a real import/normalization implementation for `/novel:map-base`
-- `scripts/novel_state.py` provides shared state, target, and range resolution used across the core workflows
+- `scripts/map_base.cjs` provides a real import/normalization implementation for `/novel:map-base`
+- `scripts/novel_state.cjs` provides shared state, target, and range resolution used across the core workflows
 
 ## Primary Entry Points
 

@@ -17,6 +17,7 @@ const {
   listSourceCommands,
   listPublicCodexSkills,
   listSourceSkills,
+  parseArgs,
   promptPathFor,
   stripNovelFromCodexConfig,
   uninstallRuntime,
@@ -63,7 +64,7 @@ describe('installRuntime', () => {
 
     assert.ok(read(commandPath).includes(`@${supportRoot}/workflows/new-project.md`),
       'Claude command should reference installed workflow path');
-    assert.ok(read(workflowPath).includes(`${supportRoot}/scripts/novel_state.py`),
+    assert.ok(read(workflowPath).includes(`${supportRoot}/scripts/novel_state.cjs`),
       'Installed workflow should reference installed script path');
     assert.ok(read(agentPath).includes(`${supportRoot}/skills/novel-writing/`),
       'Claude agent should reference installed skill bundle path');
@@ -219,6 +220,20 @@ config_file = "/tmp/novel-writer.toml"
     assert.ok(stripped.includes('[agents.other]'), 'should preserve unrelated agent config');
     assert.ok(!stripped.includes('novel-writer'), 'should remove Novel agent block');
     assert.ok(!stripped.includes(NOVEL_CODEX_MARKER), 'should remove Novel marker');
+  });
+
+  test('parseArgs rejects missing config-dir path', () => {
+    assert.throws(
+      () => parseArgs(['install', '--config-dir']),
+      /requires a path argument/
+    );
+  });
+
+  test('parseArgs rejects flag-like config-dir value', () => {
+    assert.throws(
+      () => parseArgs(['install', '--config-dir', '--codex']),
+      /requires a path argument/
+    );
   });
 });
 

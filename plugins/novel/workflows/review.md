@@ -45,7 +45,7 @@ done
 
 # 默认：审核最新正式章节
 if [[ -z "$CHAPTER_RANGE" ]]; then
-  CHAPTER_RANGE=$(python3 scripts/novel_state.py range-target --root . --kind review --field range_text)
+  CHAPTER_RANGE=$(node scripts/novel_state.cjs range-target --root . --kind review --field range_text)
 fi
 ```
 
@@ -205,7 +205,7 @@ done
 批量或单章审核完成后，运行：
 
 ```bash
-python3 scripts/novel_state.py refresh --root .
+node scripts/novel_state.cjs refresh --root .
 ```
 
 保证 `STATE.md` 的下一步建议基于最新审核覆盖。

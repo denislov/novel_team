@@ -4,7 +4,7 @@
 
 <required_reading>
 Read all files referenced by the invoking prompt's execution_context before starting.
-Use `scripts/novel_state.py stats` as the source of truth for all project counters and next-step recommendation.
+Use `node scripts/novel_state.cjs stats` as the source of truth for all project counters and next-step recommendation.
 </required_reading>
 
 <process>
@@ -35,19 +35,19 @@ done
 读取项目快照：
 
 ```bash
-TITLE=$(python3 scripts/novel_state.py stats --root . --field title)
-STATUS=$(python3 scripts/novel_state.py stats --root . --field status)
-CURRENT_ARC=$(python3 scripts/novel_state.py stats --root . --field current_arc)
-CURRENT_CHAPTER=$(python3 scripts/novel_state.py stats --root . --field current_chapter)
-TOTAL_WORDS=$(python3 scripts/novel_state.py stats --root . --field total_words)
-LATEST_OUTLINE=$(python3 scripts/novel_state.py stats --root . --field latest_outline)
-LATEST_CHAPTER=$(python3 scripts/novel_state.py stats --root . --field latest_chapter)
-LATEST_REVIEW=$(python3 scripts/novel_state.py stats --root . --field latest_review)
-OUTLINE_BUFFER=$(python3 scripts/novel_state.py stats --root . --field outline_buffer)
-REVIEW_GAP=$(python3 scripts/novel_state.py stats --root . --field review_gap)
-RECOMMENDED_COMMAND=$(python3 scripts/novel_state.py stats --root . --field recommended_command)
-RECOMMENDED_ARGS=$(python3 scripts/novel_state.py stats --root . --field recommended_args)
-RECOMMENDED_REASON=$(python3 scripts/novel_state.py stats --root . --field recommended_reason)
+TITLE=$(node scripts/novel_state.cjs stats --root . --field title)
+STATUS=$(node scripts/novel_state.cjs stats --root . --field status)
+CURRENT_ARC=$(node scripts/novel_state.cjs stats --root . --field current_arc)
+CURRENT_CHAPTER=$(node scripts/novel_state.cjs stats --root . --field current_chapter)
+TOTAL_WORDS=$(node scripts/novel_state.cjs stats --root . --field total_words)
+LATEST_OUTLINE=$(node scripts/novel_state.cjs stats --root . --field latest_outline)
+LATEST_CHAPTER=$(node scripts/novel_state.cjs stats --root . --field latest_chapter)
+LATEST_REVIEW=$(node scripts/novel_state.cjs stats --root . --field latest_review)
+OUTLINE_BUFFER=$(node scripts/novel_state.cjs stats --root . --field outline_buffer)
+REVIEW_GAP=$(node scripts/novel_state.cjs stats --root . --field review_gap)
+RECOMMENDED_COMMAND=$(node scripts/novel_state.cjs stats --root . --field recommended_command)
+RECOMMENDED_ARGS=$(node scripts/novel_state.cjs stats --root . --field recommended_args)
+RECOMMENDED_REASON=$(node scripts/novel_state.cjs stats --root . --field recommended_reason)
 
 CHAPTER_COUNT=$(find chapters -maxdepth 1 -type f | grep -E '/chapter-[0-9]+\.md$' | wc -l)
 OUTLINE_COUNT=$(find chapters/outlines -maxdepth 1 -type f | grep -E '/outline-[0-9]+\.md$' | wc -l)

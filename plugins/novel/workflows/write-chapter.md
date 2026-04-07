@@ -55,7 +55,7 @@ done
 
 # 如果启用了 --next，优先用共享状态脚本获取下一章号
 if [[ "$USE_NEXT" == true ]]; then
-  CHAPTER_NUMBER=$(python3 scripts/novel_state.py write-target --root . --next --field target_chapter)
+  CHAPTER_NUMBER=$(node scripts/novel_state.cjs write-target --root . --next --field target_chapter)
 fi
 ```
 
@@ -403,13 +403,13 @@ AskUserQuestion(
 接受润色版时，运行：
 
 ```bash
-python3 scripts/chapter_ops.py apply-polish --root . --chapter ${CHAPTER_NUMBER} --force
+node scripts/chapter_ops.cjs apply-polish --root . --chapter ${CHAPTER_NUMBER} --force
 ```
 
 保留草稿版时，运行：
 
 ```bash
-python3 scripts/chapter_ops.py use-draft --root . --chapter ${CHAPTER_NUMBER} --force
+node scripts/chapter_ops.cjs use-draft --root . --chapter ${CHAPTER_NUMBER} --force
 ```
 
 **如果 `SKIP_POLISH = true`：**
@@ -417,7 +417,7 @@ python3 scripts/chapter_ops.py use-draft --root . --chapter ${CHAPTER_NUMBER} --
 - 运行：
 
 ```bash
-python3 scripts/chapter_ops.py use-draft --root . --chapter ${CHAPTER_NUMBER} --force
+node scripts/chapter_ops.cjs use-draft --root . --chapter ${CHAPTER_NUMBER} --force
 ```
 
 </polish_phase>
@@ -522,7 +522,7 @@ AskUserQuestion(
 
 ```bash
 # 用共享状态脚本统一刷新 STATE.md，避免重写章节时累计字数失真
-python3 scripts/novel_state.py refresh \
+node scripts/novel_state.cjs refresh \
   --root . \
   --status 连载中 \
   --latest-completed "已完成第 ${CHAPTER_NUMBER} 章" \

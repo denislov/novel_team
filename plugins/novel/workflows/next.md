@@ -4,7 +4,7 @@
 
 <required_reading>
 Read all files referenced by the invoking prompt's execution_context before starting.
-Use `scripts/novel_state.py stats` as the source of truth for automatic next-step routing.
+Use `node scripts/novel_state.cjs stats` as the source of truth for automatic next-step routing.
 </required_reading>
 
 <process>
@@ -48,12 +48,12 @@ done
 用共享状态脚本收集当前状态：
 
 ```bash
-TITLE=$(python3 scripts/novel_state.py stats --root . --field title)
-CURRENT_ARC=$(python3 scripts/novel_state.py stats --root . --field current_arc)
-CURRENT_CHAPTER=$(python3 scripts/novel_state.py stats --root . --field current_chapter)
-RECOMMENDED_COMMAND=$(python3 scripts/novel_state.py stats --root . --field recommended_command)
-RECOMMENDED_ARGS=$(python3 scripts/novel_state.py stats --root . --field recommended_args)
-RECOMMENDED_REASON=$(python3 scripts/novel_state.py stats --root . --field recommended_reason)
+TITLE=$(node scripts/novel_state.cjs stats --root . --field title)
+CURRENT_ARC=$(node scripts/novel_state.cjs stats --root . --field current_arc)
+CURRENT_CHAPTER=$(node scripts/novel_state.cjs stats --root . --field current_chapter)
+RECOMMENDED_COMMAND=$(node scripts/novel_state.cjs stats --root . --field recommended_command)
+RECOMMENDED_ARGS=$(node scripts/novel_state.cjs stats --root . --field recommended_args)
+RECOMMENDED_REASON=$(node scripts/novel_state.cjs stats --root . --field recommended_reason)
 ```
 </step>
 

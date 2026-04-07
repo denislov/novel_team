@@ -9,6 +9,24 @@ const root = sourceRoot();
 const agentsDir = path.join(root, 'agents');
 const workflowsDir = path.join(root, 'workflows');
 
+function extractSpawnedAgents(content) {
+  const matches = new Set();
+
+  for (const match of content.matchAll(/agent:\s*(novel-[a-z-]+)/g)) {
+    matches.add(match[1]);
+  }
+
+  for (const match of content.matchAll(/SpawnAgent\(\s*(?:\n|\r\n|\s)*agent:\s*(novel-[a-z-]+)/g)) {
+    matches.add(match[1]);
+  }
+
+  for (const match of content.matchAll(/SpawnAgent\s+(novel-[a-z-]+)/g)) {
+    matches.add(match[1]);
+  }
+
+  return [...matches];
+}
+
 describe('agent frontmatter', () => {
   for (const agentName of listSourceAgents()) {
     test(`${agentName} keeps required Claude agent fields`, () => {
@@ -31,7 +49,7 @@ describe('workflow agent references', () => {
   for (const file of workflowFiles) {
     test(`${file} lists every spawned named agent`, () => {
       const content = fs.readFileSync(path.join(workflowsDir, file), 'utf8');
-      const spawned = [...content.matchAll(/agent:\s*(novel-[a-z-]+)/g)].map((match) => match[1]);
+      const spawned = extractSpawnedAgents(content);
 
       for (const agentName of spawned) {
         assert.ok(validAgents.has(agentName), `unknown agent referenced: ${agentName}`);

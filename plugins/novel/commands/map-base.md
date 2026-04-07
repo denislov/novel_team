@@ -29,7 +29,7 @@ Use this command when the current directory already contains notes, drafts, chap
 <execution_context>
 @commands/_codex-conventions.md
 @workflows/map-base.md
-@scripts/map_base.py
+@scripts/map_base.cjs
 @skills/novel-command-center/SKILL.md
 @skills/novel-writing/SKILL.md
 @templates/PROJECT.md
@@ -55,6 +55,6 @@ Use this command when the current directory already contains notes, drafts, chap
 <process>
 Execute the map-base workflow from @workflows/map-base.md end-to-end.
 Interpret Claude-style workflow primitives using @commands/_codex-conventions.md.
-Use @scripts/map_base.py as the primary implementation for scanning, classification, normalization, and report generation.
+Use @scripts/map_base.cjs as the primary implementation for scanning, classification, normalization, and report generation.
 Preserve all workflow gates (source scan, material classification, root-level normalization, core-file synthesis, import report generation).
 </process>

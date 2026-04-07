@@ -22,7 +22,7 @@ Default target: the latest chapter if no explicit chapter argument is provided.
 <execution_context>
 @commands/_codex-conventions.md
 @workflows/review.md
-@scripts/novel_state.py
+@scripts/novel_state.cjs
 @skills/novel-command-center/SKILL.md
 @skills/novel-writing/SKILL.md
 @skills/novel-writing/references/common-pitfalls.md
@@ -45,6 +45,6 @@ Default target: the latest chapter if no explicit chapter argument is provided.
 <process>
 Execute the review workflow from @workflows/review.md end-to-end.
 Interpret Claude-style workflow primitives using @commands/_codex-conventions.md.
-Use @scripts/novel_state.py to select the default latest chapter and refresh state snapshots after review output.
+Use @scripts/novel_state.cjs to select the default latest chapter and refresh state snapshots after review output.
 Preserve all workflow gates (project checks, verifier pass, per-chapter reporting, batch aggregation).
 </process>
