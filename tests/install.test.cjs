@@ -56,6 +56,8 @@ describe('installRuntime', () => {
     const commandPath = path.join(tmpDir, 'commands', 'novel', 'new-project.md');
     const workflowPath = path.join(tmpDir, 'novel', 'workflows', 'new-project.md');
     const agentPath = path.join(tmpDir, 'agents', 'novel-architect.md');
+    const progressWorkflowPath = path.join(tmpDir, 'novel', 'workflows', 'progress.md');
+    const nextWorkflowPath = path.join(tmpDir, 'novel', 'workflows', 'next.md');
 
     assert.ok(fs.existsSync(commandPath), 'Claude command should exist');
     assert.ok(fs.existsSync(agentPath), 'Claude agent should exist');
@@ -68,6 +70,10 @@ describe('installRuntime', () => {
       'Installed workflow should reference installed script path');
     assert.ok(read(workflowPath).includes('story_format'),
       'Installed workflow should include story-format initialization contract');
+    assert.ok(read(progressWorkflowPath).includes('STORY_FORMAT'),
+      'Installed progress workflow should expose story format in reporting');
+    assert.ok(read(nextWorkflowPath).includes('story_collection'),
+      'Installed next workflow should describe collection-aware routing');
     assert.ok(read(agentPath).includes(`${supportRoot}/skills/novel-writing/`),
       'Claude agent should reference installed skill bundle path');
   });

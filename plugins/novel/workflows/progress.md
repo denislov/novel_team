@@ -104,6 +104,9 @@ LATEST_RESEARCH_FILE=$(find research -maxdepth 1 -type f 2>/dev/null | sort | ta
 `/novel:[RECOMMENDED_COMMAND] [RECOMMENDED_ARGS]`
 
 [RECOMMENDED_REASON]
+
+> 说明：推荐逻辑会结合 `[STORY_FORMAT]` 与 `[PLANNING_UNIT]`。
+> 长篇默认按章节/卷推进；短故事与短故事集更偏向故事级推进。
 ```
 </step>
 

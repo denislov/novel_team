@@ -37,6 +37,11 @@ Added explicit output fields for:
 
 This makes recommendation behavior easier for users to understand.
 
+Also added explicit explanation text so users can see:
+- `long_form` keeps chapter/arc-first progression
+- `short_story` prefers lightweight single-story completion flow
+- `story_collection` prefers story-by-story progression
+
 ### Documentation
 Updated:
 
@@ -52,11 +57,14 @@ adapt recommendation behavior by project format.
 Updated:
 
 - `tests/novel-state.test.cjs`
+- `tests/install.test.cjs`
 
 Added regression coverage for:
 - long-form compatibility baseline
 - short-story recommendation behavior
 - story-collection recommendation behavior
+
+Added install-surface assertions that shipped `progress` / `next` workflow artifacts preserve format-aware wording.
 
 ## Verification
 

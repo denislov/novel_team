@@ -75,6 +75,11 @@ RECOMMENDED_REASON=$(node scripts/novel_state.cjs stats --root . --field recomme
 [RECOMMENDED_REASON]
 ```
 
+补充说明：
+- `long_form`：默认保持章节/卷优先推进
+- `short_story`：更偏向单故事规划、写作、审核、定稿
+- `story_collection`：更偏向当前故事完成与下一篇故事推进
+
 然后立即通过 SlashCommand 调用目标命令。
 不要询问确认。
 </step>
