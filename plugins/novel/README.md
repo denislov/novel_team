@@ -1,6 +1,6 @@
 # Novel
 
-Structured long-form fiction workflow source bundle for Claude Code and Codex.
+Structured fiction workflow source bundle for Claude Code and Codex, supporting long-form novels, single short stories, and growing short-story collections.
 
 ## What It Provides
 
@@ -9,6 +9,37 @@ Structured long-form fiction workflow source bundle for Claude Code and Codex.
 - Codex skills for natural-language routing and state-aware writing workflow guidance
 - Templates for root-level project files
 - Workflows for progression, progress reporting, routing, and command-center style control
+
+## Supported Story Shapes
+
+- **Long-form novel** — chapter- and arc-driven planning, existing default path
+- **Single short story** — lighter planning for works in roughly the 6k–20k range
+- **Short-story collection** — multiple short stories that accumulate over time, with story-level planning as the primary unit
+
+The initialization contract now distinguishes these shapes explicitly so later planning behavior can adapt without breaking the existing long-form workflow.
+
+## Format-Aware Planning Artifacts
+
+Novel now treats story shape as more than metadata:
+
+- `PROJECT.md` records whether the project is long-form, short-story, or collection mode
+- `ROADMAP.md` can be interpreted as volume/arc planning for long-form, or story-level planning for short stories and collections
+- `STATE.md` can track chapter progress for long-form or story-level progress for short fiction and collections
+- `CHAPTER-OUTLINE.md` remains chapter-compatible, but can also serve as a compact story blueprint when `planning_unit = story`
+
+For **short-story collections**, the project memory now distinguishes:
+- collection-level growth: completed stories, active story, next story queue
+- story-level planning: the currently active story’s own outline and optional chapter decomposition
+
+This keeps one shared workflow surface while making the planning artifacts more appropriate for different fiction lengths.
+
+## Format-Aware Recommendations
+
+`progress` and `next` are now expected to adapt by project format:
+
+- **long_form** keeps chapter/arc-first recommendation behavior
+- **short_story** prefers lightweight single-story planning, drafting, review, and finish flow
+- **story_collection** prefers story-by-story progression, using collection growth state instead of assuming long-form chapter buffers
 
 ## Install Model
 

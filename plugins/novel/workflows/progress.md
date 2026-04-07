@@ -37,6 +37,8 @@ done
 ```bash
 TITLE=$(node scripts/novel_state.cjs stats --root . --field title)
 STATUS=$(node scripts/novel_state.cjs stats --root . --field status)
+STORY_FORMAT=$(node scripts/novel_state.cjs stats --root . --field story_format)
+PLANNING_UNIT=$(node scripts/novel_state.cjs stats --root . --field planning_unit)
 CURRENT_ARC=$(node scripts/novel_state.cjs stats --root . --field current_arc)
 CURRENT_CHAPTER=$(node scripts/novel_state.cjs stats --root . --field current_chapter)
 TOTAL_WORDS=$(node scripts/novel_state.cjs stats --root . --field total_words)
@@ -69,6 +71,8 @@ LATEST_RESEARCH_FILE=$(find research -maxdepth 1 -type f 2>/dev/null | sort | ta
 # [TITLE]
 
 **状态：** [STATUS]
+**作品形态：** [STORY_FORMAT]
+**规划单位：** [PLANNING_UNIT]
 **当前卷：** [CURRENT_ARC]
 **当前章节：** 第 [CURRENT_CHAPTER] 章
 **累计字数：** [TOTAL_WORDS]

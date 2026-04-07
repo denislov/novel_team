@@ -66,6 +66,8 @@ describe('installRuntime', () => {
       'Claude command should reference installed workflow path');
     assert.ok(read(workflowPath).includes(`${supportRoot}/scripts/novel_state.cjs`),
       'Installed workflow should reference installed script path');
+    assert.ok(read(workflowPath).includes('story_format'),
+      'Installed workflow should include story-format initialization contract');
     assert.ok(read(agentPath).includes(`${supportRoot}/skills/novel-writing/`),
       'Claude agent should reference installed skill bundle path');
   });
@@ -96,6 +98,8 @@ describe('installRuntime', () => {
       'Generated Codex skill should use Codex argument placeholder');
     assert.ok(read(commandPath).includes(`@${supportRoot}/workflows/new-project.md`),
       'Installed Codex command should reference installed workflow path');
+    assert.ok(read(commandPath).includes('story_format'),
+      'Installed Codex command bundle should describe story-format contract');
     assert.ok(read(commandPath).includes('$novel-write-chapter 1'),
       'Codex command bundle should translate slash commands to skill mentions');
     assert.ok(!fs.existsSync(path.join(tmpDir, 'skills', 'novel-command-center')),
@@ -112,6 +116,21 @@ describe('installRuntime', () => {
     const conventionsPath = path.join(tmpDir, 'novel', 'commands', '_codex-conventions.md');
     assert.ok(read(conventionsPath).includes('spawn_agent'),
       'Codex conventions should instruct named agent spawning');
+
+    const projectTemplatePath = path.join(tmpDir, 'novel', 'templates', 'PROJECT.md');
+    assert.ok(read(projectTemplatePath).includes('story_format: long_form'),
+      'Installed templates should persist story format metadata');
+    const roadmapTemplatePath = path.join(tmpDir, 'novel', 'templates', 'ROADMAP.md');
+    assert.ok(read(roadmapTemplatePath).includes('story_collection'),
+      'Installed roadmap template should describe collection-aware planning');
+    assert.ok(read(roadmapTemplatePath).includes('已完成故事'),
+      'Installed roadmap template should include collection growth tracking language');
+    const outlineTemplatePath = path.join(tmpDir, 'novel', 'templates', 'CHAPTER-OUTLINE.md');
+    assert.ok(read(outlineTemplatePath).includes('planning_unit'),
+      'Installed outline template should explain story-level planning usage');
+    const stateTemplatePath = path.join(tmpDir, 'novel', 'templates', 'STATE.md');
+    assert.ok(read(stateTemplatePath).includes('故事队列'),
+      'Installed state template should include collection story queue tracking');
   });
 
   test('validateRuntime detects missing pieces after uninstall', () => {

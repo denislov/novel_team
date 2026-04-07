@@ -7,6 +7,9 @@ Template for `PROJECT.md` — the canonical story contract for the novel project
 ```markdown
 ---
 title: [书名]
+story_format: long_form
+planning_unit: chapter
+target_length_band: medium_long
 genre: [题材]
 era: [起始时间/世界线]
 target_words: [目标字数]
@@ -23,6 +26,27 @@ updated: YYYY-MM-DD
 
 [困境] + [机会/金手指] + [最大悬念]
 
+## 作品形态说明
+
+- **long_form**：适合中长篇和连载型项目，默认按章节/卷推进
+- **short_story**：适合单篇短故事，强调单故事闭环而不是多卷扩展
+- **story_collection**：适合多个短故事逐步累积，项目层关注“作品集增长”，单篇故事各自闭环
+
+### 使用建议
+
+- 如果 `story_format = long_form`：保留完整卷结构、长线冲突、章节推进设计
+- 如果 `story_format = short_story`：可以把“卷”理解为单篇故事结构，弱化多卷预留
+- 如果 `story_format = story_collection`：把项目视为“作品集”，每个故事是主要推进单位
+
+### story_collection 专项提醒
+
+- 作品集层级要有自己的母题、风格或主题组织
+- 单篇故事要能独立成立，但仍应服务于整体作品集的增长感
+- `ROADMAP.md` 与 `STATE.md` 应同时记录：
+  - 当前激活故事
+  - 已完成故事数
+  - 下一篇故事队列
+
 ## 读者承诺
 
 - **爽点来源**：
@@ -36,6 +60,9 @@ updated: YYYY-MM-DD
 | 项目 | 内容 |
 |------|------|
 | 书名 | |
+| 作品形态 | long_form / short_story / story_collection |
+| 规划单位 | chapter / story |
+| 长度分档 | short / medium_long / collection |
 | 类型/题材 | |
 | 世界线起始 | |
 | 目标字数 | |
@@ -160,6 +187,15 @@ updated: YYYY-MM-DD
 | | | | | 否 |
 | | | | | 否 |
 
+> **格式解释：**
+> - `long_form`：按卷/阶段规划整部作品
+> - `short_story`：这里可以改写为“单篇故事结构”，只需保留开端/推进/转折/结尾
+> - `story_collection`：这里可以用来记录整个作品集的故事序列、主题组织和新增故事计划
+
+> **collection-level vs story-level：**
+> - collection-level：作品集整体主题、增长顺序、累计完成度
+> - story-level：当前这一篇故事的冲突、结尾、是否拆章
+
 ## 风格与禁忌
 
 ### 文风要求
@@ -225,11 +261,19 @@ updated: YYYY-MM-DD
 - `PROJECT.md` 是全书最高优先级的设定契约。
 - 这里记录的是“不能随手改”的内容，不是临时灵感收集区。
 
+**作品形态字段：**
+- `story_format: long_form` — 中长篇/章节驱动作品，保持旧默认
+- `story_format: short_story` — 单篇短故事，规划深度应更轻
+- `story_format: story_collection` — 多个短故事逐步累积
+- `planning_unit` 表示默认规划对象是 `chapter` 还是 `story`
+- `target_length_band` 用于下游工作流判断规划颗粒度
+
 **该放什么：**
 - 世界观硬规则
 - 主角底层设定
 - 主线和卷结构
 - 风格边界与禁忌
+- 不同作品形态下的规划单位与长度预期
 
 **不该放什么：**
 - 逐章摘要
@@ -247,5 +291,6 @@ updated: YYYY-MM-DD
 - 任何会影响前文解释的改动，都要记录在“变更记录”
 - 如果只是章节推进，不要频繁改 `PROJECT.md`
 - 当 `PROJECT.md` 与正文冲突时，优先修正文稿或在这里明确宣布设定变更
+- `short_story` 和 `story_collection` 模式可以弱化“全书弧线”的长线表达，但不能丢掉作品级目标
 
 </guidelines>

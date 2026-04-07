@@ -75,6 +75,12 @@ AskUserQuestion(
   header: "基本信息",
   questions: [
     {
+      key: "story_format",
+      question: "本次要写哪种作品形态？",
+      options: ["中长篇小说（2万字以上）", "短故事（6千字-2万字）", "短故事集（多个短故事逐步累积）"],
+      followUp: "作品形态会影响路线图结构、默认规划单位和后续建议"
+    },
+    {
       key: "title",
       question: "书名是什么？",
       followUp: "好的书名能吸引读者，建议：独特、好记、暗示类型"
@@ -93,11 +99,23 @@ AskUserQuestion(
     {
       key: "target_words",
       question: "目标字数？",
-      options: ["30-50万字（短篇）", "50-100万字（中篇）", "100-200万字（长篇）", "200万字以上（超长篇）"]
+      options: ["6千-2万字（短故事）", "2万-10万字（中篇/轻长篇）", "10万-50万字（长篇）", "50万字以上（超长篇/连载）"]
     }
   ]
 )
 ```
+
+约定的内部映射：
+
+- 中长篇小说 → `story_format = long_form`
+- 短故事 → `story_format = short_story`
+- 短故事集 → `story_format = story_collection`
+
+并同步推导：
+
+- `planning_unit = chapter`（long_form）
+- `planning_unit = story`（short_story / story_collection）
+- `target_length_band = short | medium_long | collection`
 
 ### 2.2 主角设定
 
@@ -254,6 +272,9 @@ fi
 ```xml
 <architect_input>
   <basic_info>
+    <story_format>[作品形态]</story_format>
+    <planning_unit>[chapter 或 story]</planning_unit>
+    <target_length_band>[short / medium_long / collection]</target_length_band>
     <title>[书名]</title>
     <genre>[类型]</genre>
     <timeline_start>[起始时间]</timeline_start>
@@ -360,6 +381,7 @@ last_updated: YYYY-MM-DD
 - `progress`、`next`、`manager` 读取 frontmatter
 - 作者日常查看主要看正文区块
 - 这两层信息都要维护，不能只写其中一层
+- 本阶段只要求把 `story_format` / `planning_unit` / `target_length_band` 持久化，不要求立刻彻底重做所有长篇模板行为
 
 </state_initialization>
 

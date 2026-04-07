@@ -159,6 +159,19 @@ function loadProjectTitle(root) {
   return path.basename(root);
 }
 
+function loadProjectMetadata(root) {
+  const projectPath = path.join(root, 'PROJECT.md');
+  const statePath = path.join(root, 'STATE.md');
+  const projectText = fileExists(projectPath) ? readText(projectPath) : '';
+  const stateText = fileExists(statePath) ? readText(statePath) : '';
+
+  return {
+    story_format: frontmatterValue(projectText, 'story_format') || frontmatterValue(stateText, 'story_format') || 'long_form',
+    planning_unit: frontmatterValue(projectText, 'planning_unit') || frontmatterValue(stateText, 'planning_unit') || 'chapter',
+    target_length_band: frontmatterValue(projectText, 'target_length_band') || 'medium_long',
+  };
+}
+
 function loadCurrentArc(root) {
   const roadmapPath = path.join(root, 'ROADMAP.md');
   if (fileExists(roadmapPath)) {
@@ -194,6 +207,7 @@ function computeStats(root) {
     throw new Error('PROJECT.md not found');
   }
 
+  const projectMeta = loadProjectMetadata(root);
   const chapters = chapterFiles(root);
   const outlines = outlineFiles(root);
   const reviews = reviewFiles(root);
@@ -220,7 +234,47 @@ function computeStats(root) {
   let recommendedArgs = '';
   let recommendedReason = '需要先查看项目状态。';
 
-  if (latestChapter === 0 && latestOutline === 0) {
+  if (projectMeta.story_format === 'short_story') {
+    if (latestChapter === 0 && latestOutline === 0) {
+      recommendedCommand = 'plan-batch';
+      recommendedArgs = '1-1';
+      recommendedReason = '短故事项目优先先完成单篇故事蓝图，再进入写作。';
+    } else if (firstUnwritten !== null) {
+      recommendedCommand = 'write-chapter';
+      recommendedArgs = String(firstUnwritten);
+      recommendedReason = '短故事已有蓝图，下一步应尽快完成当前故事正文。';
+    } else if (firstUnreviewed !== null) {
+      recommendedCommand = 'review';
+      recommendedArgs = String(firstUnreviewed);
+      recommendedReason = '短故事正文已完成，先补审核与收尾检查。';
+    } else {
+      recommendedCommand = 'progress';
+      recommendedArgs = '';
+      recommendedReason = '短故事主流程已走通，下一步更适合人工确认是否润色、定稿或结束项目。';
+    }
+  } else if (projectMeta.story_format === 'story_collection') {
+    if (latestChapter === 0 && latestOutline === 0) {
+      recommendedCommand = 'plan-batch';
+      recommendedArgs = '1-1';
+      recommendedReason = '短故事集优先先规划当前激活故事，而不是长篇式批量铺章。';
+    } else if (firstUnwritten !== null) {
+      recommendedCommand = 'write-chapter';
+      recommendedArgs = String(firstUnwritten);
+      recommendedReason = '故事集当前故事已有蓝图，下一步应完成这一篇的正文。';
+    } else if (firstUnreviewed !== null) {
+      recommendedCommand = 'review';
+      recommendedArgs = String(firstUnreviewed);
+      recommendedReason = '先完成当前故事的审核，再决定是否推进下一篇。';
+    } else if (outlineBuffer <= 0) {
+      recommendedCommand = 'plan-batch';
+      recommendedArgs = `${nextChapter}-${nextChapter}`;
+      recommendedReason = '故事集应逐篇推进，先补下一篇故事或下一故事节点的规划。';
+    } else {
+      recommendedCommand = 'write-chapter';
+      recommendedArgs = String(nextChapter);
+      recommendedReason = '故事集下一篇已有规划，可以继续推进当前集合中的下一篇作品。';
+    }
+  } else if (latestChapter === 0 && latestOutline === 0) {
     recommendedCommand = 'plan-batch';
     recommendedArgs = '1-10';
     recommendedReason = '项目还没有大纲和正文，先建立章节规划。';
@@ -271,6 +325,9 @@ function computeStats(root) {
 
   return {
     title: loadProjectTitle(root),
+    story_format: projectMeta.story_format,
+    planning_unit: projectMeta.planning_unit,
+    target_length_band: projectMeta.target_length_band,
     status,
     current_arc: loadCurrentArc(root),
     current_chapter: latestChapter,

@@ -49,6 +49,8 @@ done
 
 ```bash
 TITLE=$(node scripts/novel_state.cjs stats --root . --field title)
+STORY_FORMAT=$(node scripts/novel_state.cjs stats --root . --field story_format)
+PLANNING_UNIT=$(node scripts/novel_state.cjs stats --root . --field planning_unit)
 CURRENT_ARC=$(node scripts/novel_state.cjs stats --root . --field current_arc)
 CURRENT_CHAPTER=$(node scripts/novel_state.cjs stats --root . --field current_chapter)
 RECOMMENDED_COMMAND=$(node scripts/novel_state.cjs stats --root . --field recommended_command)
@@ -64,6 +66,8 @@ RECOMMENDED_REASON=$(node scripts/novel_state.cjs stats --root . --field recomme
 ## Novel Next
 
 **项目：** [TITLE]
+**作品形态：** [STORY_FORMAT]
+**规划单位：** [PLANNING_UNIT]
 **当前卷：** [CURRENT_ARC]
 **当前章节：** 第 [CURRENT_CHAPTER] 章
 

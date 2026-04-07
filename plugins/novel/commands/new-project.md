@@ -45,6 +45,10 @@ Initialize a new novel project end-to-end from concept to a working root-level p
 - `--from-doc @idea.md` — Read project setup from an idea or brief document
 - `--skip-research` — Skip background research even if the setting suggests it
 - `--quick` — Create the minimum viable project skeleton first
+
+**Initialization contract:**
+- The workflow now captures `story_format` as one of: `long_form`, `short_story`, `story_collection`
+- It also persists `planning_unit` and `target_length_band` so later planning can adapt without breaking current long-form defaults
 </context>
 
 <process>

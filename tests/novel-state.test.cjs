@@ -26,6 +26,8 @@ function makeProject(root) {
   write(path.join(root, 'PROJECT.md'), `
 ---
 title: 九河城
+story_format: long_form
+planning_unit: chapter
 ---
 # 《九河城》项目设定
 `);
@@ -40,6 +42,8 @@ current_arc: 第一卷
   write(path.join(root, 'STATE.md'), `
 ---
 project: 九河城
+story_format: long_form
+planning_unit: chapter
 status: 规划中
 current_arc: 第一卷
 current_chapter: 0
@@ -88,6 +92,49 @@ describe('novel_state.cjs', () => {
     assert.strictEqual(stats.next_chapter, 2);
     assert.strictEqual(stats.recommended_command, 'write-chapter');
     assert.strictEqual(stats.recommended_args, '2');
+  });
+
+  test('computeStats keeps long-form as compatibility baseline', () => {
+    makeProject(tmpDir);
+    const stats = computeStats(tmpDir);
+    assert.strictEqual(stats.story_format, 'long_form');
+    assert.strictEqual(stats.planning_unit, 'chapter');
+    assert.strictEqual(stats.recommended_command, 'plan-batch');
+    assert.strictEqual(stats.recommended_args, '1-10');
+  });
+
+  test('computeStats uses lighter routing for short stories', () => {
+    makeProject(tmpDir);
+    write(path.join(tmpDir, 'PROJECT.md'), `
+---
+title: 雨夜短篇
+story_format: short_story
+planning_unit: story
+---
+# 《雨夜短篇》项目设定
+`);
+    const stats = computeStats(tmpDir);
+    assert.strictEqual(stats.story_format, 'short_story');
+    assert.strictEqual(stats.planning_unit, 'story');
+    assert.strictEqual(stats.recommended_command, 'plan-batch');
+    assert.strictEqual(stats.recommended_args, '1-1');
+  });
+
+  test('computeStats uses story-by-story routing for collections', () => {
+    makeProject(tmpDir);
+    write(path.join(tmpDir, 'PROJECT.md'), `
+---
+title: 夜航故事集
+story_format: story_collection
+planning_unit: story
+---
+# 《夜航故事集》项目设定
+`);
+    const stats = computeStats(tmpDir);
+    assert.strictEqual(stats.story_format, 'story_collection');
+    assert.strictEqual(stats.planning_unit, 'story');
+    assert.strictEqual(stats.recommended_command, 'plan-batch');
+    assert.strictEqual(stats.recommended_args, '1-1');
   });
 
   test('refresh updates STATE.md using node implementation', () => {
