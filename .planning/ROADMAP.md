@@ -97,7 +97,7 @@
 
 ## Suggested Next Action
 
-Run `/gsd-plan-phase 1` for “Story Format Model”.
+Complete Phase 4 human verification with a live Codex run, then approve the phase if named-agent delegation behaves correctly.
 
 ---
-*Last updated: 2026-04-07 after project initialization*
+*Last updated: 2026-04-08 after Phase 4 execution reached human verification*
