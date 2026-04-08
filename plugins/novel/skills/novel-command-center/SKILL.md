@@ -47,4 +47,7 @@ Codex can still use the existing `commands/` directory. When a command refers to
 
 - Prefer maintaining `PROJECT.md`, `CHARACTERS.md`, `TIMELINE.md`, `ROADMAP.md`, and `STATE.md` over answering only in chat.
 - Read the smallest useful set of context files before writing.
+- Treat the explicit public `$novel-*` skills as the supported Codex entrypoints for reliable execution.
+- If the routed workflow declares named `SpawnAgent(...)` stages, honor those named agents and do not absorb the delegated work inline.
+- If named-agent execution looks unavailable or drifted, stop and point the user to `novel-tool validate --codex --global` or `node bin/install.js validate --codex --global` before continuing.
 - If the user asks for help or an overview, use `../../commands/help.md` and `../../workflows/help.md` as the canonical reference.

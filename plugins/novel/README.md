@@ -95,6 +95,31 @@ In Claude Code, use slash commands such as:
 - `/novel:review`
 - `/novel:progress`
 
+## Codex Execution Reliability
+
+For Codex, treat **installation correctness** and **execution correctness** as separate checks:
+
+- installation correctness means Novel wrote the public `$novel-*` skills, named agent registrations, and support bundle files
+- execution correctness means a workflow that declares `SpawnAgent(...)` stages actually delegates to those named agents instead of silently completing the stage inline
+
+The supported safe path in Codex is the explicit public `$novel-*` skill surface. The internal `novel-command-center` remains a support layer, not the primary public reliability contract.
+
+When a public Novel workflow declares named `SpawnAgent(...)` stages:
+
+- those named agents are part of the expected runtime contract
+- delegated stages should not be silently inlined
+- long-form compatibility remains the baseline while this contract is hardened
+
+If a Codex install looks incomplete, or a run is not respecting the declared named-agent stages, validate and repair the install before retrying:
+
+```bash
+novel-tool validate --codex --global
+node bin/install.js validate --codex --global
+novel-tool update --codex --global
+```
+
+This reliability work complements the format-aware routing changes: `progress` and `next` still adapt by project format, while Codex execution hardening makes delegated workflow behavior more trustworthy.
+
 ## Core Files
 
 The installed workflow is built around a root-level project layout:
