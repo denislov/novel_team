@@ -31,6 +31,11 @@ The source of truth still lives under `plugins/novel/`, but the installer materi
 
 The extra `novel/` support bundle is intentional. It keeps command, workflow, template, script, and skill references stable after install instead of depending on plugin-root-relative paths.
 
+## Documentation
+
+- [User Guide](docs/GETTING-STARTED.md) — formal usage guide for installing, initializing, planning, writing, reviewing, and troubleshooting Novel
+- [Plugin Source Guide](plugins/novel/README.md) — runtime split, supported story shapes, and source-bundle architecture
+
 ## Why This Changed
 
 The old local-plugin install flow had three reliability problems:
