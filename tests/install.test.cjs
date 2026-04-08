@@ -89,6 +89,8 @@ describe('installRuntime', () => {
 
     const supportRoot = promptPathFor(path.join(tmpDir, 'novel'));
     const skillPath = path.join(tmpDir, 'skills', 'novel-new-project', 'SKILL.md');
+    const writeChapterSkillPath = path.join(tmpDir, 'skills', 'novel-write-chapter', 'SKILL.md');
+    const reviewSkillPath = path.join(tmpDir, 'skills', 'novel-review', 'SKILL.md');
     const commandPath = path.join(tmpDir, 'novel', 'commands', 'new-project.md');
     const configPath = path.join(tmpDir, 'config.toml');
     const agentTomlPath = path.join(tmpDir, 'agents', 'novel-architect.toml');
@@ -98,10 +100,26 @@ describe('installRuntime', () => {
     assert.ok(fs.existsSync(agentTomlPath), 'Codex agent toml should exist');
     assert.ok(read(skillPath).includes('## C. SpawnAgent() → spawn_agent Mapping'),
       'Codex skill should contain explicit spawn_agent mapping');
+    assert.ok(read(skillPath).includes('## C1. Required Named Agents'),
+      'Generated Codex skill should include a required named-agent contract');
+    assert.ok(read(skillPath).includes('`novel-architect`'),
+      'Generated Codex skill should include required architect agent');
+    assert.ok(read(skillPath).includes('`novel-researcher`'),
+      'Generated Codex skill should include conditional or required researcher agent');
+    assert.ok(read(skillPath).includes('Do not inline delegated stages'),
+      'Generated Codex skill should reject inline fallback for delegated stages');
+    assert.ok(read(skillPath).includes('validate --codex --global'),
+      'Generated Codex skill should include validation guidance');
     assert.ok(read(skillPath).includes(`@${supportRoot}/workflows/new-project.md`),
       'Generated Codex skill should point at installed workflow');
     assert.ok(read(skillPath).includes('{{NOVEL_ARGS}}'),
       'Generated Codex skill should use Codex argument placeholder');
+    assert.ok(read(writeChapterSkillPath).includes('`novel-planner`'),
+      'write-chapter skill should require planner agent');
+    assert.ok(read(writeChapterSkillPath).includes('`novel-editor`'),
+      'write-chapter skill should require editor agent');
+    assert.ok(read(reviewSkillPath).includes('`novel-verifier`'),
+      'review skill should require verifier agent');
     assert.ok(read(commandPath).includes(`@${supportRoot}/workflows/new-project.md`),
       'Installed Codex command should reference installed workflow path');
     assert.ok(read(commandPath).includes('story_format'),
@@ -122,6 +140,10 @@ describe('installRuntime', () => {
     const conventionsPath = path.join(tmpDir, 'novel', 'commands', '_codex-conventions.md');
     assert.ok(read(conventionsPath).includes('spawn_agent'),
       'Codex conventions should instruct named agent spawning');
+    assert.ok(read(conventionsPath).includes('Do not inline delegated stages'),
+      'Codex conventions should reject inline fallback for delegated stages');
+    assert.ok(!read(conventionsPath).includes('Only fall back to inline execution if named agents are unavailable or the workflow is trivially small.'),
+      'Codex conventions should no longer ship permissive inline fallback wording');
 
     const projectTemplatePath = path.join(tmpDir, 'novel', 'templates', 'PROJECT.md');
     assert.ok(read(projectTemplatePath).includes('story_format: long_form'),

@@ -27,6 +27,22 @@ function extractSpawnedAgents(content) {
   return [...matches];
 }
 
+function extractCodexExecutionPolicy(content) {
+  const match = content.match(/<codex_execution_policy>([\s\S]*?)<\/codex_execution_policy>/);
+  if (!match) return null;
+
+  return Object.fromEntries(
+    match[1]
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .map((line) => {
+        const separator = line.indexOf(':');
+        return [line.slice(0, separator).trim(), line.slice(separator + 1).trim()];
+      })
+  );
+}
+
 describe('agent frontmatter', () => {
   for (const agentName of listSourceAgents()) {
     test(`${agentName} keeps required Claude agent fields`, () => {
@@ -67,6 +83,24 @@ describe('workflow agent references', () => {
           `workflow spawns ${agentName} but does not list it in <available_agent_types>`
         );
       }
+
+      const executionPolicy = extractCodexExecutionPolicy(content);
+      assert.ok(executionPolicy, 'workflow spawns named agents but lacks <codex_execution_policy>');
+      assert.strictEqual(
+        executionPolicy.delegation,
+        'required_named_agents',
+        'workflow with named agents must declare required_named_agents delegation'
+      );
+      assert.strictEqual(
+        executionPolicy.public_entrypoint,
+        'explicit_public_skills',
+        'workflow with named agents must keep explicit public skill entrypoints'
+      );
+      assert.strictEqual(
+        executionPolicy.allow_inline_fallback,
+        'false',
+        'workflow with named agents must reject inline fallback'
+      );
     });
   }
 });
