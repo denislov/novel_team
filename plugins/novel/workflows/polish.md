@@ -11,6 +11,12 @@ Valid novel-creator subagent types (use exact names):
 - novel-editor — 编辑润色
 </available_agent_types>
 
+<codex_execution_policy>
+delegation: required_named_agents
+public_entrypoint: explicit_public_skills
+allow_inline_fallback: false
+</codex_execution_policy>
+
 <process>
 
 ## 1. 解析参数

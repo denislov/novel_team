@@ -175,6 +175,162 @@ function extractFrontmatterField(frontmatter, fieldName) {
   return match ? match[1].trim().replace(/^['"]|['"]$/g, '') : '';
 }
 
+function extractTaggedBlock(content, tagName) {
+  const match = content.match(new RegExp(`<${tagName}>([\\s\\S]*?)<\\/${tagName}>`));
+  return match ? match[1].trim() : '';
+}
+
+function parseSimpleKeyValueBlock(content) {
+  const data = {};
+
+  for (const line of String(content || '').split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    const separator = trimmed.indexOf(':');
+    if (separator === -1) continue;
+    const key = trimmed.slice(0, separator).trim();
+    const value = trimmed.slice(separator + 1).trim();
+    if (!key) continue;
+    data[key] = value;
+  }
+
+  return data;
+}
+
+function extractAvailableAgents(content) {
+  const availableBlock = extractTaggedBlock(content, 'available_agent_types');
+  const matches = new Set();
+
+  for (const match of availableBlock.matchAll(/-\s*(novel-[a-z-]+)/g)) {
+    matches.add(match[1]);
+  }
+
+  return [...matches];
+}
+
+function extractSpawnedAgentNames(content) {
+  const matches = new Set();
+
+  for (const match of content.matchAll(/agent:\s*(novel-[a-z-]+)/g)) {
+    matches.add(match[1]);
+  }
+
+  for (const match of content.matchAll(/SpawnAgent\(\s*(?:\n|\r\n|\s)*agent:\s*(novel-[a-z-]+)/g)) {
+    matches.add(match[1]);
+  }
+
+  for (const match of content.matchAll(/SpawnAgent\s+(novel-[a-z-]+)/g)) {
+    matches.add(match[1]);
+  }
+
+  return [...matches];
+}
+
+function extractWorkflowExecutionPolicy(content) {
+  return parseSimpleKeyValueBlock(extractTaggedBlock(content, 'codex_execution_policy'));
+}
+
+function extractWorkflowAgentNames(content) {
+  const availableAgents = extractAvailableAgents(content);
+  const spawnedAgents = extractSpawnedAgentNames(content);
+  const requiredAgents = spawnedAgents.length > 0 ? spawnedAgents : availableAgents;
+  const conditionalAgents = availableAgents.filter((agent) => !requiredAgents.includes(agent));
+
+  return {
+    availableAgents,
+    spawnedAgents,
+    requiredAgents,
+    conditionalAgents,
+    executionPolicy: extractWorkflowExecutionPolicy(content),
+  };
+}
+
+function resolveReferencePath(reference, sourceFilePath) {
+  if (!reference || !sourceFilePath) return null;
+  const trimmed = reference.replace(/^@/, '').trim();
+  if (!trimmed || trimmed.startsWith('$HOME') || path.isAbsolute(trimmed)) return null;
+  const fromSourceFile = path.resolve(path.dirname(sourceFilePath), trimmed);
+  if (fs.existsSync(fromSourceFile)) {
+    return fromSourceFile;
+  }
+
+  if (/^(commands|workflows|skills|templates|scripts|agents)\//.test(trimmed)) {
+    const fromPluginRoot = path.resolve(sourceRoot(), trimmed);
+    if (fs.existsSync(fromPluginRoot)) {
+      return fromPluginRoot;
+    }
+  }
+
+  return fromSourceFile;
+}
+
+function extractPrimaryWorkflowPath(commandContent, commandSourcePath) {
+  const executionContext = extractTaggedBlock(commandContent, 'execution_context');
+  if (!executionContext) return null;
+
+  for (const line of executionContext.split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed.startsWith('@') || !trimmed.includes('workflows/')) continue;
+
+    const resolved = resolveReferencePath(trimmed, commandSourcePath);
+    if (resolved && fs.existsSync(resolved)) {
+      return resolved;
+    }
+  }
+
+  return null;
+}
+
+function sourcePathToSupportPromptPath(sourceFilePath, supportRootPromptPath) {
+  if (!sourceFilePath || !supportRootPromptPath) return null;
+  const relative = toPosix(path.relative(sourceRoot(), sourceFilePath));
+  if (!relative || relative.startsWith('..')) return null;
+  return `${supportRootPromptPath}/${relative}`;
+}
+
+function buildRequiredAgentContractBlock(skillName, workflowInfo) {
+  if (!workflowInfo || workflowInfo.requiredAgents.length === 0) return '';
+
+  const policy = workflowInfo.executionPolicy || {};
+  const lines = [
+    '## C1. Required Named Agents',
+    `This skill routes through \`${workflowInfo.workflowPromptPath || workflowInfo.workflowPath}\`.`,
+    '',
+    'Execution policy:',
+    `- \`delegation: ${policy.delegation || 'required_named_agents'}\``,
+    `- \`public_entrypoint: ${policy.public_entrypoint || 'explicit_public_skills'}\``,
+    `- \`allow_inline_fallback: ${policy.allow_inline_fallback || 'false'}\``,
+    '',
+    'Required agents for delegated stages:',
+  ];
+
+  for (const agent of workflowInfo.requiredAgents) {
+    lines.push(`- \`${agent}\``);
+  }
+
+  if (workflowInfo.conditionalAgents.length > 0) {
+    lines.push('');
+    lines.push('Conditional agents declared by the workflow:');
+    for (const agent of workflowInfo.conditionalAgents) {
+      lines.push(`- \`${agent}\``);
+    }
+  }
+
+  lines.push('');
+  lines.push('Do not inline delegated stages.');
+  lines.push('If required named agents are unavailable, the install looks incomplete, or execution drifts from this contract, stop and validate the Codex install before continuing:');
+  lines.push('- Installed CLI path: `novel-tool validate --codex --global`');
+  lines.push('- Source checkout path: `node bin/install.js validate --codex --global`');
+  lines.push('If validation fails, reinstall or update Novel for Codex before retrying:');
+  lines.push('- `novel-tool install --codex --global`');
+  lines.push('- `novel-tool update --codex --global`');
+  lines.push('- `node bin/install.js install --codex --global`');
+  lines.push('- `node bin/install.js update --codex --global`');
+  lines.push('Prefer the explicit public `$novel-*` skill entrypoints when execution reliability matters.');
+
+  return lines.join('\n');
+}
+
 function rewriteSupportReferences(content, supportRootPromptPath) {
   let rewritten = content;
 
@@ -212,7 +368,7 @@ function rewriteRuntimeContent(content, runtime, supportRootPromptPath) {
   return rewritten;
 }
 
-function getNovelCodexSkillAdapterHeader(skillName) {
+function getNovelCodexSkillAdapterHeader(skillName, requiredAgentContract = '') {
   const invocation = `$${skillName}`;
   return `<codex_skill_adapter>
 ## A. Skill Invocation
@@ -241,19 +397,30 @@ Translate it to Codex named agents:
 
 When a workflow contains multiple \`SpawnAgent(...)\` steps, execute them in the order required by the workflow unless the workflow clearly says they can run in parallel.
 
-## D. SlashCommand Routing
+${requiredAgentContract ? `${requiredAgentContract}\n\n` : ''}## D. SlashCommand Routing
 - Treat legacy \`/novel:*\` references as routing hints to the matching \`$novel-*\` skill.
 </codex_skill_adapter>`;
 }
 
-function convertNovelCommandToCodexSkill(content, skillName, supportRootPromptPath) {
+function convertNovelCommandToCodexSkill(content, skillName, supportRootPromptPath, commandSourcePath = null) {
   const converted = rewriteRuntimeContent(content, 'codex', supportRootPromptPath);
   const { frontmatter, body } = extractFrontmatterAndBody(converted);
   const description = toSingleLine(
     extractFrontmatterField(frontmatter, 'description') || `Run Novel workflow ${skillName}.`
   );
   const shortDescription = description.length > 80 ? `${description.slice(0, 77)}...` : description;
-  const adapter = getNovelCodexSkillAdapterHeader(skillName);
+  const workflowPath = extractPrimaryWorkflowPath(content, commandSourcePath);
+  let requiredAgentContract = '';
+
+  if (workflowPath && fs.existsSync(workflowPath)) {
+    requiredAgentContract = buildRequiredAgentContractBlock(skillName, {
+      workflowPath,
+      workflowPromptPath: sourcePathToSupportPromptPath(workflowPath, supportRootPromptPath),
+      ...extractWorkflowAgentNames(readText(workflowPath)),
+    });
+  }
+
+  const adapter = getNovelCodexSkillAdapterHeader(skillName, requiredAgentContract);
 
   return [
     '---',
@@ -440,8 +607,14 @@ function installCodexRuntime(targetDir, supportRootPromptPath) {
 
   for (const commandFile of listSourceCommands()) {
     const skillName = skillNameFromCommandFile(commandFile);
-    const commandContent = readText(path.join(src, 'commands', commandFile));
-    const generatedSkill = convertNovelCommandToCodexSkill(commandContent, skillName, supportRootPromptPath);
+    const commandPath = path.join(src, 'commands', commandFile);
+    const commandContent = readText(commandPath);
+    const generatedSkill = convertNovelCommandToCodexSkill(
+      commandContent,
+      skillName,
+      supportRootPromptPath,
+      commandPath
+    );
     writeText(path.join(skillsDest, skillName, 'SKILL.md'), generatedSkill);
   }
 
@@ -792,6 +965,8 @@ module.exports = {
   convertClaudeAgentToCodexAgent,
   extractFrontmatterAndBody,
   extractFrontmatterField,
+  extractWorkflowAgentNames,
+  extractWorkflowExecutionPolicy,
   generateCodexAgentToml,
   generateCodexConfigBlock,
   getTargetDir,

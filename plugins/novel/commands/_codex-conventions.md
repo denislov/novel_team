@@ -21,7 +21,12 @@ This plugin was originally authored as a Claude Code plugin. In Codex, keep the 
   Treat `output` as the file path the sub-agent should write directly if the workflow specifies one.
   Use `fork_context: false` by default because the agent instructions already tell the sub-agent what project files to load.
   Wait for the agent result, then continue the parent workflow.
-  Only fall back to inline execution if named agents are unavailable or the workflow is trivially small.
+  If a public workflow declares named `SpawnAgent(...)` stages, those delegated stages are mandatory.
+  Do not inline delegated stages.
+  If required named agents are unavailable, the install looks incomplete, or execution drifts away from the declared agent contract, stop and tell the user to validate the Codex install before continuing:
+  - Installed CLI path: `novel-tool validate --codex --global`
+  - Source checkout path: `node bin/install.js validate --codex --global`
+  Only inline work that the workflow itself does not declare as a delegated stage.
 - `SlashCommand`
   Treat it as routing to the corresponding file under `commands/`.
 - `Task`
