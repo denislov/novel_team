@@ -9,8 +9,10 @@ const {
   INTERNAL_CODEX_SKILLS,
   NOVEL_CODEX_MARKER,
   convertClaudeAgentToCodexAgent,
+  convertNovelCommandToClaudeSkill,
   convertNovelCommandToCodexSkill,
   generateCodexAgentToml,
+  getRuntimeUsageHints,
   getNovelCodexSkillAdapterHeader,
   installRuntime,
   listSourceAgents,
@@ -43,7 +45,7 @@ describe('installRuntime', () => {
     fs.rmSync(tmpDir, { recursive: true, force: true });
   });
 
-  test('installs Claude commands, agents, and support bundle with rewritten references', () => {
+  test('installs Claude skills, agents, and support bundle with rewritten references', () => {
     const result = installRuntime({
       runtime: 'claude',
       isGlobal: true,
@@ -53,19 +55,23 @@ describe('installRuntime', () => {
     assert.ok(result.ok, 'Claude install should validate');
 
     const supportRoot = promptPathFor(path.join(tmpDir, 'novel'));
-    const commandPath = path.join(tmpDir, 'commands', 'novel', 'new-project.md');
+    const skillPath = path.join(tmpDir, 'skills', 'novel-new-project', 'SKILL.md');
     const workflowPath = path.join(tmpDir, 'novel', 'workflows', 'new-project.md');
     const agentPath = path.join(tmpDir, 'agents', 'novel-architect.md');
     const progressWorkflowPath = path.join(tmpDir, 'novel', 'workflows', 'progress.md');
     const nextWorkflowPath = path.join(tmpDir, 'novel', 'workflows', 'next.md');
 
-    assert.ok(fs.existsSync(commandPath), 'Claude command should exist');
+    assert.ok(fs.existsSync(skillPath), 'Claude skill should exist');
     assert.ok(fs.existsSync(agentPath), 'Claude agent should exist');
-    assert.ok(!fs.existsSync(path.join(tmpDir, 'commands', 'novel', '_codex-conventions.md')),
-      'Claude command surface should not expose helper files as slash commands');
+    assert.ok(!fs.existsSync(path.join(tmpDir, 'commands', 'novel')),
+      'Claude install should no longer expose the legacy command surface');
 
-    assert.ok(read(commandPath).includes(`@${supportRoot}/workflows/new-project.md`),
-      'Claude command should reference installed workflow path');
+    assert.ok(read(skillPath).includes(`name: "novel-new-project"`),
+      'Claude skill should declare the generated skill name');
+    assert.ok(read(skillPath).includes('allowed-tools:'),
+      'Claude skill should preserve allowed-tools');
+    assert.ok(read(skillPath).includes(`@${supportRoot}/workflows/new-project.md`),
+      'Claude skill should reference installed workflow path');
     assert.ok(read(workflowPath).includes(`${supportRoot}/scripts/novel_state.cjs`),
       'Installed workflow should reference installed script path');
     assert.ok(read(workflowPath).includes('story_format'),
@@ -184,9 +190,54 @@ describe('installRuntime', () => {
     assert.ok(validation.issues.some((issue) => issue.includes('missing support directory')),
       'Validation should report removed support directory');
   });
+
+  test('runtime usage hints explain Claude and Codex skill surfaces', () => {
+    const claudeHints = getRuntimeUsageHints('claude', '/tmp/claude-home').join('\n');
+    const codexHints = getRuntimeUsageHints('codex', '/tmp/codex-home').join('\n');
+
+    assert.ok(claudeHints.includes('top-level skills'),
+      'Claude hints should tell users that the public surface is skills');
+    assert.ok(claudeHints.includes('/tmp/claude-home/skills'),
+      'Claude hints should point at the installed skills directory');
+
+    assert.ok(codexHints.includes('$novel-*'),
+      'Codex hints should mention the public skill surface');
+    assert.ok(codexHints.includes('/tmp/codex-home/skills'),
+      'Codex hints should point at the installed skills directory');
+  });
 });
 
 describe('Codex conversion helpers', () => {
+  test('convertNovelCommandToClaudeSkill preserves Claude frontmatter and workflow body', () => {
+    const converted = convertNovelCommandToClaudeSkill(`---
+description: "Create a chapter"
+argument-hint: "[--next]"
+allowed-tools:
+  - Read
+  - Write
+---
+<execution_context>
+@../../workflows/write-chapter.md
+</execution_context>
+
+<context>
+$ARGUMENTS
+</context>
+
+<process>
+Use /novel:write-chapter --next to continue.
+</process>
+`, 'novel-write-chapter', '/tmp/novel');
+
+    assert.ok(converted.includes('name: "novel-write-chapter"'));
+    assert.ok(converted.includes('argument-hint: "[--next]"'));
+    assert.ok(converted.includes('allowed-tools:'));
+    assert.ok(converted.includes('@/tmp/novel/workflows/write-chapter.md'));
+    assert.ok(converted.includes('$ARGUMENTS'));
+    assert.ok(converted.includes('novel-write-chapter --next'));
+    assert.ok(!converted.includes('/novel:write-chapter'));
+  });
+
   test('getNovelCodexSkillAdapterHeader documents spawn_agent behavior', () => {
     const header = getNovelCodexSkillAdapterHeader('novel-write-chapter');
     assert.ok(header.includes('$novel-write-chapter'));

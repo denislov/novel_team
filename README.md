@@ -26,8 +26,10 @@ If you prefer `npx`, this repo now exposes the `novel-tool` binary via `package.
 
 The source of truth still lives under `plugins/novel/`, but the installer materializes runtime-specific surfaces:
 
-- Claude Code: `~/.claude/commands/novel/*.md`, `~/.claude/agents/novel-*.md`, `~/.claude/novel/*`
+- Claude Code: `~/.claude/skills/novel-*/SKILL.md`, `~/.claude/agents/novel-*.md`, `~/.claude/novel/*`
 - Codex: `~/.codex/skills/novel-*`, `~/.codex/agents/novel-*.toml`, `~/.codex/config.toml`, `~/.codex/novel/*`
+
+Important: Claude now installs Novel as top-level `skills/novel-*`. The legacy `commands/novel/` surface is no longer installed.
 
 The extra `novel/` support bundle is intentional. It keeps command, workflow, template, script, and skill references stable after install instead of depending on plugin-root-relative paths.
 
@@ -46,7 +48,7 @@ The old local-plugin install flow had three reliability problems:
 
 The new installer fixes that by:
 
-- writing Claude slash commands and Claude agent markdown directly into Claude's config tree
+- writing Claude top-level skills and Claude agent markdown directly into Claude's config tree
 - writing Codex skills plus per-agent `.toml` configs and the matching `config.toml` sections for named agents
 - rewriting internal references to installed absolute paths
 - exposing `validate` so incomplete installs fail visibly

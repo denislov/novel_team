@@ -175,6 +175,36 @@ function extractFrontmatterField(frontmatter, fieldName) {
   return match ? match[1].trim().replace(/^['"]|['"]$/g, '') : '';
 }
 
+function extractFrontmatterList(frontmatter, fieldName) {
+  if (!frontmatter) return [];
+
+  const lines = String(frontmatter).split(/\r?\n/);
+  const items = [];
+  let collecting = false;
+
+  for (const line of lines) {
+    if (!collecting) {
+      if (new RegExp(`^${fieldName}:\\s*$`).test(line.trim())) {
+        collecting = true;
+      }
+      continue;
+    }
+
+    if (/^\s*-\s+/.test(line)) {
+      items.push(line.replace(/^\s*-\s+/, '').trim());
+      continue;
+    }
+
+    if (!line.trim()) {
+      continue;
+    }
+
+    break;
+  }
+
+  return items;
+}
+
 function extractTaggedBlock(content, tagName) {
   const match = content.match(new RegExp(`<${tagName}>([\\s\\S]*?)<\\/${tagName}>`));
   return match ? match[1].trim() : '';
@@ -363,9 +393,40 @@ function rewriteRuntimeContent(content, runtime, supportRootPromptPath) {
   if (runtime === 'codex') {
     rewritten = rewritten.replace(/\/novel:([a-z][a-z0-9-]*)/g, '$novel-$1');
     rewritten = rewritten.replace(/\$ARGUMENTS\b/g, '{{NOVEL_ARGS}}');
+  } else if (runtime === 'claude') {
+    rewritten = rewritten.replace(/\/novel:([a-z][a-z0-9-]*)/g, 'novel-$1');
   }
 
   return rewritten;
+}
+
+function convertNovelCommandToClaudeSkill(content, skillName, supportRootPromptPath) {
+  const converted = rewriteRuntimeContent(content, 'claude', supportRootPromptPath);
+  const { frontmatter, body } = extractFrontmatterAndBody(converted);
+  const description = toSingleLine(
+    extractFrontmatterField(frontmatter, 'description') || `Run Novel workflow ${skillName}.`
+  );
+  const argumentHint = extractFrontmatterField(frontmatter, 'argument-hint');
+  const allowedTools = extractFrontmatterList(frontmatter, 'allowed-tools');
+  const lines = [
+    '---',
+    `name: ${yamlQuote(skillName)}`,
+    `description: ${yamlQuote(description)}`,
+  ];
+
+  if (argumentHint) {
+    lines.push(`argument-hint: ${yamlQuote(argumentHint)}`);
+  }
+
+  if (allowedTools.length > 0) {
+    lines.push('allowed-tools:');
+    for (const tool of allowedTools) {
+      lines.push(`  - ${tool}`);
+    }
+  }
+
+  lines.push('---', '', body.trimStart());
+  return lines.join('\n');
 }
 
 function getNovelCodexSkillAdapterHeader(skillName, requiredAgentContract = '') {
@@ -564,18 +625,24 @@ function installSupportBundle(targetDir, runtime) {
 
 function installClaudeRuntime(targetDir, supportRootPromptPath) {
   const src = sourceRoot();
-  const commandsDest = path.join(targetDir, 'commands', 'novel');
+  const skillsDest = path.join(targetDir, 'skills');
   const agentsDest = path.join(targetDir, 'agents');
+  const legacyCommandsDest = path.join(targetDir, 'commands', 'novel');
 
-  removeIfExists(commandsDest);
-  ensureDir(commandsDest);
+  removeIfExists(legacyCommandsDest);
+  ensureDir(skillsDest);
   ensureDir(agentsDest);
+
+  for (const skillName of listPublicCodexSkills()) {
+    removeIfExists(path.join(skillsDest, skillName));
+  }
 
   for (const commandFile of listSourceCommands()) {
     const srcPath = path.join(src, 'commands', commandFile);
+    const skillName = skillNameFromCommandFile(commandFile);
     writeText(
-      path.join(commandsDest, commandFile),
-      rewriteRuntimeContent(readText(srcPath), 'claude', supportRootPromptPath)
+      path.join(skillsDest, skillName, 'SKILL.md'),
+      convertNovelCommandToClaudeSkill(readText(srcPath), skillName, supportRootPromptPath)
     );
   }
 
@@ -667,17 +734,19 @@ function validateRuntime(options) {
   }
 
   if (runtime === 'claude') {
-    const commandsDir = path.join(targetDir, 'commands', 'novel');
+    const skillsDir = path.join(targetDir, 'skills');
     const agentsDir = path.join(targetDir, 'agents');
-    const commandCount = fs.existsSync(commandsDir)
-      ? fs.readdirSync(commandsDir).filter((file) => file.endsWith('.md')).length
+    const skillCount = fs.existsSync(skillsDir)
+      ? fs.readdirSync(skillsDir, { withFileTypes: true })
+        .filter((entry) => entry.isDirectory() && listPublicCodexSkills().includes(entry.name))
+        .length
       : 0;
     const agentCount = fs.existsSync(agentsDir)
       ? fs.readdirSync(agentsDir).filter((file) => file.startsWith('novel-') && file.endsWith('.md')).length
       : 0;
 
-    if (commandCount !== listSourceCommands().length) {
-      issues.push(`expected ${listSourceCommands().length} Claude commands, found ${commandCount}`);
+    if (skillCount !== listPublicCodexSkills().length) {
+      issues.push(`expected ${listPublicCodexSkills().length} Claude skills, found ${skillCount}`);
     }
     if (agentCount !== listSourceAgents().length) {
       issues.push(`expected ${listSourceAgents().length} Claude agents, found ${agentCount}`);
@@ -755,6 +824,13 @@ function uninstallRuntime(options) {
   removeIfExists(path.join(targetDir, supportInstallName()));
 
   if (runtime === 'claude') {
+    const skillsDir = path.join(targetDir, 'skills');
+    if (fs.existsSync(skillsDir)) {
+      for (const skillName of listPublicCodexSkills()) {
+        removeIfExists(path.join(skillsDir, skillName));
+      }
+    }
+
     removeIfExists(path.join(targetDir, 'commands', 'novel'));
     const agentsDir = path.join(targetDir, 'agents');
     if (fs.existsSync(agentsDir)) {
@@ -801,6 +877,28 @@ function printValidation(validation) {
   console.log(`  ${red}✗${reset} ${label} validation failed at ${cyan}${validation.targetDir}${reset}`);
   for (const issue of validation.issues) {
     console.log(`    - ${issue}`);
+  }
+}
+
+function getRuntimeUsageHints(runtime, targetDir) {
+  if (runtime === 'claude') {
+    return [
+      `Use Claude public skills from ${cyan}${path.join(targetDir, 'skills')}${reset}`,
+      `Claude installs Novel as top-level skills plus raw agent markdown`,
+      `Claude Novel agents live in ${cyan}${path.join(targetDir, 'agents')}${reset}`,
+    ];
+  }
+
+  return [
+    `Use Codex public skills from ${cyan}${path.join(targetDir, 'skills')}${reset}`,
+    `Codex installs the public ${cyan}$novel-*${reset} skill surface plus named agent configs`,
+    `Codex agent registrations are written to ${cyan}${path.join(targetDir, 'config.toml')}${reset}`,
+  ];
+}
+
+function printRuntimeUsageHints(runtime, targetDir) {
+  for (const hint of getRuntimeUsageHints(runtime, targetDir)) {
+    console.log(`    - ${hint}`);
   }
 }
 
@@ -920,6 +1018,7 @@ function runCli() {
           explicitConfigDir: parsed.explicitConfigDir,
         });
         console.log(`  ${green}✓${reset} Installed ${label} to ${cyan}${validation.targetDir}${reset}`);
+        printRuntimeUsageHints(runtime, validation.targetDir);
         continue;
       }
 
@@ -940,6 +1039,9 @@ function runCli() {
           explicitConfigDir: parsed.explicitConfigDir,
         });
         printValidation(validation);
+        if (validation.ok) {
+          printRuntimeUsageHints(runtime, validation.targetDir);
+        }
         if (!validation.ok) hadError = true;
       }
     } catch (error) {
@@ -961,6 +1063,7 @@ module.exports = {
   CODEX_AGENT_SANDBOX,
   INTERNAL_CODEX_SKILLS,
   NOVEL_CODEX_MARKER,
+  convertNovelCommandToClaudeSkill,
   convertNovelCommandToCodexSkill,
   convertClaudeAgentToCodexAgent,
   extractFrontmatterAndBody,
@@ -978,6 +1081,7 @@ module.exports = {
   listSourceSkills,
   parseArgs,
   promptPathFor,
+  getRuntimeUsageHints,
   rewriteRuntimeContent,
   rewriteSupportReferences,
   scanUnresolvedReferences,

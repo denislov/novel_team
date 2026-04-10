@@ -69,17 +69,19 @@ Codex 中建议使用显式的公开技能入口：
 
 ### Claude Code
 
-Claude Code 中使用 slash commands：
+Claude Code 中使用 top-level skills：
 
-- `/novel:new-project`
-- `/novel:map-base`
-- `/novel:plan-arc`
-- `/novel:plan-batch`
-- `/novel:write-chapter`
-- `/novel:review`
-- `/novel:progress`
-- `/novel:next`
-- `/novel:help`
+- `novel-new-project`
+- `novel-map-base`
+- `novel-plan-arc`
+- `novel-plan-batch`
+- `novel-write-chapter`
+- `novel-review`
+- `novel-progress`
+- `novel-next`
+- `novel-help`
+
+注意：Claude 与 Codex 现在都使用同名 `novel-*` skill。本文下面的示例如果写成 `$novel-*`，那是 Codex 的调用写法；在 Claude Code 中对应的是同名 `novel-*` skill。
 
 ## 5. 标准项目结构
 
@@ -120,7 +122,7 @@ Novel 会围绕一个根目录结构项目工作。核心文件如下：
 
 如果你是从零开始写新作品，推荐流程是：
 
-1. 运行 `$novel-new-project` 或 `/novel:new-project`
+1. 运行 `novel-new-project` skill；在 Codex 中对应写法是 `$novel-new-project`
 2. 根据提示选择作品形态、题材、目标字数、主角设定等
 3. 如果是长篇，视需要运行 `$novel-plan-arc`
 4. 用 `$novel-plan-batch 1-10` 先铺一批大纲
@@ -189,18 +191,18 @@ $novel-write-chapter --next
 
 | 命令 | 用途 |
 |------|------|
-| `$novel-new-project` / `/novel:new-project` | 从零初始化一个结构化小说项目 |
-| `$novel-map-base` / `/novel:map-base` | 将已有资料整理进 Novel 标准结构 |
-| `$novel-plan-arc` / `/novel:plan-arc` | 规划新卷或新阶段 |
-| `$novel-plan-batch` / `/novel:plan-batch` | 批量生成章节或故事单元大纲 |
-| `$novel-write-chapter` / `/novel:write-chapter` | 标准创作流程：规划 -> 写作 -> 润色 -> 审核 |
-| `$novel-quick-draft` / `/novel:quick-draft` | 快速产出草稿 |
-| `$novel-polish` / `/novel:polish` | 润色正文 |
-| `$novel-review` / `/novel:review` | 审核逻辑、人设、时间线、雷点 |
-| `$novel-research` / `/novel:research` | 做历史、行业、设定等研究 |
-| `$novel-progress` / `/novel:progress` | 查看当前项目状态和推荐下一步 |
-| `$novel-next` / `/novel:next` | 自动推进到下一条最合理的命令 |
-| `$novel-help` / `/novel:help` | 查看命令参考 |
+| `novel-new-project` | 从零初始化一个结构化小说项目 |
+| `novel-map-base` | 将已有资料整理进 Novel 标准结构 |
+| `novel-plan-arc` | 规划新卷或新阶段 |
+| `novel-plan-batch` | 批量生成章节或故事单元大纲 |
+| `novel-write-chapter` | 标准创作流程：规划 -> 写作 -> 润色 -> 审核 |
+| `novel-quick-draft` | 快速产出草稿 |
+| `novel-polish` | 润色正文 |
+| `novel-review` | 审核逻辑、人设、时间线、雷点 |
+| `novel-research` | 做历史、行业、设定等研究 |
+| `novel-progress` | 查看当前项目状态和推荐下一步 |
+| `novel-next` | 自动推进到下一条最合理的命令 |
+| `novel-help` | 查看命令参考 |
 
 ## 9. 什么时候用哪个命令
 

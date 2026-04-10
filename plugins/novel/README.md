@@ -55,7 +55,7 @@ The runtime materialization logic now follows the same principle as `get-shit-do
 
 This source tree is shared, but the installed output is intentionally different:
 
-- Claude Code installs slash commands to `commands/novel/` and raw agent markdown to `agents/`
+- Claude Code installs top-level skills to `skills/`, raw agent markdown to `agents/`, and the support bundle to `novel/`
 - Codex installs top-level skills to `skills/`, support files to `novel/`, and named agent registrations to `config.toml` plus `agents/*.toml`
 
 That split is required because Claude discovers agents from markdown frontmatter, while Codex discovers named agents from its config and per-agent TOML files.
@@ -67,7 +67,7 @@ The Codex port keeps the existing `commands/`, `workflows/`, `templates/`, and `
 - `commands/_codex-conventions.md` translates Claude-oriented workflow primitives such as `AskUserQuestion`, `SpawnAgent`, and `SlashCommand`
 - `skills/novel-command-center/SKILL.md` acts as the Codex router for `$novel-*` skills and natural-language requests
 - `skills/novel-writing/SKILL.md` remains the core writing/style/project-memory skill
-- `scripts/map_base.cjs` provides a real import/normalization implementation for `/novel:map-base`
+- `scripts/map_base.cjs` provides a real import/normalization implementation for the `novel-map-base` workflow
 - `scripts/novel_state.cjs` provides shared state, target, and range resolution used across the core workflows
 
 ## Primary Entry Points
@@ -85,15 +85,15 @@ In Codex, use skills rather than slash commands:
 - `$novel-next`
 - `$novel-help`
 
-In Claude Code, use slash commands such as:
+In Claude Code, use the same skill names without the `$` prefix:
 
-- `/novel:new-project`
-- `/novel:map-base`
-- `/novel:plan-arc`
-- `/novel:plan-batch`
-- `/novel:write-chapter`
-- `/novel:review`
-- `/novel:progress`
+- `novel-new-project`
+- `novel-map-base`
+- `novel-plan-arc`
+- `novel-plan-batch`
+- `novel-write-chapter`
+- `novel-review`
+- `novel-progress`
 
 ## Codex Execution Reliability
 
