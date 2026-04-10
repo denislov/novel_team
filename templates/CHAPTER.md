@@ -11,9 +11,12 @@ title: [章节标题]
 arc: [卷名/阶段]
 pov: [视角人物]
 story_date: [故事时间]
+target_words: 3000
+hard_ceiling: 4000
 status: draft/polished/published
 version: v1
 words: 0
+budget_result: within_target/near_ceiling/split_required
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
 ---
@@ -39,6 +42,9 @@ updated: YYYY-MM-DD
 ## 创作备注
 
 - **本章推进目标是否完成**：
+- **must_land 是否已完成**：
+- **can_rollover**：
+- **split_point**：
 - **需要回写的设定**：
 - **下一章接口**：
 ```
@@ -50,6 +56,7 @@ updated: YYYY-MM-DD
 **定位：**
 - `CHAPTER.md` 是正文产物，不是分析报告。
 - 模板里的“创作备注”只在草稿阶段使用，定稿后可以删掉或转移到 `STATE.md`。
+- `target_words` / `hard_ceiling` / `budget_result` 用来记录章节预算执行情况，避免后续章节持续漂长
 
 **草稿阶段：**
 - 可以保留备注
@@ -58,7 +65,7 @@ updated: YYYY-MM-DD
 
 **发布前：**
 - 删除占位语和提示语
-- 检查 frontmatter 的 `status`、`version`、`words`
+- 检查 frontmatter 的 `status`、`version`、`words`、`budget_result`
 - 把状态变化同步到 `STATE.md`、`TIMELINE.md`、`CHARACTERS.md`
 
 </guidelines>

@@ -11,6 +11,7 @@ title: [章节标题]
 arc: [卷名/阶段]
 pov: [视角人物]
 target_words: 3000
+hard_ceiling: 4000
 story_date: [故事时间]
 status: 待写作
 created: YYYY-MM-DD
@@ -25,6 +26,12 @@ updated: YYYY-MM-DD
 - **人物推进**：
 - **情绪推进**：
 - **本章结果**：
+
+## 预算控制
+
+- **must_land**：
+- **can_rollover**：
+- **split_point**：
 
 ## 模式适配说明
 
@@ -108,12 +115,15 @@ updated: YYYY-MM-DD
 **定位：**
 - `CHAPTER-OUTLINE.md` 只回答一件事：这一章怎么写才不散、不乱、不空。
 - 当 `planning_unit = story` 时，它回答的是：“这一篇故事怎么写才不散、不乱、不空。”
+- 当章节预算吃紧时，优先保证 `must_land`，其余内容进入 `can_rollover`
+- 单章预计超出 `hard_ceiling` 时，必须提前给出 `split_point`
 
 **该放什么：**
 - 章节目标
 - 场景拆分
 - 情绪与冲突设计
 - 伏笔和时间线安排
+- `must_land` / `can_rollover` / `split_point`
 - 若是 `short_story` 或 `story_collection`，则放故事级目标与场景设计即可
 
 **不该放什么：**

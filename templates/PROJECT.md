@@ -14,6 +14,7 @@ genre: [题材]
 era: [起始时间/世界线]
 target_words: [目标字数]
 chapter_words: 3000
+chapter_word_ceiling: 4000
 target_chapters: [目标章数]
 status: 规划中
 created: YYYY-MM-DD
@@ -67,6 +68,7 @@ updated: YYYY-MM-DD
 | 世界线起始 | |
 | 目标字数 | |
 | 章节字数 | 3000字/章 |
+| 章节硬上限 | 4000字 |
 | 目标章数 | |
 | 当前状态 | 规划中/连载中/已完结 |
 

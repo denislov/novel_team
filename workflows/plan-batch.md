@@ -118,6 +118,8 @@ ROADMAP=$(cat ROADMAP.md)
 CHARACTERS=$(cat CHARACTERS.md)
 TIMELINE=$(cat TIMELINE.md)
 STATE=$(cat STATE.md)
+CHAPTER_WORD_BUDGET=$(node scripts/novel_state.cjs stats --root . --field chapter_words)
+CHAPTER_WORD_CEILING=$(node scripts/novel_state.cjs stats --root . --field chapter_word_ceiling)
 ```
 
 ### 3.2 确定阶段目标
@@ -125,6 +127,11 @@ STATE=$(cat STATE.md)
 如果 `GOAL` 为空：
 - 从 `ROADMAP.md` 提取当前卷/当前阶段目标
 - 如果提取不清晰，询问用户补充本批章节的目标
+
+同时遵守章节预算规则：
+- 单章以 `CHAPTER_WORD_BUDGET` 为目标长度
+- 单章超过 `CHAPTER_WORD_CEILING` 视为过载，必须在规划阶段提前拆章
+- 对每章明确写出 `must_land`、`can_rollover`、`split_point`
 
 ### 3.3 逐章调用 Planner
 
@@ -138,6 +145,8 @@ for CHAPTER in $(seq $START $END); do
       chapter_number: CHAPTER,
       batch_range: "${START}-${END}",
       batch_goal: GOAL,
+      chapter_word_budget: CHAPTER_WORD_BUDGET,
+      chapter_word_ceiling: CHAPTER_WORD_CEILING,
       project: PROJECT,
       roadmap: ROADMAP,
       characters: CHARACTERS,
@@ -187,6 +196,7 @@ node scripts/novel_state.cjs refresh \
 
 【范围】第 ${START}-${END} 章
 【目标】${GOAL}
+【章节预算】目标 ${CHAPTER_WORD_BUDGET} 字 / 硬上限 ${CHAPTER_WORD_CEILING} 字
 
 【输出文件】
 - chapters/outlines/outline-${START}.md ... outline-${END}.md

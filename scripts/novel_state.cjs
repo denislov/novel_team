@@ -164,11 +164,25 @@ function loadProjectMetadata(root) {
   const statePath = path.join(root, 'STATE.md');
   const projectText = fileExists(projectPath) ? readText(projectPath) : '';
   const stateText = fileExists(statePath) ? readText(statePath) : '';
+  const chapterWordsRaw = frontmatterValue(projectText, 'chapter_words')
+    || frontmatterValue(stateText, 'chapter_words')
+    || '3000';
+  const chapterWordCeilingRaw = frontmatterValue(projectText, 'chapter_word_ceiling')
+    || frontmatterValue(stateText, 'chapter_word_ceiling');
+  const chapterWords = Number.parseInt(String(chapterWordsRaw).match(/\d+/)?.[0] || '3000', 10);
+  const parsedCeiling = chapterWordCeilingRaw
+    ? Number.parseInt(String(chapterWordCeilingRaw).match(/\d+/)?.[0] || '', 10)
+    : NaN;
+  const chapterWordCeiling = Number.isInteger(parsedCeiling) && parsedCeiling > chapterWords
+    ? parsedCeiling
+    : chapterWords + 1000;
 
   return {
     story_format: frontmatterValue(projectText, 'story_format') || frontmatterValue(stateText, 'story_format') || 'long_form',
     planning_unit: frontmatterValue(projectText, 'planning_unit') || frontmatterValue(stateText, 'planning_unit') || 'chapter',
     target_length_band: frontmatterValue(projectText, 'target_length_band') || 'medium_long',
+    chapter_words: chapterWords,
+    chapter_word_ceiling: chapterWordCeiling,
   };
 }
 
@@ -328,6 +342,8 @@ function computeStats(root) {
     story_format: projectMeta.story_format,
     planning_unit: projectMeta.planning_unit,
     target_length_band: projectMeta.target_length_band,
+    chapter_words: projectMeta.chapter_words,
+    chapter_word_ceiling: projectMeta.chapter_word_ceiling,
     status,
     current_arc: loadCurrentArc(root),
     current_chapter: latestChapter,

@@ -99,8 +99,28 @@ describe('novel_state.cjs', () => {
     const stats = computeStats(tmpDir);
     assert.strictEqual(stats.story_format, 'long_form');
     assert.strictEqual(stats.planning_unit, 'chapter');
+    assert.strictEqual(stats.chapter_words, 3000);
+    assert.strictEqual(stats.chapter_word_ceiling, 4000);
     assert.strictEqual(stats.recommended_command, 'plan-batch');
     assert.strictEqual(stats.recommended_args, '1-10');
+  });
+
+  test('computeStats reads chapter budget from PROJECT frontmatter', () => {
+    makeProject(tmpDir);
+    write(path.join(tmpDir, 'PROJECT.md'), `
+---
+title: 九河城
+story_format: long_form
+planning_unit: chapter
+chapter_words: 3600
+chapter_word_ceiling: 4800
+---
+# 《九河城》项目设定
+`);
+
+    const stats = computeStats(tmpDir);
+    assert.strictEqual(stats.chapter_words, 3600);
+    assert.strictEqual(stats.chapter_word_ceiling, 4800);
   });
 
   test('computeStats uses lighter routing for short stories', () => {

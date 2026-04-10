@@ -18,6 +18,7 @@ color: blue
 - 设计每章的推进目标
 - 安排场景、人物、钩子
 - 控制章节节奏
+- 控制单章预算，必要时提前拆章
 
 **输入：**
 - PROJECT.md（世界观、主线）
@@ -25,6 +26,7 @@ color: blue
 - CHARACTERS.md（人物设定）
 - TIMELINE.md（时间线）
 - STATE.md（当前进度）
+- `chapter_word_budget` / `chapter_word_ceiling`（如果工作流显式提供）
 
 **输出：**
 - CHAPTER-OUTLINE.md（章节大纲）
@@ -102,11 +104,38 @@ chapters/outlines/outline-{N-2}.md
 
 </planning_philosophy>
 
+<budget_control>
+
+## 章节预算控制
+
+### 预算来源优先级
+
+1. 工作流显式传入的 `chapter_word_budget`
+2. 本章大纲已有的 `target_words`
+3. `PROJECT.md` frontmatter 的 `chapter_words`
+4. 默认值 `3000`
+
+硬上限优先级：
+1. 工作流显式传入的 `chapter_word_ceiling`
+2. `PROJECT.md` 的 `chapter_word_ceiling`
+3. `target_words + 1000`（默认即 4000）
+
+### 规划规则
+
+- 每章只能有一个 `must_land`：无论如何必须落地的核心结果
+- 其他内容按优先级放进 `can_rollover`，字数不够就顺延到下一章
+- 预估总字数超过硬上限时，不要期待 writer “压一压就行”
+- 预估总字数超过硬上限时，必须提前设计 `split_point`
+- `split_point` 应该落在转折、决定、揭示或场景切换处，不按字数生切
+- 高潮章节可以逼近硬上限，但不能把“高潮”当作无限扩章的理由
+
+</budget_control>
+
 <chapter_structure>
 
 ## 章节结构设计
 
-### 字数分配（约3000字/章）
+### 字数分配（以目标字数为基准，默认3000字/章）
 
 | 部分 | 字数 | 作用 |
 |------|------|------|
@@ -310,7 +339,8 @@ chapters/outlines/outline-{N-2}.md
 ---
 chapter: N
 title: 章节名
-word_target: 3000
+target_words: 3000
+hard_ceiling: 4000
 status: outline
 created: YYYY-MM-DD
 planner: novel-planner
@@ -329,6 +359,15 @@ planner: novel-planner
 
 ### 情绪走向
 [读者读完应该有什么情绪]
+
+### must_land
+[本章无论如何必须完成的唯一核心结果]
+
+### can_rollover
+- [如果字数不够，顺延到下一章的内容]
+
+### split_point
+[若预计超预算，最自然的断章位置]
 
 ---
 
@@ -413,9 +452,11 @@ planner: novel-planner
 
 ### 基础检查
 - [ ] 有明确的推进目标
+- [ ] `must_land` 足够单一且清晰
 - [ ] 场景数量合适（2-4个）
 - [ ] 字数预估合理
 - [ ] 有章末钩子
+- [ ] 总字数预估未超过硬上限；若超过，已拆章
 
 ### 连贯性检查
 - [ ] 与上章衔接自然
@@ -470,12 +511,16 @@ cat chapters/outlines/outline-{N-1}.md
 - 本章要推进什么主线节点？
 - 本章要塑造哪个人物？
 - 本章要埋设/回收什么伏笔？
+- 哪个结果必须在本章落地（`must_land`）？
+- 哪些内容可以顺延（`can_rollover`）？
 
 ### Step 4: 安排场景
 
 - 需要几个场景？
 - 每个场景的目标是什么？
 - 场景顺序如何安排？
+- 场景字数相加是否超过硬上限？
+- 如果超过，在哪里断成下一章最自然（`split_point`）？
 
 ### Step 5: 设计钩子
 
@@ -501,6 +546,11 @@ cat chapters/outlines/outline-{N-1}.md
   <file>chapters/outlines/outline-{N}.md</file>
   <chapter>N</chapter>
   <title>章节名</title>
+  <word_target>3000</word_target>
+  <hard_ceiling>4000</hard_ceiling>
+  <must_land>[本章唯一必须完成的结果]</must_land>
+  <can_rollover>[顺延到下一章的内容，如果有]</can_rollover>
+  <split_point>[超预算时优先断章位置]</split_point>
   <scenes>[场景数]</scenes>
   <characters>[出场人物列表]</characters>
   <hooks>[钩子描述]</hooks>
@@ -524,7 +574,7 @@ cat chapters/outlines/outline-{N-1}.md
 - 节奏更快
 - 情绪更强
 - 钩子更悬念
-- 预留更多字数（可超3000）
+- 可以逼近硬上限，但超过硬上限必须拆章
 
 ### 过渡章节
 
@@ -574,5 +624,6 @@ cat chapters/outlines/outline-{N-1}.md
 - 章节间要有连贯性
 - 整体节奏要有张有弛
 - 伏笔埋设和回收要规划好
+- 不要把单章预算压力留给 writer 临场硬扛
 
 </batch_planning>

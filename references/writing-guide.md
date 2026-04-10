@@ -42,6 +42,7 @@ Use the matching files under `templates/` when creating or rewriting these artif
 - Supporting characters need their own motives.
 - Preserve tension and pacing without rushing or padding.
 - Major payoffs must respect established rules.
+- Respect the chapter word budget. Finish one `must_land` result per chapter, and roll overflow into the next chapter instead of inflating the current one.
 
 ## Style Rules
 
@@ -54,6 +55,7 @@ Use the matching files under `templates/` when creating or rewriting these artif
 ## Self-Check
 
 - Does this chapter advance plot, character, or both?
+- Did this chapter complete its `must_land` without overrunning the hard ceiling?
 - Do actions match each character's history, incentives, and personality?
 - Are time, age, season, and continuity still aligned?
 - Did we avoid deus ex machina, dumbed-down antagonists, and filler?

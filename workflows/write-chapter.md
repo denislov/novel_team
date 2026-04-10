@@ -97,6 +97,10 @@ cat STATE.md
 cat PROJECT.md
 cat CHARACTERS.md
 cat TIMELINE.md
+
+# 读取章节预算（默认目标 3000，硬上限 4000；可在 PROJECT.md frontmatter 覆盖）
+CHAPTER_WORD_BUDGET=$(node scripts/novel_state.cjs stats --root . --field chapter_words)
+CHAPTER_WORD_CEILING=$(node scripts/novel_state.cjs stats --root . --field chapter_word_ceiling)
 ```
 
 ### 2.2 检查章节状态
@@ -132,6 +136,7 @@ fi
 【项目】《[书名]》
 【当前进度】第 [N] 章 / 共 [M] 章
 【当前卷】第 [V] 卷：[卷名]
+【章节预算】目标 ${CHAPTER_WORD_BUDGET} 字 / 硬上限 ${CHAPTER_WORD_CEILING} 字
 
 【创作模式】
 - 规划阶段：$([ "$SKIP_PLAN" = false ] && echo "✓ 启用" || echo "✗ 跳过")
@@ -172,6 +177,8 @@ SpawnAgent(
   agent: novel-planner,
   input: {
     chapter_number: CHAPTER_NUMBER,
+    chapter_word_budget: CHAPTER_WORD_BUDGET,
+    chapter_word_ceiling: CHAPTER_WORD_CEILING,
     project: PROJECT,
     roadmap: ROADMAP,
     characters: CHARACTERS,
@@ -187,6 +194,9 @@ SpawnAgent(
 
 - `outline-${CHAPTER_NUMBER}.md`：章节大纲
   - 推进目标
+  - `must_land`（本章最低必须落地的唯一核心目标）
+  - `can_rollover`（字数不够时顺延到下一章的目标）
+  - `split_point`（超预算时优先断章的位置）
   - 场景设计
   - 人物出场
   - 钩子设置
@@ -281,6 +291,8 @@ SpawnAgent(
   agent: novel-writer,
   input: {
     chapter_number: CHAPTER_NUMBER,
+    chapter_word_budget: CHAPTER_WORD_BUDGET,
+    chapter_word_ceiling: CHAPTER_WORD_CEILING,
     project: PROJECT,
     characters: CHARACTERS,
     timeline: TIMELINE,
@@ -296,6 +308,8 @@ SpawnAgent(
 
 - `chapter-${CHAPTER_NUMBER}-draft.md`：章节草稿
   - 正文内容（约3000字）
+  - `budget_result`：`within_target` / `near_ceiling` / `split_required`
+  - `carry_over`：因预算顺延到下章的目标（如果有）
   - 章节元数据
   - 伏笔记录
   - 章末钩子
@@ -310,6 +324,8 @@ SpawnAgent(
 
 【章节名】[章节名]
 【字数】[XXXX] 字
+【预算】目标 ${CHAPTER_WORD_BUDGET} / 硬上限 ${CHAPTER_WORD_CEILING}
+【预算结果】within_target / near_ceiling / split_required
 
 【自检结果】
 - [x] 推进主线
@@ -326,6 +342,43 @@ SpawnAgent(
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
+
+### 4.5 字数闸门
+
+writer 完成后，必须先用正文实算脚本检查，再决定是否进入润色：
+
+```bash
+node scripts/chapter_budget.cjs inspect \
+  --root . \
+  --chapter ${CHAPTER_NUMBER} \
+  --source draft \
+  --json
+
+node scripts/chapter_budget.cjs gate \
+  --root . \
+  --chapter ${CHAPTER_NUMBER} \
+  --source draft
+```
+
+脚本输出里：
+- `prose_chars`：只统计正文可见非空白字符，不含 frontmatter、元数据、审核表格
+- `target_words`：本章目标字数
+- `hard_ceiling`：本章硬上限
+- `budget_status`：`within_target` / `near_ceiling` / `over_ceiling`
+
+处理规则：
+- 如果 `prose_chars <= CHAPTER_WORD_BUDGET`：正常进入后续阶段
+- 如果 `prose_chars <= CHAPTER_WORD_CEILING` 且 `budget_result != split_required`：允许进入后续阶段，但标记为“接近上限”
+- 如果 `prose_chars > CHAPTER_WORD_CEILING`，或 writer 明确返回 `budget_result = split_required`：
+  1. 暂停润色和审核
+  2. 保留当前章的 `must_land`、章末钩子和必要收束，不再硬塞 `can_rollover`
+  3. 重新调用 `novel-planner`，把超出的推进量拆到下一章：
+     - 修订 `outline-${CHAPTER_NUMBER}.md`，只保留本章必须落地的部分
+     - 生成或更新 `outline-$((CHAPTER_NUMBER + 1)).md`，写入顺延目标和承接钩子
+  4. Writer 基于修订后的当前章大纲重写当前章
+  5. 当前章回到预算内后，再继续润色和审核
+
+规则：超预算时优先拆章，不优先放宽单章长度。只有卷末高潮或明确标记的例外章节，才允许逼近硬上限。
 
 </writing_phase>
 
@@ -409,12 +462,14 @@ AskUserQuestion(
 接受润色版时，运行：
 
 ```bash
+node scripts/chapter_budget.cjs gate --root . --chapter ${CHAPTER_NUMBER} --source polished
 node scripts/chapter_ops.cjs apply-polish --root . --chapter ${CHAPTER_NUMBER} --force
 ```
 
 保留草稿版时，运行：
 
 ```bash
+node scripts/chapter_budget.cjs gate --root . --chapter ${CHAPTER_NUMBER} --source draft
 node scripts/chapter_ops.cjs use-draft --root . --chapter ${CHAPTER_NUMBER} --force
 ```
 
@@ -423,6 +478,7 @@ node scripts/chapter_ops.cjs use-draft --root . --chapter ${CHAPTER_NUMBER} --fo
 - 运行：
 
 ```bash
+node scripts/chapter_budget.cjs gate --root . --chapter ${CHAPTER_NUMBER} --source draft
 node scripts/chapter_ops.cjs use-draft --root . --chapter ${CHAPTER_NUMBER} --force
 ```
 

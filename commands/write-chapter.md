@@ -27,6 +27,7 @@ Run the standard chapter production pipeline for a novel project.
 @workflows/write-chapter.md
 @scripts/novel_state.cjs
 @scripts/chapter_ops.cjs
+@scripts/chapter_budget.cjs
 @references/command-center.md
 @references/writing-guide.md
 @templates/CHAPTER-OUTLINE.md
