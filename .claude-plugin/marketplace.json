@@ -12,7 +12,7 @@
       "name": "novel",
       "description": "Structured long-form fiction workflow with project setup, arc planning, chapter pipelines, research, review, and state-driven orchestration.",
       "version": "0.1.0",
-      "source": "./plugins/novel",
+      "source": ".",
       "category": "writing"
     }
   ]

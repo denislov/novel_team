@@ -7,7 +7,14 @@
   },
   "files": [
     "bin",
-    "plugins",
+    "agents",
+    "commands",
+    "references",
+    "scripts",
+    "templates",
+    "workflows",
+    ".claude-plugin",
+    ".codex-plugin",
     "README.md"
   ],
   "engines": {

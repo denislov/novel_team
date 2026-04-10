@@ -2,7 +2,7 @@ const assert = require('node:assert');
 const path = require('node:path');
 const { describe, test } = require('node:test');
 
-const { buildCopyPlan, resolveCopyDestination } = require('../plugins/novel/scripts/map_base/resolve.cjs');
+const { buildCopyPlan, resolveCopyDestination } = require('../scripts/map_base/resolve.cjs');
 
 describe('map_base resolve', () => {
   test('resolveCopyDestination maps chapter and outline targets deterministically', () => {

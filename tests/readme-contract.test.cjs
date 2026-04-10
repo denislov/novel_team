@@ -8,7 +8,7 @@ function read(relativePath) {
 }
 
 test('README documents Codex installation-vs-execution contract and repair path', () => {
-  const readme = read('plugins/novel/README.md');
+  const readme = read('README.md');
 
   assert.ok(readme.includes('installation correctness'));
   assert.ok(readme.includes('execution correctness'));

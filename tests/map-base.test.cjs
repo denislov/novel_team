@@ -4,7 +4,7 @@ const os = require('node:os');
 const path = require('node:path');
 const { afterEach, beforeEach, describe, test } = require('node:test');
 
-const { main } = require('../plugins/novel/scripts/map_base.cjs');
+const { main } = require('../scripts/map_base.cjs');
 
 function mkTempDir() {
   return fs.mkdtempSync(path.join(os.tmpdir(), 'map-base-'));

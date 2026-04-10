@@ -4,7 +4,7 @@ const os = require('node:os');
 const path = require('node:path');
 const { afterEach, beforeEach, describe, test } = require('node:test');
 
-const { main } = require('../plugins/novel/scripts/chapter_ops.cjs');
+const { main } = require('../scripts/chapter_ops.cjs');
 
 function mkTempDir() {
   return fs.mkdtempSync(path.join(os.tmpdir(), 'chapter-ops-'));

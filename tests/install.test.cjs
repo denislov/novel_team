@@ -6,7 +6,7 @@ const { afterEach, beforeEach, describe, test } = require('node:test');
 
 const {
   CODEX_AGENT_SANDBOX,
-  INTERNAL_CODEX_SKILLS,
+  LEGACY_INTERNAL_SKILLS,
   NOVEL_CODEX_MARKER,
   convertClaudeAgentToCodexAgent,
   convertNovelCommandToClaudeSkill,
@@ -18,9 +18,9 @@ const {
   listSourceAgents,
   listSourceCommands,
   listPublicCodexSkills,
-  listSourceSkills,
   parseArgs,
   promptPathFor,
+  sourceRoot,
   stripNovelFromCodexConfig,
   uninstallRuntime,
   validateRuntime,
@@ -63,6 +63,10 @@ describe('installRuntime', () => {
 
     assert.ok(fs.existsSync(skillPath), 'Claude skill should exist');
     assert.ok(fs.existsSync(agentPath), 'Claude agent should exist');
+    assert.ok(fs.existsSync(path.join(tmpDir, 'novel', 'references', 'writing-guide.md')),
+      'Claude support bundle should ship references');
+    assert.ok(!fs.existsSync(path.join(tmpDir, 'novel', 'skills')),
+      'Claude support bundle should not ship source skills');
     assert.ok(!fs.existsSync(path.join(tmpDir, 'commands', 'novel')),
       'Claude install should no longer expose the legacy command surface');
 
@@ -80,8 +84,10 @@ describe('installRuntime', () => {
       'Installed progress workflow should expose story format in reporting');
     assert.ok(read(nextWorkflowPath).includes('story_collection'),
       'Installed next workflow should describe collection-aware routing');
-    assert.ok(read(agentPath).includes(`${supportRoot}/skills/novel-writing/`),
-      'Claude agent should reference installed skill bundle path');
+    assert.ok(read(agentPath).includes(`${supportRoot}/references/`),
+      'Claude agent should reference installed references directory');
+    assert.ok(read(agentPath).includes('writing-guide.md'),
+      'Claude agent should reference the writing guide');
   });
 
   test('installs Codex skills, config.toml, and agent toml files', () => {
@@ -103,6 +109,10 @@ describe('installRuntime', () => {
 
     assert.ok(fs.existsSync(skillPath), 'Codex skill should exist');
     assert.ok(fs.existsSync(commandPath), 'Codex support command should exist');
+    assert.ok(fs.existsSync(path.join(tmpDir, 'novel', 'references', 'command-center.md')),
+      'Codex support bundle should ship routing references');
+    assert.ok(!fs.existsSync(path.join(tmpDir, 'novel', 'skills')),
+      'Codex support bundle should not ship source skills');
     assert.ok(fs.existsSync(agentTomlPath), 'Codex agent toml should exist');
     assert.ok(read(skillPath).includes('## C. SpawnAgent() → spawn_agent Mapping'),
       'Codex skill should contain explicit spawn_agent mapping');
@@ -338,14 +348,14 @@ config_file = "/tmp/novel-writer.toml"
 describe('source inventory', () => {
   test('source surfaces have non-zero counts', () => {
     assert.ok(listSourceCommands().length > 0, 'commands should exist');
-    assert.ok(listSourceSkills().length > 0, 'skills should exist');
     assert.ok(listPublicCodexSkills().length > 0, 'public Codex skills should exist');
     assert.strictEqual(listPublicCodexSkills().length, listSourceCommands().length,
       'public Codex skills should be generated from commands');
-    for (const hiddenSkill of INTERNAL_CODEX_SKILLS) {
-      assert.ok(listSourceSkills().includes(hiddenSkill), `${hiddenSkill} should remain in source bundle`);
-      assert.ok(!listPublicCodexSkills().includes(hiddenSkill), `${hiddenSkill} should stay internal in Codex install`);
+    for (const legacySkill of LEGACY_INTERNAL_SKILLS) {
+      assert.ok(!listPublicCodexSkills().includes(legacySkill), `${legacySkill} should stay out of public installs`);
     }
     assert.ok(listSourceAgents().length > 0, 'agents should exist');
+    assert.ok(fs.existsSync(path.join(sourceRoot(), 'references', 'writing-guide.md')),
+      'writing guide should exist in top-level references');
   });
 });

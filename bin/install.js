@@ -14,9 +14,9 @@ const dim = '\x1b[2m';
 const reset = '\x1b[0m';
 
 const NOVEL_CODEX_MARKER = '# Novel Agent Configuration — managed by novel installer';
-const RESOURCE_DIRS = ['commands', 'workflows', 'skills', 'templates', 'scripts', 'agents'];
+const RESOURCE_DIRS = ['commands', 'workflows', 'references', 'templates', 'scripts', 'agents'];
 const SUPPORTED_RUNTIMES = ['claude', 'codex'];
-const INTERNAL_CODEX_SKILLS = new Set(['novel-command-center', 'novel-writing']);
+const LEGACY_INTERNAL_SKILLS = ['novel-command-center', 'novel-writing'];
 
 const CODEX_AGENT_SANDBOX = {
   'novel-architect': 'workspace-write',
@@ -72,7 +72,7 @@ function copyFile(srcPath, destPath) {
 }
 
 function sourceRoot() {
-  return path.join(__dirname, '..', 'plugins', 'novel');
+  return path.join(__dirname, '..');
 }
 
 function supportInstallName() {
@@ -97,14 +97,6 @@ function listSourceCommands() {
   const commandsDir = path.join(sourceRoot(), 'commands');
   return fs.readdirSync(commandsDir)
     .filter((entry) => entry.endsWith('.md') && entry !== '_codex-conventions.md')
-    .sort();
-}
-
-function listSourceSkills() {
-  const skillsDir = path.join(sourceRoot(), 'skills');
-  return fs.readdirSync(skillsDir, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory() && fs.existsSync(path.join(skillsDir, entry.name, 'SKILL.md')))
-    .map((entry) => entry.name)
     .sort();
 }
 
@@ -284,7 +276,7 @@ function resolveReferencePath(reference, sourceFilePath) {
     return fromSourceFile;
   }
 
-  if (/^(commands|workflows|skills|templates|scripts|agents)\//.test(trimmed)) {
+  if (/^(commands|workflows|references|templates|scripts|agents)\//.test(trimmed)) {
     const fromPluginRoot = path.resolve(sourceRoot(), trimmed);
     if (fs.existsSync(fromPluginRoot)) {
       return fromPluginRoot;
@@ -365,22 +357,22 @@ function rewriteSupportReferences(content, supportRootPromptPath) {
   let rewritten = content;
 
   rewritten = rewritten.replace(
-    /@(?:\.\.\/){0,2}(commands|workflows|skills|templates|scripts|agents)\//g,
+    /@(?:\.\.\/){0,2}(commands|workflows|references|templates|scripts|agents)\//g,
     (_, dirName) => `@${supportRootPromptPath}/${dirName}/`
   );
 
   rewritten = rewritten.replace(
-    /(?:\.\.\/){1,2}(commands|workflows|skills|templates|scripts|agents)\//g,
+    /(?:\.\.\/){1,2}(commands|workflows|references|templates|scripts|agents)\//g,
     (_, dirName) => `${supportRootPromptPath}/${dirName}/`
   );
 
   rewritten = rewritten.replace(
-    /(^|[\s`"'(])(?:\.\/)?((commands|workflows|skills|templates|scripts|agents)\/[A-Za-z0-9_./*{}-]+)/gm,
+    /(^|[\s`"'(])(?:\.\/)?((commands|workflows|references|templates|scripts|agents)\/[A-Za-z0-9_./*{}-]+)/gm,
     (_, prefix, relPath) => `${prefix}${supportRootPromptPath}/${relPath}`
   );
 
   rewritten = rewritten.replace(
-    /`((commands|workflows|skills|templates|scripts|agents)\/)`/g,
+    /`((commands|workflows|references|templates|scripts|agents)\/)`/g,
     (_, relDir) => `\`${supportRootPromptPath}/${relDir}\``
   );
 
@@ -601,7 +593,7 @@ function installSupportBundle(targetDir, runtime) {
   removeIfExists(supportDir);
   ensureDir(supportDir);
 
-  for (const entry of ['README.md', 'commands', 'workflows', 'templates', 'scripts', 'skills', 'agents']) {
+  for (const entry of ['README.md', ...RESOURCE_DIRS]) {
     const srcPath = path.join(src, entry);
     const destPath = path.join(supportDir, entry);
     const stats = fs.statSync(srcPath);
@@ -664,7 +656,7 @@ function installCodexRuntime(targetDir, supportRootPromptPath) {
   ensureDir(skillsDest);
   ensureDir(agentsDest);
 
-  for (const skillName of listSourceSkills()) {
+  for (const skillName of [...listPublicCodexSkills(), ...LEGACY_INTERNAL_SKILLS]) {
     removeIfExists(path.join(skillsDest, skillName));
   }
 
@@ -701,7 +693,7 @@ function installCodexRuntime(targetDir, supportRootPromptPath) {
 
 function scanUnresolvedReferences(rootDir) {
   const unresolved = [];
-  const pathLeakPattern = /(^|[\s`"'(])(?:@(?:\.\.\/){0,2}|(?:\.\.\/){1,2}|(?:\.\/)?)(commands|workflows|skills|templates|scripts|agents)\//gm;
+  const pathLeakPattern = /(^|[\s`"'(])(?:@(?:\.\.\/){0,2}|(?:\.\.\/){1,2}|(?:\.\/)?)(commands|workflows|references|templates|scripts|agents)\//gm;
 
   for (const filePath of walkFiles(rootDir)) {
     const ext = path.extname(filePath).toLowerCase();
@@ -841,7 +833,7 @@ function uninstallRuntime(options) {
   } else {
     const skillsDir = path.join(targetDir, 'skills');
     if (fs.existsSync(skillsDir)) {
-      for (const skillName of listSourceSkills()) {
+      for (const skillName of [...listPublicCodexSkills(), ...LEGACY_INTERNAL_SKILLS]) {
         removeIfExists(path.join(skillsDir, skillName));
       }
     }
@@ -1061,7 +1053,7 @@ if (require.main === module) {
 
 module.exports = {
   CODEX_AGENT_SANDBOX,
-  INTERNAL_CODEX_SKILLS,
+  LEGACY_INTERNAL_SKILLS,
   NOVEL_CODEX_MARKER,
   convertNovelCommandToClaudeSkill,
   convertNovelCommandToCodexSkill,
@@ -1078,7 +1070,6 @@ module.exports = {
   listSourceAgents,
   listPublicCodexSkills,
   listSourceCommands,
-  listSourceSkills,
   parseArgs,
   promptPathFor,
   getRuntimeUsageHints,

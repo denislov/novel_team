@@ -1,7 +1,0 @@
-interface:
-  display_name: "Novel Writing"
-  short_description: "Plan, write, review, and manage long-form web novels"
-  default_prompt: "Use $novel-writing to structure this novel project, plan chapters, and maintain cast, timeline, and state files."
-
-policy:
-  allow_implicit_invocation: true

@@ -7,7 +7,7 @@ const { afterEach, beforeEach, describe, test } = require('node:test');
 const {
   computeStats,
   main,
-} = require('../plugins/novel/scripts/novel_state.cjs');
+} = require('../scripts/novel_state.cjs');
 
 function mkTempDir() {
   return fs.mkdtempSync(path.join(os.tmpdir(), 'novel-state-'));

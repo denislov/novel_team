@@ -4,8 +4,8 @@ const os = require('node:os');
 const path = require('node:path');
 const { afterEach, beforeEach, describe, test } = require('node:test');
 
-const { classifyFile, inferCharacterName } = require('../plugins/novel/scripts/map_base/classify.cjs');
-const { scanCandidates } = require('../plugins/novel/scripts/map_base.cjs');
+const { classifyFile, inferCharacterName } = require('../scripts/map_base/classify.cjs');
+const { scanCandidates } = require('../scripts/map_base.cjs');
 
 function mkTempDir() {
   return fs.mkdtempSync(path.join(os.tmpdir(), 'map-base-classify-'));

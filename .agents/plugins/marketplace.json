@@ -8,7 +8,7 @@
       "name": "novel",
       "source": {
         "source": "local",
-        "path": "./plugins/novel"
+        "path": "."
       },
       "policy": {
         "installation": "AVAILABLE",

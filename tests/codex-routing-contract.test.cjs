@@ -40,5 +40,5 @@ test('Codex safe path stays on explicit public $novel-* skills', () => {
   assert.ok(installedReadme.includes('In Codex, use skills rather than slash commands:'));
   assert.ok(installedReadme.includes('$novel-write-chapter'));
   assert.ok(installedReadme.includes('The supported safe path in Codex is the explicit public `$novel-*` skill surface.'));
-  assert.ok(installedReadme.includes('internal `novel-command-center` remains a support layer'));
+  assert.ok(installedReadme.includes('internal command-center reference'));
 });
