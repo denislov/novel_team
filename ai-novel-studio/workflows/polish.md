@@ -7,8 +7,8 @@ Read all files referenced by the invoking prompt's execution_context before star
 </required_reading>
 
 <available_agent_types>
-Valid novel-creator subagent types (use exact names):
-- novel-editor — 编辑润色
+Valid ans-creator subagent types (use exact names):
+- ans-editor — 编辑润色
 </available_agent_types>
 
 <codex_execution_policy>
@@ -53,7 +53,7 @@ done
 
 # 默认：润色最新正式章节
 if [[ -z "$CHAPTER_RANGE" ]]; then
-  CHAPTER_RANGE=$(node scripts/novel_state.cjs range-target --root . --kind polish --field range_text)
+  CHAPTER_RANGE=$(node bin/ans-tools.cjs state range-target --kind polish --raw --pick range_text)
 fi
 ```
 
@@ -120,7 +120,7 @@ CHAPTER=$(cat chapters/chapter-${CHAPTER_NUMBER}.md)
 
 ```
 SpawnAgent(
-  agent: novel-editor,
+  agent: ans-editor,
   input: {
     chapter_number: CHAPTER_NUMBER,
     project: PROJECT,
@@ -189,7 +189,7 @@ AskUserQuestion(
 如果接受修改并覆盖正式章节，运行：
 
 ```bash
-node scripts/chapter_ops.cjs apply-polish --root . --chapter ${CHAPTER_NUMBER} --force
+node bin/ans-tools.cjs chapter promote ${CHAPTER_NUMBER} --source polished
 ```
 
 </single_polish>
@@ -206,7 +206,7 @@ node scripts/chapter_ops.cjs apply-polish --root . --chapter ${CHAPTER_NUMBER} -
 RESULTS=()
 for chapter in $CHAPTER_RANGE; do
   # 调用 editor
-  result=$(SpawnAgent novel-editor chapter=$chapter mode=$MODE)
+  result=$(SpawnAgent ans-editor chapter=$chapter mode=$MODE)
   RESULTS+=("$result")
 done
 ```
@@ -368,25 +368,25 @@ Editor 会重点检测和处理：
 
 ```bash
 # 润色最新章节
-/novel:polish
+/ans:polish
 
 # 润色指定章节
-/novel:polish 5
+/ans:polish 5
 
 # 润色范围
-/novel:polish 1-10
+/ans:polish 1-10
 
 # 快速润色
-/novel:polish 1-20 --quick
+/ans:polish 1-20 --quick
 
 # 深度润色
-/novel:polish 5 --deep
+/ans:polish 5 --deep
 
 # 显示对比
-/novel:polish 5 --compare
+/ans:polish 5 --compare
 
 # 原地修改（慎用）
-/novel:polish 1-10 --in-place
+/ans:polish 1-10 --in-place
 ```
 
 </examples>

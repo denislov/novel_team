@@ -4,13 +4,13 @@
 
 <required_reading>
 Read all files referenced by the invoking prompt's execution_context before starting.
-Use `node scripts/novel_state.cjs refresh` after core files are created so the initial `STATE.md` matches the actual filesystem layout.
+Use `node bin/ans-tools.cjs init new-project` after core files are created so the initial `STATE.md` matches the actual filesystem layout.
 </required_reading>
 
 <available_agent_types>
-Valid novel-creator subagent types (use exact names):
-- novel-architect — 创建项目设定、人物档案、时间线、路线图
-- novel-researcher — 考据历史背景、时代细节、专业知识
+Valid ANS subagent types (use exact names):
+- ans-architect — 创建项目设定、人物档案、时间线、路线图
+- ans-researcher — 考据历史背景、时代细节、专业知识
 </available_agent_types>
 
 <codex_execution_policy>
@@ -37,8 +37,8 @@ fi
 EXISTING_SOURCE_COUNT=$(find . -maxdepth 1 -type f \( -name '*.md' -o -name '*.txt' \) ! -name 'README.md' ! -name 'PROJECT.md' ! -name 'CHARACTERS.md' ! -name 'TIMELINE.md' ! -name 'ROADMAP.md' ! -name 'STATE.md' | wc -l)
 if [[ "$EXISTING_SOURCE_COUNT" -ge 3 ]]; then
   echo "检测到当前目录已有较多资料文件。"
-  echo "如果这些是小说资料，优先运行 /novel:map-base 进行结构化整理。"
-  echo "如果你确定要从头新建，再继续执行 /novel:new-project。"
+  echo "如果这些是小说资料，优先运行 /ans:map-base 进行结构化整理。"
+  echo "如果你确定要从头新建，再继续执行 /ans:new-project。"
   exit 1
 fi
 
@@ -243,7 +243,7 @@ fi
 
 **如果需要考据：**
 
-调用 `novel-researcher` 研究以下内容：
+调用 `ans-researcher` 研究以下内容：
 
 ### 3.1 时代背景
 
@@ -269,7 +269,7 @@ fi
 
 ## 4. 架构设计
 
-调用 `novel-architect` 生成核心文档：
+调用 `ans-architect` 生成核心文档：
 
 ### 4.1 准备输入
 
@@ -315,8 +315,8 @@ fi
 ### 4.2 调用 Architect
 
 ```
-SpawnAgent(
-  agent: novel-architect,
+Task(
+  subagent_type: "ans-architect",
   input: architect_input,
   output: [
     PROJECT.md,
@@ -343,7 +343,7 @@ SpawnAgent(
 按 `templates/STATE.md` 的结构创建 STATE.md，尤其必须保留 frontmatter。创建完成后运行：
 
 ```bash
-node scripts/novel_state.cjs refresh --root .
+node bin/ans-tools.cjs state refresh
 ```
 
 然后再根据新建项目的语义补这些字段：
@@ -463,22 +463,22 @@ AskUserQuestion(
 
 1. **开始创作第一章**
    ```
-   /novel:write-chapter 1
+   /ans:write-chapter 1
    ```
 
 2. **完善人物设定**
    ```
-   /novel:character --add
+   /ans:character --add
    ```
 
 3. **考据更多资料**
    ```
-   /novel:research [主题]
+   /ans:research [主题]
    ```
 
 4. **规划更多章节**
    ```
-   /novel:plan-batch 1-10
+   /ans:plan-batch 1-10
    ```
 
 </next_steps>
@@ -502,7 +502,7 @@ AskUserQuestion(
 ```
 错误：项目已存在
 说明：当前目录已有 PROJECT.md
-解决：如果这是空目录，切换到新目录后重试；如果当前目录已有小说资料，请改用 /novel:map-base
+解决：如果这是空目录，切换到新目录后重试；如果当前目录已有小说资料，请改用 /ans:map-base
 ```
 
 ### 设定不完整

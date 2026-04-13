@@ -1,12 +1,12 @@
 # Novel Command Center Reference
 
-This reference documents how Novel routes user intent to the correct command and installed `$novel-*` skill surface.
+This reference documents how Novel routes user intent to the correct command and installed `$ans-*` skill surface.
 
 ## Public Entry Points
 
-- In Codex, use the explicit public `$novel-*` skills.
-- In Claude Code, use the matching `novel-*` skill names.
-- Legacy `/novel:*` command names are compatibility aliases and should be translated to the matching public skill.
+- In Codex, use the explicit public `$ans-*` skills.
+- In Claude Code, use the matching `ans-*` skill names.
+- Legacy `/ans:*` command names are compatibility aliases and should be translated to the matching public skill.
 
 ## Routing Rules
 
@@ -30,9 +30,9 @@ This reference documents how Novel routes user intent to the correct command and
 
 ## Reliability Rules
 
-- Treat the explicit public `$novel-*` skills as the stable Codex surface.
+- Treat the explicit public `$ans-*` skills as the stable Codex surface.
 - If a workflow declares named `SpawnAgent(...)` stages, those delegated stages are mandatory.
 - Do not silently inline delegated work that the workflow marks for named agents.
 - If named-agent execution is unavailable or drifted, validate the install before continuing:
-  - `novel-tool validate --codex --global`
+  - `ans-tool validate --codex --global`
   - `node bin/install.js validate --codex --global`

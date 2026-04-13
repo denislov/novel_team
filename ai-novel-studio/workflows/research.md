@@ -7,8 +7,8 @@ Read all files referenced by the invoking prompt's execution_context before star
 </required_reading>
 
 <available_agent_types>
-Valid novel-creator subagent types (use exact names):
-- novel-researcher — 考据研究与资料整理
+Valid ans-creator subagent types (use exact names):
+- ans-researcher — 考据研究与资料整理
 </available_agent_types>
 
 <codex_execution_policy>
@@ -112,7 +112,7 @@ fi
 
 ```
 SpawnAgent(
-  agent: novel-researcher,
+  agent: ans-researcher,
   input: research_request,
   output: research/${OUTPUT_NAME}.md
 )
@@ -156,16 +156,16 @@ SpawnAgent(
 
 ```bash
 # 标准研究
-/novel:research 1980年香港黑帮社团结构
+/ans:research 1980年香港黑帮社团结构
 
 # 快速核实
-/novel:research 80年代香港出租车起步价 --quick
+/ans:research 80年代香港出租车起步价 --quick
 
 # 深度研究
-/novel:research 明朝万历年间京官考成法 --deep
+/ans:research 明朝万历年间京官考成法 --deep
 
 # 指定输出文件
-/novel:research 港岛警队等级体系 --file=hk-police-ranks
+/ans:research 港岛警队等级体系 --file=hk-police-ranks
 ```
 
 </examples>

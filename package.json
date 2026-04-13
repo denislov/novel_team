@@ -1,20 +1,15 @@
 {
-  "name": "novel-tool",
+  "name": "ans-tool",
   "version": "0.2.0",
   "description": "CLI installer for the Novel long-form fiction workflow across Claude Code and Codex.",
   "bin": {
-    "novel-tool": "bin/install.js"
+    "ans-tool": "bin/install.js"
   },
   "files": [
     "bin",
     "agents",
     "commands",
-    "references",
-    "scripts",
-    "templates",
-    "workflows",
-    ".claude-plugin",
-    ".codex-plugin",
+    "ai-novel-studio",
     "README.md"
   ],
   "engines": {

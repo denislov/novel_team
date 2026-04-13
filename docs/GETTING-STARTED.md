@@ -40,11 +40,11 @@ node bin/install.js uninstall --codex --global
 node bin/install.js validate --all --global
 ```
 
-如果你的环境已经能直接调用 `novel-tool`，也可以使用：
+如果你的环境已经能直接调用 `ans-tool`，也可以使用：
 
 ```bash
-novel-tool validate --codex --global
-novel-tool update --codex --global
+ans-tool validate --codex --global
+ans-tool update --codex --global
 ```
 
 ## 4. 在不同运行时中的入口
@@ -55,33 +55,33 @@ Novel 同时支持 Codex 和 Claude Code，但入口形式不同。
 
 Codex 中建议使用显式的公开技能入口：
 
-- `$novel-new-project`
-- `$novel-map-base`
-- `$novel-plan-arc`
-- `$novel-plan-batch`
-- `$novel-write-chapter`
-- `$novel-review`
-- `$novel-progress`
-- `$novel-next`
-- `$novel-help`
+- `$ans-new-project`
+- `$ans-map-base`
+- `$ans-plan-arc`
+- `$ans-plan-batch`
+- `$ans-write-chapter`
+- `$ans-review`
+- `$ans-progress`
+- `$ans-next`
+- `$ans-help`
 
-对 Codex 来说，这些显式的 `$novel-*` 技能是最稳定的使用路径。
+对 Codex 来说，这些显式的 `$ans-*` 技能是最稳定的使用路径。
 
 ### Claude Code
 
 Claude Code 中使用 top-level skills：
 
-- `novel-new-project`
-- `novel-map-base`
-- `novel-plan-arc`
-- `novel-plan-batch`
-- `novel-write-chapter`
-- `novel-review`
-- `novel-progress`
-- `novel-next`
-- `novel-help`
+- `ans-new-project`
+- `ans-map-base`
+- `ans-plan-arc`
+- `ans-plan-batch`
+- `ans-write-chapter`
+- `ans-review`
+- `ans-progress`
+- `ans-next`
+- `ans-help`
 
-注意：Claude 与 Codex 现在都使用同名 `novel-*` skill。本文下面的示例如果写成 `$novel-*`，那是 Codex 的调用写法；在 Claude Code 中对应的是同名 `novel-*` skill。
+注意：Claude 与 Codex 现在都使用同名 `ans-*` skill。本文下面的示例如果写成 `$ans-*`，那是 Codex 的调用写法；在 Claude Code 中对应的是同名 `ans-*` skill。
 
 ## 5. 标准项目结构
 
@@ -122,58 +122,58 @@ Novel 会围绕一个根目录结构项目工作。核心文件如下：
 
 如果你是从零开始写新作品，推荐流程是：
 
-1. 运行 `novel-new-project` skill；在 Codex 中对应写法是 `$novel-new-project`
+1. 运行 `ans-new-project` skill；在 Codex 中对应写法是 `$ans-new-project`
 2. 根据提示选择作品形态、题材、目标字数、主角设定等
-3. 如果是长篇，视需要运行 `$novel-plan-arc`
-4. 用 `$novel-plan-batch 1-10` 先铺一批大纲
-5. 用 `$novel-write-chapter 1` 开始正式产出
-6. 用 `$novel-review 1` 做审核
+3. 如果是长篇，视需要运行 `$ans-plan-arc`
+4. 用 `$ans-plan-batch 1-10` 先铺一批大纲
+5. 用 `$ans-write-chapter 1` 开始正式产出
+6. 用 `$ans-review 1` 做审核
 
 适用命令示例：
 
 ```text
-$novel-new-project
-$novel-plan-batch 1-10
-$novel-write-chapter 1
-$novel-review 1
+$ans-new-project
+$ans-plan-batch 1-10
+$ans-write-chapter 1
+$ans-review 1
 ```
 
 ### 7.2 接手已有资料
 
 如果当前目录已经有旧稿、设定、人物表、时间线或零散笔记，不要直接新建项目，优先整理：
 
-1. 运行 `$novel-map-base`
-2. 检查 `$novel-progress`
+1. 运行 `$ans-map-base`
+2. 检查 `$ans-progress`
 3. 必要时先审核已导入内容
 4. 再继续规划或写作
 
 示例：
 
 ```text
-$novel-map-base
-$novel-progress
-$novel-write-chapter --next
+$ans-map-base
+$ans-progress
+$ans-write-chapter --next
 ```
 
 ### 7.3 长线连载
 
 适合中长篇或持续更新项目：
 
-1. `$novel-plan-arc [卷名]`
-2. `$novel-plan-batch START-END`
-3. `$novel-write-chapter --next`
-4. 周期性运行 `$novel-review START-END`
-5. 不确定下一步时先看 `$novel-progress`，想自动推进可用 `$novel-next`
+1. `$ans-plan-arc [卷名]`
+2. `$ans-plan-batch START-END`
+3. `$ans-write-chapter --next`
+4. 周期性运行 `$ans-review START-END`
+5. 不确定下一步时先看 `$ans-progress`，想自动推进可用 `$ans-next`
 
 ### 7.4 单篇短故事
 
 短故事模式下，不需要过重的长篇脚手架。推荐：
 
-1. `$novel-new-project`
+1. `$ans-new-project`
 2. 选择短故事模式
-3. 用较小范围规划，例如 `$novel-plan-batch 1-1`
-4. 用 `$novel-write-chapter 1`
-5. 用 `$novel-review 1`
+3. 用较小范围规划，例如 `$ans-plan-batch 1-1`
+4. 用 `$ans-write-chapter 1`
+5. 用 `$ans-review 1`
 
 尽管命令表面仍沿用章节命名，但短故事模式下，底层推荐逻辑会更轻量。
 
@@ -181,28 +181,28 @@ $novel-write-chapter --next
 
 短故事集模式推荐按“当前故事”逐篇推进：
 
-1. `$novel-new-project`
+1. `$ans-new-project`
 2. 选择短故事集模式
 3. 先规划当前故事，而不是铺太长的章节带
 4. 完成当前故事后，再扩展下一篇
-5. 用 `$novel-progress` 和 `$novel-next` 查看推荐动作
+5. 用 `$ans-progress` 和 `$ans-next` 查看推荐动作
 
 ## 8. 常用命令速查
 
 | 命令 | 用途 |
 |------|------|
-| `novel-new-project` | 从零初始化一个结构化小说项目 |
-| `novel-map-base` | 将已有资料整理进 Novel 标准结构 |
-| `novel-plan-arc` | 规划新卷或新阶段 |
-| `novel-plan-batch` | 批量生成章节或故事单元大纲 |
-| `novel-write-chapter` | 标准创作流程：规划 -> 写作 -> 润色 -> 审核 |
-| `novel-quick-draft` | 快速产出草稿 |
-| `novel-polish` | 润色正文 |
-| `novel-review` | 审核逻辑、人设、时间线、雷点 |
-| `novel-research` | 做历史、行业、设定等研究 |
-| `novel-progress` | 查看当前项目状态和推荐下一步 |
-| `novel-next` | 自动推进到下一条最合理的命令 |
-| `novel-help` | 查看命令参考 |
+| `ans-new-project` | 从零初始化一个结构化小说项目 |
+| `ans-map-base` | 将已有资料整理进 Novel 标准结构 |
+| `ans-plan-arc` | 规划新卷或新阶段 |
+| `ans-plan-batch` | 批量生成章节或故事单元大纲 |
+| `ans-write-chapter` | 标准创作流程：规划 -> 写作 -> 润色 -> 审核 |
+| `ans-quick-draft` | 快速产出草稿 |
+| `ans-polish` | 润色正文 |
+| `ans-review` | 审核逻辑、人设、时间线、雷点 |
+| `ans-research` | 做历史、行业、设定等研究 |
+| `ans-progress` | 查看当前项目状态和推荐下一步 |
+| `ans-next` | 自动推进到下一条最合理的命令 |
+| `ans-help` | 查看命令参考 |
 
 ## 9. 什么时候用哪个命令
 
@@ -230,12 +230,12 @@ $novel-write-chapter --next
 当你怀疑 Codex 没有按预期使用 Novel 的命名 agent 时，先执行：
 
 ```bash
-novel-tool validate --codex --global
+ans-tool validate --codex --global
 node bin/install.js validate --codex --global
-novel-tool update --codex --global
+ans-tool update --codex --global
 ```
 
-如果校验失败，先修复安装，再重新运行 `$novel-*` 技能。
+如果校验失败，先修复安装，再重新运行 `$ans-*` 技能。
 
 ## 11. 常见问题
 
@@ -248,13 +248,13 @@ novel-tool update --codex --global
 先运行：
 
 ```text
-$novel-progress
+$ans-progress
 ```
 
 如果你想直接自动推进，再运行：
 
 ```text
-$novel-next
+$ans-next
 ```
 
 ### Q3. 短故事和短故事集为什么还在用 `write-chapter` 这样的命令名？
@@ -266,7 +266,7 @@ $novel-next
 如果涉及真实历史、行业知识、法律、医学、军事、金融等内容，建议先用：
 
 ```text
-$novel-research [topic]
+$ans-research [topic]
 ```
 
 再进入正式写作。
@@ -278,18 +278,18 @@ $novel-research [topic]
 ### 新项目
 
 ```text
-$novel-new-project
-$novel-plan-batch 1-3
-$novel-write-chapter 1
-$novel-review 1
+$ans-new-project
+$ans-plan-batch 1-3
+$ans-write-chapter 1
+$ans-review 1
 ```
 
 ### 旧项目
 
 ```text
-$novel-map-base
-$novel-progress
-$novel-write-chapter --next
+$ans-map-base
+$ans-progress
+$ans-write-chapter --next
 ```
 
 ---
@@ -297,5 +297,5 @@ $novel-write-chapter --next
 如果你只想看命令总表，请使用：
 
 ```text
-$novel-help
+$ans-help
 ```

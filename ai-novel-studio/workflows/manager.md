@@ -1,5 +1,5 @@
 <purpose>
-小说项目控制台：在一个终端里查看当前项目全景、识别缺口、推荐下一步，并直接分发到合适的 `/novel:*` 命令。
+小说项目控制台：在一个终端里查看当前项目全景、识别缺口、推荐下一步，并直接分发到合适的 `/ans:*` 命令。
 使用 ans-tools.cjs init manager 获取结构化上下文，替代散碎 grep 拼凑。
 </purpose>
 
@@ -16,7 +16,7 @@ Read all files referenced by the invoking prompt's execution_context before star
 INIT=$(node "$HOME/.claude/ai-novel-studio/bin/ans-tools.cjs" init manager 2>/dev/null) || INIT=""
 
 if [[ -z "$INIT" || "$INIT" == *"Error"* ]]; then
-  echo "未检测到结构化小说项目。空目录先运行 /novel:new-project；已有资料先运行 /novel:map-base"
+  echo "未检测到结构化小说项目。空目录先运行 /ans:new-project；已有资料先运行 /ans:map-base"
   exit 0
 fi
 ```
@@ -106,16 +106,16 @@ AskUserQuestion(
 
 | 选择 | 动作 |
 |------|------|
-| Continue | 调用推荐命令（如 `/novel:write-chapter 19`） |
-| Plan | 追问范围 → `/novel:plan-batch {range}` |
-| Write | `/novel:write-chapter --next` |
-| Review | 自动找最早未审核章节 → `/novel:review {N}` |
-| Polish | 追问范围 → `/novel:polish {range}` |
-| Progress | `/novel:progress` |
-| Research | 追问主题 → `/novel:research` |
-| Character | `/novel:character --list` |
+| Continue | 调用推荐命令（如 `/ans:write-chapter 19`） |
+| Plan | 追问范围 → `/ans:plan-batch {range}` |
+| Write | `/ans:write-chapter --next` |
+| Review | 自动找最早未审核章节 → `/ans:review {N}` |
+| Polish | 追问范围 → `/ans:polish {range}` |
+| Progress | `/ans:progress` |
+| Research | 追问主题 → `/ans:research` |
+| Character | `/ans:character --list` |
 | Validate | 运行 `ans-tools.cjs validate consistency` + `validate health`，展示结果 |
-| Help | `/novel:help` |
+| Help | `/ans:help` |
 | Exit | 退出 |
 
 执行完一个动作后，重新运行 `ans-tools.cjs init manager` 刷新数据，回到 dashboard。

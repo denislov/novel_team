@@ -255,7 +255,7 @@ if [[ -f "characters/${CHARACTER_NAME}.md" ]]; then
   cat characters/${CHARACTER_NAME}.md
 else
   echo "未找到人物：${CHARACTER_NAME}"
-  echo "使用 /novel:character --list 查看所有人物"
+  echo "使用 /ans:character --list 查看所有人物"
 fi
 ```
 
@@ -519,23 +519,23 @@ updated: [更新日期]
 
 ```bash
 # 列出所有人物
-/novel:character --list
+/ans:character --list
 
 # 添加新人物
-/novel:character --add
+/ans:character --add
 
 # 查看人物
-/novel:character 张三
-/novel:character --view 张三
+/ans:character 张三
+/ans:character --view 张三
 
 # 更新人物
-/novel:character --update 张三
+/ans:character --update 张三
 
 # 检查一致性
-/novel:character --check 张三
+/ans:character --check 张三
 
 # 删除人物
-/novel:character --delete 张三
+/ans:character --delete 张三
 ```
 
 </examples>

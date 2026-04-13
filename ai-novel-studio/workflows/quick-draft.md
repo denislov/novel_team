@@ -7,8 +7,8 @@ Read all files referenced by the invoking prompt's execution_context before star
 </required_reading>
 
 <available_agent_types>
-Valid novel-creator subagent types (use exact names):
-- novel-writer — 产出章节正文
+Valid ans-creator subagent types (use exact names):
+- ans-writer — 产出章节正文
 </available_agent_types>
 
 <codex_execution_policy>
@@ -72,7 +72,7 @@ done
 # 只检查 PROJECT.md
 if [[ ! -f "PROJECT.md" ]]; then
   echo "错误：未找到项目文件"
-  echo "空目录请先运行 /novel:new-project；已有资料请先运行 /novel:map-base"
+  echo "空目录请先运行 /ans:new-project；已有资料请先运行 /ans:map-base"
   exit 1
 fi
 
@@ -106,7 +106,7 @@ PROJECT=$(cat PROJECT.md)
 
 ```
 SpawnAgent(
-  agent: novel-writer,
+  agent: ans-writer,
   input: writer_input,
   output: chapters/draft/chapter-${CHAPTER_NUMBER}-quick.md
 )
@@ -138,9 +138,9 @@ SpawnAgent(
 【字数】[XXXX] 字
 
 【提示】这是快速草稿，建议后续：
-1. 使用 /novel:polish 润色
-2. 使用 /novel:review 审核
-3. 或使用 /novel:write-chapter 重新创作
+1. 使用 /ans:polish 润色
+2. 使用 /ans:review 审核
+3. 或使用 /ans:write-chapter 重新创作
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
@@ -162,7 +162,7 @@ SpawnAgent(
 
 | 场景 | 建议 |
 |------|------|
-| 正式创作 | 使用 /novel:write-chapter |
+| 正式创作 | 使用 /ans:write-chapter |
 | 需要连贯性 | 使用完整流程 |
 | 质量要求高 | 使用完整流程 + 审核 |
 
@@ -174,16 +174,16 @@ SpawnAgent(
 
 ```bash
 # 快速创作第5章，3000字
-/novel:quick-draft 5
+/ans:quick-draft 5
 
 # 快速创作，指定字数
-/novel:quick-draft 5 --words=5000
+/ans:quick-draft 5 --words=5000
 
 # 带灵感提示
-/novel:quick-draft 5 --context="本章主角遇到老朋友，发现对方已经变了"
+/ans:quick-draft 5 --context="本章主角遇到老朋友，发现对方已经变了"
 
 # 快速记录灵感
-/novel:quick-draft 100 --words=1000 --context="结局构想：主角选择放弃一切，回到原点"
+/ans:quick-draft 100 --words=1000 --context="结局构想：主角选择放弃一切，回到原点"
 ```
 
 </examples>

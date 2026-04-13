@@ -8,7 +8,7 @@ Read all files referenced by the invoking prompt's execution_context before star
 </required_reading>
 
 <available_agent_types>
-Valid novel-creator subagent types (use exact names):
+Valid ans-creator subagent types (use exact names):
 - ans-planner — 创建章节大纲
 - ans-writer — 产出章节正文
 - ans-editor — 润色优化文字

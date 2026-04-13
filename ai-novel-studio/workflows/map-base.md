@@ -4,13 +4,13 @@
 
 <required_reading>
 Read all files referenced by the invoking prompt's execution_context before starting.
-Use the bundled script `scripts/map_base.cjs` for scanning, classification, normalization, report generation, and baseline core-file synthesis.
+Use the bundled `bin/map_base.cjs` for scanning, classification, normalization, report generation, and baseline core-file synthesis.
 </required_reading>
 
 <available_agent_types>
-Valid novel-creator subagent types (use exact names):
-- novel-architect — 从已有资料综合生成或补全 PROJECT、ROADMAP、CHARACTERS、TIMELINE、STATE
-- novel-researcher — 对导入资料中的真实背景或专业细节补做核实
+Valid ANS subagent types (use exact names):
+- ans-architect — 从已有资料综合生成或补全 PROJECT、ROADMAP、CHARACTERS、TIMELINE、STATE
+- ans-researcher — 对导入资料中的真实背景或专业细节补做核实
 </available_agent_types>
 
 <process>
@@ -66,7 +66,7 @@ done
 
 if [[ "$CORE_COUNT" -ge 3 && "$MERGE" != true ]]; then
   echo "检测到当前目录已经接近或已经是结构化项目。"
-  echo "如果需要继续吸收散落资料，请使用 /novel:map-base --merge"
+  echo "如果需要继续吸收散落资料，请使用 /ans:map-base --merge"
   exit 0
 fi
 ```
@@ -90,7 +90,7 @@ mkdir -p "$SOURCE_DIR/reviews"
 先运行插件内置脚本：
 
 ```bash
-node scripts/map_base.cjs --from="$SOURCE_DIR" $([ "$MERGE" = true ] && echo --merge) $([ "$FORCE" = true ] && echo --force) $([ "$DRY_RUN" = true ] && echo --dry-run)
+node bin/map_base.cjs --from="$SOURCE_DIR" $([ "$MERGE" = true ] && echo --merge) $([ "$FORCE" = true ] && echo --force) $([ "$DRY_RUN" = true ] && echo --dry-run)
 ```
 
 脚本负责：
@@ -122,7 +122,7 @@ node scripts/map_base.cjs --from="$SOURCE_DIR" $([ "$MERGE" = true ] && echo --m
 - `agents/`
 - `commands/`
 - `references/`
-- `scripts/`
+- `bin/`
 - `templates/`
 - `workflows/`
 - 已标准化目录：`chapters/`、`characters/`、`research/`、`reviews/`
@@ -149,8 +149,8 @@ node scripts/map_base.cjs --from="$SOURCE_DIR" $([ "$MERGE" = true ] && echo --m
 ```markdown
 未发现足够的已有小说材料，无法执行 map-base。
 
-空目录或只有很少想法时，直接运行：`/novel:new-project`
-如果你有核心设定文档，请把文档放进当前目录后再运行：`/novel:map-base`
+空目录或只有很少想法时，直接运行：`/ans:new-project`
+如果你有核心设定文档，请把文档放进当前目录后再运行：`/ans:map-base`
 ```
 
 然后退出。
@@ -187,7 +187,7 @@ node scripts/map_base.cjs --from="$SOURCE_DIR" $([ "$MERGE" = true ] && echo --m
 
 ## 5. 综合生成核心文件
 
-基于已扫描和已归类的资料，调用 `novel-architect` 生成或补全：
+基于已扫描和已归类的资料，调用 `ans-architect` 生成或补全：
 
 - `PROJECT.md`
 - `CHARACTERS.md`
@@ -197,13 +197,18 @@ node scripts/map_base.cjs --from="$SOURCE_DIR" $([ "$MERGE" = true ] && echo --m
 
 ### 5.1 Architect 输入
 
-```xml
-<map_base_request>
-  <source_dir>${SOURCE_DIR}</source_dir>
-  <core_sources>[项目总设定 / 人物 / 时间线 / 卷纲 / 章节 / 研究资料]</core_sources>
-  <existing_structured_files>[已存在的 PROJECT / CHARACTERS / TIMELINE / ROADMAP / STATE]</existing_structured_files>
-  <goal>整理已有小说资料并建立可持续创作的根目录结构项目</goal>
-</map_base_request>
+```
+Task(
+  subagent_type: "ans-architect",
+  input: map_base_request,
+  output: [
+    PROJECT.md,
+    CHARACTERS.md,
+    TIMELINE.md,
+    ROADMAP.md,
+    STATE.md
+  ]
+)
 ```
 
 ### 5.2 STATE 初始化原则
@@ -261,9 +266,9 @@ STATE.md 至少要反映：
 - reviews/map-base-report.md
 
 【建议下一步】
-1. 运行 `/novel:progress` 检查当前状态
-2. 运行 `/novel:plan-batch` 补齐接下来几章大纲
-3. 或直接运行 `/novel:write-chapter --next`
+1. 运行 `/ans:progress` 检查当前状态
+2. 运行 `/ans:plan-batch` 补齐接下来几章大纲
+3. 或直接运行 `/ans:write-chapter --next`
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
@@ -275,16 +280,16 @@ STATE.md 至少要反映：
 
 ```bash
 # 在当前目录整理已有资料
-/novel:map-base
+/ans:map-base
 
 # 指定目录来源
-/novel:map-base --from=./old-book
+/ans:map-base --from=./old-book
 
 # 先看映射计划
-/novel:map-base --dry-run
+/ans:map-base --dry-run
 
 # 已有结构化项目时继续吸收散落资料
-/novel:map-base --merge
+/ans:map-base --merge
 ```
 
 </examples>

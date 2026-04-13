@@ -8,10 +8,10 @@ Read all files referenced by the invoking prompt's execution_context before star
 </required_reading>
 
 <available_agent_types>
-Valid novel-creator subagent types (use exact names):
-- novel-planner — 章节规划
-- novel-writer — 内容产出
-- novel-verifier — 质量审核
+Valid ans-creator subagent types (use exact names):
+- ans-planner — 章节规划
+- ans-writer — 内容产出
+- ans-verifier — 质量审核
 </available_agent_types>
 
 <codex_execution_policy>
@@ -136,19 +136,19 @@ for CURRENT_CHAPTER in START..END:
   ┌──────────────────────────────────────────────┐
   │  Step 2: 检查大纲                             │
   │  outline_exists? → 直接写作                    │
-  │  no outline?     → SpawnAgent novel-planner   │
+  │  no outline?     → SpawnAgent ans-planner   │
   └──────────────────────────────────────────────┘
           │
           ▼
   ┌──────────────────────────────────────────────┐
   │  Step 3: 写作                                 │
-  │  SpawnAgent novel-writer chapter=$N           │
+  │  SpawnAgent ans-writer chapter=$N           │
   └──────────────────────────────────────────────┘
           │
           ▼
   ┌──────────────────────────────────────────────┐
   │  Step 4: 审核 (if !SKIP_VERIFY)              │
-  │  SpawnAgent novel-verifier chapter=$N         │
+  │  SpawnAgent ans-verifier chapter=$N         │
   │                                              │
   │  → status: passed     → 继续                  │
   │  → status: gaps_found → Gap Closure (Step 5) │
@@ -187,7 +187,7 @@ CHAPTER_INIT=$(node "$HOME/.claude/ai-novel-studio/bin/ans-tools.cjs" init write
 ### Step 2: 检查/创建大纲
 
 如果 `outline_exists == false`：
-- SpawnAgent novel-planner，产出 `chapters/outlines/outline-{N}.md`
+- SpawnAgent ans-planner，产出 `chapters/outlines/outline-{N}.md`
 - 如果 `config.workflow.plan_check == true`：验证大纲与 CHARACTERS.md / TIMELINE.md 的一致性
 
 如果 `outline_exists == true`：
@@ -196,7 +196,7 @@ CHAPTER_INIT=$(node "$HOME/.claude/ai-novel-studio/bin/ans-tools.cjs" init write
 ### Step 3: 写作
 
 ```
-SpawnAgent novel-writer:
+SpawnAgent ans-writer:
   - 输入: outline, previous chapter, CHARACTERS.md, TIMELINE.md
   - 产出: chapters/draft/chapter-{N}-draft.md
   - 字数目标: chapter_words（不超过 chapter_word_ceiling）
@@ -212,7 +212,7 @@ node "$HOME/.claude/ai-novel-studio/bin/ans-tools.cjs" chapter budget "$CURRENT_
 ### Step 4: 审核
 
 ```
-SpawnAgent novel-verifier:
+SpawnAgent ans-verifier:
   - 输入: chapter draft, outline, CHARACTERS.md, TIMELINE.md
   - 产出结构化 JSON：
     {
@@ -249,15 +249,15 @@ SpawnAgent novel-verifier:
 
 ```
 if gap_type == "structural":
-  SpawnAgent novel-planner (修复模式: 只修改大纲中的问题部分)
-  SpawnAgent novel-writer (基于修复后的大纲重写)
+  SpawnAgent ans-planner (修复模式: 只修改大纲中的问题部分)
+  SpawnAgent ans-writer (基于修复后的大纲重写)
 elif gap_type == "content":
-  SpawnAgent novel-writer (修复模式: 只修改正文中的问题段落)
+  SpawnAgent ans-writer (修复模式: 只修改正文中的问题段落)
 ```
 
 3. **Re-verify：**
 ```
-SpawnAgent novel-verifier (chapter=$N)
+SpawnAgent ans-verifier (chapter=$N)
 if still gaps_found or human_needed:
   → 标记问题，询问用户：
     AskUserQuestion(
@@ -300,7 +300,7 @@ node "$HOME/.claude/ai-novel-studio/bin/ans-tools.cjs" state refresh
 AskUserQuestion(
   header: "批次完成",
   question: "已完成 {BATCH_SIZE} 章，是否继续？",
-  options: ["继续下一批", "查看详细进度 (运行 /novel:progress)", "停止自动模式"]
+  options: ["继续下一批", "查看详细进度 (运行 /ans:progress)", "停止自动模式"]
 )
 
 </batch_checkpoint>
@@ -352,9 +352,9 @@ node "$HOME/.claude/ai-novel-studio/bin/ans-tools.cjs" validate consistency
 - 未解决问题：{REMAINING_ISSUES} 个
 
 【下一步】
-- 继续创作：/novel:autonomous --from={NEXT}
-- 批量润色：/novel:polish {START}-{END}
-- 查看进度：/novel:progress
+- 继续创作：/ans:autonomous --from={NEXT}
+- 批量润色：/ans:polish {START}-{END}
+- 查看进度：/ans:progress
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
@@ -368,7 +368,7 @@ node "$HOME/.claude/ai-novel-studio/bin/ans-tools.cjs" validate consistency
 ### 上下文管理
 - 自动模式会消耗大量上下文窗口
 - 每批次暂停时，orchestrator 可检查 context 使用量
-- 如果 context > 60%，建议结束当前 session，下次 /novel:autonomous --continue
+- 如果 context > 60%，建议结束当前 session，下次 /ans:autonomous --continue
 
 ### Gap Closure 限制
 - 每章最多 1 次自动 Gap Closure，防止无限循环
@@ -377,7 +377,7 @@ node "$HOME/.claude/ai-novel-studio/bin/ans-tools.cjs" validate consistency
 
 ### 质量控制
 - 建议 BATCH_SIZE ≤ 5（过大会导致问题积累）
-- 定期使用 /novel:review 进行人工审核
-- 每卷结束时运行 /novel:validate consistency
+- 定期使用 /ans:review 进行人工审核
+- 每卷结束时运行 /ans:validate consistency
 
 </warnings>

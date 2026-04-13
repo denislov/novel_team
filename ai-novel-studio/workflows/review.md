@@ -2,13 +2,9 @@
 质量审核：对已完成章节进行全面检查，确保人设一致、时间线准确、无雷点。可审核单章或多章。
 </purpose>
 
-<required_reading>
-Read all files referenced by the invoking prompt's execution_context before starting.
-</required_reading>
-
 <available_agent_types>
-Valid novel-creator subagent types (use exact names):
-- novel-verifier — 一致性审核
+Valid ANS subagent types (use exact names):
+- ans-verifier — 一致性审核
 </available_agent_types>
 
 <codex_execution_policy>
@@ -51,7 +47,7 @@ done
 
 # 默认：审核最新正式章节
 if [[ -z "$CHAPTER_RANGE" ]]; then
-  CHAPTER_RANGE=$(node scripts/novel_state.cjs range-target --root . --kind review --field range_text)
+  CHAPTER_RANGE=$(node bin/ans-tools.cjs state range-target --kind review --raw --pick range_text)
 fi
 ```
 
@@ -72,19 +68,11 @@ fi
 ## 2. 加载上下文
 
 ```bash
-# 检查项目
-if [[ ! -f "PROJECT.md" ]]; then
-  echo "错误：未找到项目文件"
-  echo "空目录请先运行 /novel:new-project；已有资料请先运行 /novel:map-base"
-  exit 1
-fi
-
-# 加载设定
-PROJECT=$(cat PROJECT.md)
-CHARACTERS=$(cat CHARACTERS.md)
-TIMELINE=$(cat TIMELINE.md)
-STATE=$(cat STATE.md)
+CONTEXT=$(node bin/ans-tools.cjs init review ${CHAPTER_RANGE} --raw)
 ```
+
+若 `project_exists` 为 false，提示并退出。
+利用 `CONTEXT` JSON 中的路径字段（`chapter_path`、`review_path`、`outline_path` 等）读取相关文件内容。
 
 </initialization>
 
@@ -95,16 +83,17 @@ STATE=$(cat STATE.md)
 ### 3.1 调用 Verifier
 
 ```
-SpawnAgent(
-  agent: novel-verifier,
+Task(
+  subagent_type: "ans-verifier",
   input: {
-    chapter_number: CHAPTER_NUMBER,
-    project: PROJECT,
-    characters: CHARACTERS,
-    timeline: TIMELINE,
-    state: STATE,
-    chapter: chapters/chapter-${CHAPTER_NUMBER}.md,
-    prev_chapters: [前3章]
+    files_to_read: [
+      CONTEXT.chapter_path,
+      CONTEXT.outline_path,
+      "PROJECT.md",
+      "CHARACTERS.md",
+      "TIMELINE.md"
+    ],
+    chapter_number: CHAPTER_NUMBER
   },
   output: reviews/review-${CHAPTER_NUMBER}.md
 )
@@ -161,7 +150,7 @@ SpawnAgent(
 RESULTS=()
 for chapter in $CHAPTER_RANGE; do
   # 调用 verifier
-  result=$(SpawnAgent novel-verifier chapter=$chapter)
+  result=$(SpawnAgent ans-verifier chapter=$chapter)
   RESULTS+=("$result")
 done
 ```
@@ -211,7 +200,7 @@ done
 批量或单章审核完成后，运行：
 
 ```bash
-node scripts/novel_state.cjs refresh --root .
+node bin/ans-tools.cjs state refresh
 ```
 
 保证 `STATE.md` 的下一步建议基于最新审核覆盖。
@@ -296,19 +285,19 @@ node scripts/novel_state.cjs refresh --root .
 
 ```bash
 # 审核最新章节
-/novel:review
+/ans:review
 
 # 审核指定章节
-/novel:review 5
+/ans:review 5
 
 # 审核范围
-/novel:review 1-10
+/ans:review 1-10
 
 # 快速审核
-/novel:review 1-20 --quick
+/ans:review 1-20 --quick
 
 # JSON 输出（便于脚本处理）
-/novel:review 1-10 --json
+/ans:review 1-10 --json
 ```
 
 </examples>
