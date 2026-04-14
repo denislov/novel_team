@@ -13,7 +13,7 @@ Designed for low-friction serialization workflows where remembering whether to p
 </objective>
 
 <execution_context>
-@~/.claude/ai-novel-studio/commands/_codex-conventions.md
+@~/.claude/ai-novel-studio/commands/ans/_codex-conventions.md
 @~/.claude/ai-novel-studio/workflows/next.md
 </execution_context>
 

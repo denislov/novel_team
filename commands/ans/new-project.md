@@ -25,7 +25,7 @@ Initialize a new novel project end-to-end from concept to a working root-level p
 </objective>
 
 <execution_context>
-@~/.claude/ai-novel-studio/commands/_codex-conventions.md
+@~/.claude/ai-novel-studio/commands/ans/_codex-conventions.md
 @~/.claude/ai-novel-studio/workflows/new-project.md
 </execution_context>
 

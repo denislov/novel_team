@@ -100,13 +100,13 @@ test('installer keeps file mentions tilde-based and shell commands home-based', 
 
 test('installer rewrites support-bundle relative refs to installed absolute mentions', () => {
   const rewritten = replaceSupportBundleRelativeRefs(
-    'Execute @workflows/help.md and load @commands/_codex-conventions.md first.',
+    'Execute @workflows/help.md and load @commands/ans/_codex-conventions.md first.',
     '~/.gemini/'
   );
 
   assert.equal(
     rewritten,
-    'Execute @~/.gemini/ai-novel-studio/workflows/help.md and load @~/.gemini/ai-novel-studio/commands/_codex-conventions.md first.',
+    'Execute @~/.gemini/ai-novel-studio/workflows/help.md and load @~/.gemini/ai-novel-studio/commands/ans/_codex-conventions.md first.',
     'support bundle relative refs should be rewritten to installed file mentions'
   );
 });

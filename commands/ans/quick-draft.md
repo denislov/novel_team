@@ -35,6 +35,6 @@ Use this mode for experimentation, idea capture, and high-speed drafting rather 
 
 <process>
 Execute the quick-draft workflow from @~/.claude/ai-novel-studio/workflows/quick-draft.md end-to-end.
-Interpret Claude-style workflow primitives using @~/.claude/ai-novel-studio/commands/_codex-conventions.md.
+Interpret Claude-style workflow primitives using @~/.claude/ai-novel-studio/commands/ans/_codex-conventions.md.
 Preserve the lightweight mode guarantees (minimal context, no required outline, no polish/review stages).
 </process>

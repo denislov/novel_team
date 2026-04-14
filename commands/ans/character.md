@@ -20,7 +20,7 @@ Use this command to keep the cast list and single-character cards synchronized a
 </objective>
 
 <execution_context>
-@~/.claude/ai-novel-studio/commands/_codex-conventions.md
+@~/.claude/ai-novel-studio/commands/ans/_codex-conventions.md
 @~/.claude/ai-novel-studio/workflows/character.md
 @~/.claude/ai-novel-studio/references/command-center.md
 @~/.claude/ai-novel-studio/references/writing-guide.md
@@ -42,6 +42,6 @@ If only a name is provided, the workflow defaults to viewing that character.
 
 <process>
 Execute the character workflow from @~/.claude/ai-novel-studio/workflows/character.md end-to-end.
-Interpret Claude-style workflow primitives using @~/.claude/ai-novel-studio/commands/_codex-conventions.md.
+Interpret Claude-style workflow primitives using @~/.claude/ai-novel-studio/commands/ans/_codex-conventions.md.
 Preserve all workflow gates (project checks, information gathering, character-card generation, total-table synchronization).
 </process>

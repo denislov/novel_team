@@ -20,7 +20,7 @@ Default target: the latest completed chapter if no explicit chapter argument is 
 </objective>
 
 <execution_context>
-@~/.claude/ai-novel-studio/commands/_codex-conventions.md
+@~/.claude/ai-novel-studio/commands/ans/_codex-conventions.md
 @~/.claude/ai-novel-studio/workflows/polish.md
 </execution_context>
 

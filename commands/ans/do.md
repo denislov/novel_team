@@ -12,7 +12,7 @@ This is a smart router. It does not do the work itself.
 </objective>
 
 <execution_context>
-@~/.claude/ai-novel-studio/commands/_codex-conventions.md
+@~/.claude/ai-novel-studio/commands/ans/_codex-conventions.md
 @~/.claude/ai-novel-studio/workflows/do.md
 @~/.claude/ai-novel-studio/references/command-center.md
 </execution_context>
@@ -23,6 +23,6 @@ $ARGUMENTS
 
 <process>
 Execute the do workflow from @workflows/do.md end-to-end.
-Interpret Claude-style workflow primitives using @~/.claude/ai-novel-studio/commands/_codex-conventions.md.
+Interpret Claude-style workflow primitives using @~/.claude/ai-novel-studio/commands/ans/_codex-conventions.md.
 Route user intent to the best novel command and invoke it.
 </process>

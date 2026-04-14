@@ -20,7 +20,7 @@ This is a thin alias over `/ans:polish --quick` for cases where you want speed o
 </objective>
 
 <execution_context>
-@~/.claude/ai-novel-studio/commands/_codex-conventions.md
+@~/.claude/ai-novel-studio/commands/ans/_codex-conventions.md
 @~/.claude/ai-novel-studio/workflows/quick-polish.md
 @~/.claude/ai-novel-studio/references/command-center.md
 @~/.claude/ai-novel-studio/references/writing-guide.md

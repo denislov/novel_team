@@ -20,7 +20,7 @@ This is the batch-outline companion to `/ans:write-chapter`.
 </objective>
 
 <execution_context>
-@~/.claude/ai-novel-studio/commands/_codex-conventions.md
+@~/.claude/ai-novel-studio/commands/ans/_codex-conventions.md
 @~/.claude/ai-novel-studio/workflows/plan-batch.md
 </execution_context>
 
