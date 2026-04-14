@@ -3,7 +3,8 @@
 </purpose>
 
 <required_reading>
-Read all files referenced by the invoking prompt's execution_context before starting.
+Read the command-level execution_context before starting.
+Load support-bundle references and templates only when this workflow or its delegated agents need them.
 </required_reading>
 
 <available_agent_types>
@@ -48,6 +49,15 @@ for arg in "$ARGUMENTS"; do
       ;;
   esac
 done
+
+ANS_SUPPORT_ROOT="$HOME/.claude/ai-novel-studio"
+ANS_WRITING_GUIDE="$ANS_SUPPORT_ROOT/references/writing-guide.md"
+ANS_RESEARCH_TEMPLATE="$ANS_SUPPORT_ROOT/templates/RESEARCH.md"
+ANS_PROJECT_TEMPLATE="$ANS_SUPPORT_ROOT/templates/PROJECT.md"
+ANS_ROADMAP_TEMPLATE="$ANS_SUPPORT_ROOT/templates/ROADMAP.md"
+ANS_CHARACTERS_TEMPLATE="$ANS_SUPPORT_ROOT/templates/CHARACTERS.md"
+ANS_TIMELINE_TEMPLATE="$ANS_SUPPORT_ROOT/templates/TIMELINE.md"
+ANS_STATE_TEMPLATE="$ANS_SUPPORT_ROOT/templates/STATE.md"
 ```
 
 ### 参数说明
@@ -111,15 +121,20 @@ AskUserQuestion(
 如果设置了 `RESEARCH_TOPIC`：
 
 ```bash
+ARC_SLUG=$(echo "${ARC_NAME:-arc}" | tr ' /' '--' | tr -cd '[:alnum:]-_' | sed 's/--*/-/g' | sed 's/^-//; s/-$//')
 mkdir -p research
 SpawnAgent(
   agent: ans-researcher,
+  files_to_read: [
+    "PROJECT.md",
+    "$ANS_RESEARCH_TEMPLATE"
+  ],
   input: {
     topic: RESEARCH_TOPIC,
     mode: "standard",
     project: PROJECT.md
   },
-  output: research/arc-$(echo "$ARC_NAME" | tr ' ' '-').md
+  output: research/arc-${ARC_SLUG}.md
 )
 ```
 
@@ -158,8 +173,12 @@ STATE=$(cat STATE.md)
 ### 4.3 调用 Architect
 
 ```
+ARCHITECT_FILES_TO_READ="PROJECT.md ROADMAP.md CHARACTERS.md TIMELINE.md STATE.md $ANS_WRITING_GUIDE $ANS_PROJECT_TEMPLATE $ANS_ROADMAP_TEMPLATE $ANS_CHARACTERS_TEMPLATE $ANS_TIMELINE_TEMPLATE $ANS_STATE_TEMPLATE"
+[[ -f "research/arc-${ARC_SLUG}.md" ]] && ARCHITECT_FILES_TO_READ="$ARCHITECT_FILES_TO_READ research/arc-${ARC_SLUG}.md"
+
 SpawnAgent(
   agent: ans-architect,
+  files_to_read: [ $ARCHITECT_FILES_TO_READ ],
   input: plan_arc_request,
   output: [
     PROJECT.md,

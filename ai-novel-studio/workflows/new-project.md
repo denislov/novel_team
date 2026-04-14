@@ -3,7 +3,8 @@
 </purpose>
 
 <required_reading>
-Read all files referenced by the invoking prompt's execution_context before starting.
+Read the command-level execution_context before starting.
+Load support-bundle references and templates only when this workflow or its delegated agents need them.
 Use `node bin/ans-tools.cjs init new-project` after core files are created so the initial `STATE.md` matches the actual filesystem layout.
 </required_reading>
 
@@ -48,6 +49,15 @@ mkdir -p chapters/outlines
 mkdir -p research
 mkdir -p reviews
 mkdir -p characters
+
+ANS_SUPPORT_ROOT="$HOME/.claude/ai-novel-studio"
+ANS_WRITING_GUIDE="$ANS_SUPPORT_ROOT/references/writing-guide.md"
+ANS_RESEARCH_TEMPLATE="$ANS_SUPPORT_ROOT/templates/RESEARCH.md"
+ANS_PROJECT_TEMPLATE="$ANS_SUPPORT_ROOT/templates/PROJECT.md"
+ANS_CHARACTERS_TEMPLATE="$ANS_SUPPORT_ROOT/templates/CHARACTERS.md"
+ANS_TIMELINE_TEMPLATE="$ANS_SUPPORT_ROOT/templates/TIMELINE.md"
+ANS_ROADMAP_TEMPLATE="$ANS_SUPPORT_ROOT/templates/ROADMAP.md"
+ANS_STATE_TEMPLATE="$ANS_SUPPORT_ROOT/templates/STATE.md"
 ```
 
 目录结构：
@@ -263,6 +273,10 @@ fi
 
 保存到 `research/background.md`
 
+如果委托 `ans-researcher`，其 brief 必须额外包含：
+- `files_to_read: [ "$ANS_RESEARCH_TEMPLATE" ]`
+- 若项目已产生阶段性设定，再附带 `PROJECT.md`
+
 </research_phase>
 
 <architecture_phase>
@@ -315,9 +329,13 @@ fi
 ### 4.2 调用 Architect
 
 ```
+ARCHITECT_FILES_TO_READ="$ANS_WRITING_GUIDE $ANS_PROJECT_TEMPLATE $ANS_CHARACTERS_TEMPLATE $ANS_TIMELINE_TEMPLATE $ANS_ROADMAP_TEMPLATE"
+[[ -f "research/background.md" ]] && ARCHITECT_FILES_TO_READ="$ARCHITECT_FILES_TO_READ research/background.md"
+
 Task(
   subagent_type: "ans-architect",
   input: architect_input,
+  files_to_read: [ $ARCHITECT_FILES_TO_READ ],
   output: [
     PROJECT.md,
     CHARACTERS.md,
@@ -340,7 +358,7 @@ Task(
 
 ## 5. 初始化状态文件
 
-按 `templates/STATE.md` 的结构创建 STATE.md，尤其必须保留 frontmatter。创建完成后运行：
+先读取 `$ANS_STATE_TEMPLATE`，再按其结构创建 `STATE.md`，尤其必须保留 frontmatter。创建完成后运行：
 
 ```bash
 node bin/ans-tools.cjs state refresh

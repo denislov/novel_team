@@ -15,7 +15,6 @@ Shows the current project snapshot, identifies planning/writing/review gaps, rec
 <execution_context>
 @~/.claude/ai-novel-studio/commands/ans/_codex-conventions.md
 @~/.claude/ai-novel-studio/workflows/manager.md
-@~/.claude/ai-novel-studio/references/command-center.md
 </execution_context>
 
 <context>

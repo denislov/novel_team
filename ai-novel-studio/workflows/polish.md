@@ -3,7 +3,8 @@
 </purpose>
 
 <required_reading>
-Read all files referenced by the invoking prompt's execution_context before starting.
+Read the command-level execution_context before starting.
+Load support-bundle references and templates only when this workflow or its delegated agents need them.
 </required_reading>
 
 <available_agent_types>
@@ -69,6 +70,11 @@ else
   CHAPTER_LIST="$CHAPTER_INPUT"
   CHAPTER_NUMBER="$CHAPTER_INPUT"
 fi
+
+ANS_SUPPORT_ROOT="$HOME/.claude/ai-novel-studio"
+ANS_WRITING_GUIDE="$ANS_SUPPORT_ROOT/references/writing-guide.md"
+ANS_REVIEW_TEMPLATE="$ANS_SUPPORT_ROOT/templates/REVIEW.md"
+ANS_CHAPTER_TEMPLATE="$ANS_SUPPORT_ROOT/templates/CHAPTER.md"
 ```
 
 ### 参数说明
@@ -135,6 +141,14 @@ CHAPTER=$(cat chapters/chapter-${CHAPTER_NUMBER}.md)
 ```
 SpawnAgent(
   agent: ans-editor,
+  files_to_read: [
+    "PROJECT.md",
+    "CHARACTERS.md",
+    "chapters/chapter-${CHAPTER_NUMBER}.md",
+    "$ANS_WRITING_GUIDE",
+    "$ANS_REVIEW_TEMPLATE",
+    "$ANS_CHAPTER_TEMPLATE"
+  ],
   input: {
     chapter_number: CHAPTER_NUMBER,
     project: PROJECT,
@@ -219,7 +233,7 @@ node bin/ans-tools.cjs chapter promote ${CHAPTER_NUMBER} --source polished
 ```bash
 RESULTS=()
 for chapter in $CHAPTER_LIST; do
-  # 调用 editor
+  # 调用 editor，并沿用单章模式的 files_to_read
   result=$(SpawnAgent ans-editor chapter=$chapter mode=$MODE)
   RESULTS+=("$result")
 done

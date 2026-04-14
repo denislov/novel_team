@@ -22,10 +22,6 @@ Use this command to keep the cast list and single-character cards synchronized a
 <execution_context>
 @~/.claude/ai-novel-studio/commands/ans/_codex-conventions.md
 @~/.claude/ai-novel-studio/workflows/character.md
-@~/.claude/ai-novel-studio/references/command-center.md
-@~/.claude/ai-novel-studio/references/writing-guide.md
-@~/.claude/ai-novel-studio/templates/CHARACTERS.md
-@~/.claude/ai-novel-studio/templates/CHARACTER-CARD.md
 </execution_context>
 
 <context>

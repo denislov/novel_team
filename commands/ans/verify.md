@@ -20,14 +20,8 @@ This is a thin alias over `/ans:review`, optimized for consistency checking afte
 </objective>
 
 <execution_context>
-@~/.claude/ai-novel-studio/commands/ans/_codex-conventions.md
+@~/.claude/ai-novel-studio/commands/_codex-conventions.md
 @~/.claude/ai-novel-studio/workflows/verify.md
-@~/.claude/ai-novel-studio/references/command-center.md
-@~/.claude/ai-novel-studio/references/writing-guide.md
-@~/.claude/ai-novel-studio/references/common-pitfalls.md
-@~/.claude/ai-novel-studio/templates/REVIEW.md
-@~/.claude/ai-novel-studio/templates/STATE.md
-@~/.claude/ai-novel-studio/templates/TIMELINE.md
 </execution_context>
 
 <context>
@@ -45,6 +39,6 @@ If no chapter is provided, the workflow defaults to the latest chapter.
 
 <process>
 Execute the verify workflow from @~/.claude/ai-novel-studio/workflows/verify.md end-to-end as a consistency-verification alias.
-Interpret Claude-style workflow primitives using @~/.claude/ai-novel-studio/commands/ans/_codex-conventions.md.
+Interpret Claude-style workflow primitives using @~/.claude/ai-novel-studio/commands/_codex-conventions.md.
 Preserve all workflow gates (project checks, verifier pass, per-chapter reporting, batch aggregation).
 </process>

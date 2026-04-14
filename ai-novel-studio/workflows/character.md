@@ -3,7 +3,8 @@
 </purpose>
 
 <required_reading>
-Read all files referenced by the invoking prompt's execution_context before starting.
+Read the command-level execution_context before starting.
+Load support-bundle references and templates only when this workflow or its delegated agents need them.
 </required_reading>
 
 <available_agent_types>
@@ -58,6 +59,11 @@ done
 if [[ -z "$ACTION" ]]; then
   ACTION="list"
 fi
+
+ANS_SUPPORT_ROOT="$HOME/.claude/ai-novel-studio"
+ANS_WRITING_GUIDE="$ANS_SUPPORT_ROOT/references/writing-guide.md"
+ANS_CHARACTERS_TEMPLATE="$ANS_SUPPORT_ROOT/templates/CHARACTERS.md"
+ANS_CHARACTER_CARD_TEMPLATE="$ANS_SUPPORT_ROOT/templates/CHARACTER-CARD.md"
 ```
 
 ### 参数说明
@@ -168,6 +174,13 @@ AskUserQuestion(
 ```
 SpawnAgent(
   agent: ans-architect,
+  files_to_read: [
+    "PROJECT.md",
+    "CHARACTERS.md",
+    "$ANS_WRITING_GUIDE",
+    "$ANS_CHARACTERS_TEMPLATE",
+    "$ANS_CHARACTER_CARD_TEMPLATE"
+  ],
   input: {
     task: "create_character",
     character_info: {

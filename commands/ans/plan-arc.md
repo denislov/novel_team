@@ -25,14 +25,6 @@ Use this command after one arc is stable and you need the next major stage desig
 <execution_context>
 @~/.claude/ai-novel-studio/commands/ans/_codex-conventions.md
 @~/.claude/ai-novel-studio/workflows/plan-arc.md
-@~/.claude/ai-novel-studio/references/command-center.md
-@~/.claude/ai-novel-studio/references/writing-guide.md
-@~/.claude/ai-novel-studio/templates/PROJECT.md
-@~/.claude/ai-novel-studio/templates/ROADMAP.md
-@~/.claude/ai-novel-studio/templates/CHARACTERS.md
-@~/.claude/ai-novel-studio/templates/TIMELINE.md
-@~/.claude/ai-novel-studio/templates/STATE.md
-@~/.claude/ai-novel-studio/templates/RESEARCH.md
 </execution_context>
 
 <context>

@@ -19,11 +19,8 @@ Use this mode for experimentation, idea capture, and high-speed drafting rather 
 </objective>
 
 <execution_context>
-@~/.claude/ai-novel-studio/commands/ans/_codex-conventions.md
+@~/.claude/ai-novel-studio/commands/_codex-conventions.md
 @~/.claude/ai-novel-studio/workflows/quick-draft.md
-@~/.claude/ai-novel-studio/references/command-center.md
-@~/.claude/ai-novel-studio/references/writing-guide.md
-@~/.claude/ai-novel-studio/templates/CHAPTER.md
 </execution_context>
 
 <context>

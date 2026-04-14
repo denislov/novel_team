@@ -4,7 +4,8 @@
 </purpose>
 
 <required_reading>
-Read all files referenced by the invoking prompt's execution_context before starting.
+Read the command-level execution_context before starting.
+Load support-bundle references and templates only when this workflow or its delegated agents need them.
 </required_reading>
 
 <available_agent_types>
@@ -35,6 +36,14 @@ if echo "$INIT" | grep -q '"error"'; then
 fi
 
 PLAN_CHECK_ENABLED=$(echo "$INIT" | node -e "const d=JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));console.log(d.config?.workflow?.plan_check !== false)" 2>/dev/null)
+ANS_SUPPORT_ROOT="$HOME/.claude/ai-novel-studio"
+ANS_WRITING_GUIDE="$ANS_SUPPORT_ROOT/references/writing-guide.md"
+ANS_COMMON_PITFALLS="$ANS_SUPPORT_ROOT/references/common-pitfalls.md"
+ANS_OUTLINE_TEMPLATE="$ANS_SUPPORT_ROOT/templates/CHAPTER-OUTLINE.md"
+ANS_CHAPTER_TEMPLATE="$ANS_SUPPORT_ROOT/templates/CHAPTER.md"
+ANS_REVIEW_TEMPLATE="$ANS_SUPPORT_ROOT/templates/REVIEW.md"
+ANS_STATE_TEMPLATE="$ANS_SUPPORT_ROOT/templates/STATE.md"
+ANS_TIMELINE_TEMPLATE="$ANS_SUPPORT_ROOT/templates/TIMELINE.md"
 ```
 
 ## 2. 解析运行参数
@@ -82,7 +91,7 @@ mkdir -p chapters/outlines chapters/draft reviews
 ```bash
 if [[ "$SKIP_PLAN" == "false" ]] && [[ ! -f "chapters/outlines/outline-${CHAPTER_NUMBER}.md" ]]; then
   PREV=$((CHAPTER_NUMBER-1))
-  FILES="PROJECT.md ROADMAP.md TIMELINE.md CHARACTERS.md STATE.md"
+  FILES="PROJECT.md ROADMAP.md TIMELINE.md CHARACTERS.md STATE.md $ANS_WRITING_GUIDE $ANS_OUTLINE_TEMPLATE"
   [[ -f "chapters/outlines/outline-${PREV}.md" ]] && FILES="$FILES chapters/outlines/outline-${PREV}.md"
 
   Task(
@@ -125,7 +134,7 @@ fi
 ```bash
 PREV1=$((CHAPTER_NUMBER-1))
 PREV2=$((CHAPTER_NUMBER-2))
-FILES="PROJECT.md CHARACTERS.md TIMELINE.md STATE.md chapters/outlines/outline-${CHAPTER_NUMBER}.md"
+FILES="PROJECT.md CHARACTERS.md TIMELINE.md STATE.md chapters/outlines/outline-${CHAPTER_NUMBER}.md $ANS_WRITING_GUIDE $ANS_CHAPTER_TEMPLATE"
 
 [[ -f "chapters/chapter-${PREV1}.md" ]] && FILES="$FILES chapters/chapter-${PREV1}.md"
 [[ -f "chapters/chapter-${PREV2}.md" ]] && FILES="$FILES chapters/chapter-${PREV2}.md"
@@ -169,7 +178,10 @@ if [[ "$SKIP_POLISH" == "false" ]]; then
     files_to_read: [
       "PROJECT.md",
       "CHARACTERS.md",
-      "chapters/chapter-${CHAPTER_NUMBER}.md"
+      "chapters/chapter-${CHAPTER_NUMBER}.md",
+      "$ANS_WRITING_GUIDE",
+      "$ANS_REVIEW_TEMPLATE",
+      "$ANS_CHAPTER_TEMPLATE"
     ]
   )
   
@@ -197,10 +209,15 @@ if [[ "$SKIP_VERIFY" == "false" ]]; then
     objective: "审核第 ${CHAPTER_NUMBER} 章",
     files_to_read: [
       "PROJECT.md",
+      "CHARACTERS.md",
       "TIMELINE.md",
       "STATE.md",
       "chapters/outlines/outline-${CHAPTER_NUMBER}.md",
-      "chapters/chapter-${CHAPTER_NUMBER}.md"
+      "chapters/chapter-${CHAPTER_NUMBER}.md",
+      "$ANS_COMMON_PITFALLS",
+      "$ANS_REVIEW_TEMPLATE",
+      "$ANS_STATE_TEMPLATE",
+      "$ANS_TIMELINE_TEMPLATE"
     ]
   )
   
@@ -212,12 +229,52 @@ if [[ "$SKIP_VERIFY" == "false" ]]; then
   if [[ "$GAP_TYPE" == "structure" ]]; then
     echo "发现严重结构崩塌，进入 replan 回炉..."
     # 唤醒 Planner
-    Task(subagent_type: "ans-planner", objective: "修正第 ${CHAPTER_NUMBER} 章大纲", files_to_read: ["reviews/review-${CHAPTER_NUMBER}.md"])
+    Task(
+      subagent_type: "ans-planner",
+      objective: "修正第 ${CHAPTER_NUMBER} 章大纲",
+      files_to_read: [
+        "PROJECT.md",
+        "ROADMAP.md",
+        "TIMELINE.md",
+        "CHARACTERS.md",
+        "STATE.md",
+        "reviews/review-${CHAPTER_NUMBER}.md",
+        "$ANS_WRITING_GUIDE",
+        "$ANS_OUTLINE_TEMPLATE"
+      ]
+    )
     # 唤醒 Writer
-    Task(subagent_type: "ans-writer", objective: "根据新大纲重写", files_to_read: ["chapters/outlines/outline-${CHAPTER_NUMBER}.md"])
+    Task(
+      subagent_type: "ans-writer",
+      objective: "根据新大纲重写",
+      files_to_read: [
+        "PROJECT.md",
+        "CHARACTERS.md",
+        "TIMELINE.md",
+        "STATE.md",
+        "chapters/outlines/outline-${CHAPTER_NUMBER}.md",
+        "reviews/review-${CHAPTER_NUMBER}.md",
+        "$ANS_WRITING_GUIDE",
+        "$ANS_CHAPTER_TEMPLATE"
+      ]
+    )
   elif [[ "$GAP_TYPE" == "content" ]] || [[ "$GAP_TYPE" == "consistency_drift" ]]; then
     echo "发现内容/人设漂移，进入 rewrite 回炉..."
-    Task(subagent_type: "ans-writer", objective: "根据审核建议重写", files_to_read: ["reviews/review-${CHAPTER_NUMBER}.md"])
+    Task(
+      subagent_type: "ans-writer",
+      objective: "根据审核建议重写",
+      files_to_read: [
+        "PROJECT.md",
+        "CHARACTERS.md",
+        "TIMELINE.md",
+        "STATE.md",
+        "chapters/outlines/outline-${CHAPTER_NUMBER}.md",
+        "chapters/chapter-${CHAPTER_NUMBER}.md",
+        "reviews/review-${CHAPTER_NUMBER}.md",
+        "$ANS_WRITING_GUIDE",
+        "$ANS_CHAPTER_TEMPLATE"
+      ]
+    )
   fi
 fi
 ```

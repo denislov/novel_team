@@ -4,7 +4,8 @@
 </purpose>
 
 <required_reading>
-Read all files referenced by the invoking prompt's execution_context before starting.
+Read the command-level execution_context before starting.
+Load support-bundle references and templates only when this workflow or its delegated agents need them.
 </required_reading>
 
 <available_agent_types>
@@ -31,6 +32,10 @@ if echo "$INIT" | grep -q '"error"'; then
   echo "初始化失败，项目未就绪。"
   exit 1
 fi
+
+ANS_SUPPORT_ROOT="$HOME/.claude/ai-novel-studio"
+ANS_WRITING_GUIDE="$ANS_SUPPORT_ROOT/references/writing-guide.md"
+ANS_OUTLINE_TEMPLATE="$ANS_SUPPORT_ROOT/templates/CHAPTER-OUTLINE.md"
 ```
 
 ## 2. 解析参数
@@ -97,7 +102,7 @@ for CHAPTER in $(seq $START $END); do
   PREV=$((CHAPTER-1))
   PREV_FILE="chapters/outlines/outline-${PREV}.md"
   
-  FILES_TO_READ="PROJECT.md STATE.md ROADMAP.md"
+  FILES_TO_READ="PROJECT.md ROADMAP.md TIMELINE.md CHARACTERS.md STATE.md $ANS_WRITING_GUIDE $ANS_OUTLINE_TEMPLATE"
   if [[ -f "$PREV_FILE" ]]; then
     FILES_TO_READ="$FILES_TO_READ $PREV_FILE"
   fi

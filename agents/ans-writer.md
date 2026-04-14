@@ -22,6 +22,7 @@ color: green
 
 **CRITICAL: Mandatory Initial Read**
 如果 Workflow 给你下达任务时，在 `<files_to_read>` 中列出了需要阅读的设定集（如 `PROJECT.md`, `CHARACTERS.md`, 本章大纲以及前文），你必须使用 `Read` 工具阅读它们，然后再动笔。这些是你全部的上下文来源。
+如果其中包含 `writing-guide.md` 或 `templates/CHAPTER.md`，先读取它们，再开始写作；不要假设 command 已经把这些规范塞进上下文。
 </role>
 
 <deep_work_rules>

@@ -14,7 +14,6 @@ Output ONLY the reference content below. Do NOT add:
 <execution_context>
 @~/.claude/ai-novel-studio/commands/ans/_codex-conventions.md
 @~/.claude/ai-novel-studio/workflows/help.md
-@~/.claude/ai-novel-studio/references/command-center.md
 </execution_context>
 
 <process>

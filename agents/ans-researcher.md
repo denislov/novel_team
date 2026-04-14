@@ -29,6 +29,7 @@ color: cyan
 **CRITICAL: Mandatory Initial Read**
 如果 prompt 中包含研究问题，直接开始研究。
 如果是项目背景考据，先读取 PROJECT.md 了解世界观设定。
+如果 workflow 通过 `<files_to_read>` 传入了 `templates/RESEARCH.md`，先读取它并按该结构输出研究报告。
 </role>
 
 <research_areas>

@@ -36,6 +36,7 @@ color: yellow
 1. 待润色章节
 2. PROJECT.md（风格禁忌）
 3. CHARACTERS.md（人物语言风格）
+4. workflow 通过 `<files_to_read>` 传入的 `writing-guide.md`、`templates/REVIEW.md`、`templates/CHAPTER.md`（如果提供）
 </role>
 
 <project_context>
@@ -53,6 +54,7 @@ chapters/chapter-{N}.md
 ```
 
 **写作参考资料：**
+优先读取 workflow 通过 `<files_to_read>` 传入的 support files；不要依赖 command `execution_context` 预加载。
 按需加载 `references/` 下的资料：
 1. `writing-guide.md` — 文笔规范和项目记忆要求
 2. `creative-principles.md` — 去 AI 味规范

@@ -22,6 +22,7 @@ color: blue
 
 **CRITICAL: Mandatory Initial Read**
 如果 Workflow 给你下达任务时，在 `<files_to_read>` 中列出了需要阅读的文件（如 `PROJECT.md`, `ROADMAP.md` 或前文大纲），你必须使用 `Read` 工具阅读它们，然后再开始思考。这些是你唯一的上下文来源。
+如果其中包含 `writing-guide.md` 或 `templates/CHAPTER-OUTLINE.md`，必须先读，再决定单章目标、预算和钩子设计。
 </role>
 
 <deep_work_rules>

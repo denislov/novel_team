@@ -33,6 +33,16 @@ function workflowFiles() {
     .map((name) => path.join(WORKFLOWS_DIR, name));
 }
 
+function extractExecutionContextRefs(content) {
+  const blockMatch = content.match(/<execution_context>\s*([\s\S]*?)\s*<\/execution_context>/);
+  if (!blockMatch) return [];
+
+  return blockMatch[1]
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+}
+
 test('command execution_context references resolve inside the support bundle', () => {
   const missing = [];
   const pattern = /@~\/\.claude\/ai-novel-studio\/([A-Za-z0-9/_\-.]+)/g;
@@ -53,6 +63,58 @@ test('command execution_context references resolve inside the support bundle', (
     [],
     `Broken command execution_context references:\n${missing.join('\n')}`
   );
+});
+
+test('command execution_context stays thin and only ans:do keeps command-center', () => {
+  for (const filePath of commandFiles()) {
+    const fileName = path.basename(filePath);
+    const refs = extractExecutionContextRefs(read(filePath));
+    const expected = [
+      '@~/.claude/ai-novel-studio/commands/_codex-conventions.md',
+      `@~/.claude/ai-novel-studio/workflows/${fileName}`,
+    ];
+
+    if (fileName === 'do.md') {
+      expected.push('@~/.claude/ai-novel-studio/references/command-center.md');
+    }
+
+    assert.deepEqual(
+      refs,
+      expected,
+      `${fileName} execution_context should only include routed workflow context`
+    );
+  }
+});
+
+test('workflow-owned support context moved below commands into workflows', () => {
+  const creativeWorkflowNames = [
+    'autonomous.md',
+    'character.md',
+    'new-project.md',
+    'plan-arc.md',
+    'plan-batch.md',
+    'polish.md',
+    'quick-draft.md',
+    'write-chapter.md',
+  ];
+
+  for (const fileName of creativeWorkflowNames) {
+    const content = read(path.join(WORKFLOWS_DIR, fileName));
+    assert.match(
+      content,
+      /writing-guide\.md/,
+      `${fileName} should pass writing-guide support context inside the workflow`
+    );
+  }
+
+  for (const fileName of ['autonomous.md', 'review.md', 'write-chapter.md']) {
+    const content = read(path.join(WORKFLOWS_DIR, fileName));
+    assert.match(
+      content,
+      /common-pitfalls\.md/,
+      `${fileName} should pass common-pitfalls to verifier-facing workflow steps`
+    );
+  }
 });
 
 test('workflow agent references resolve to shipped ans-* agents', () => {

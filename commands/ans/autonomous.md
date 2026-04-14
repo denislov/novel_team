@@ -24,15 +24,8 @@ Designed for batch creation with controlled pause points rather than single-chap
 </objective>
 
 <execution_context>
-@~/.claude/ai-novel-studio/commands/ans/_codex-conventions.md
+@~/.claude/ai-novel-studio/commands/_codex-conventions.md
 @~/.claude/ai-novel-studio/workflows/autonomous.md
-@~/.claude/ai-novel-studio/references/command-center.md
-@~/.claude/ai-novel-studio/references/writing-guide.md
-@~/.claude/ai-novel-studio/templates/ROADMAP.md
-@~/.claude/ai-novel-studio/templates/STATE.md
-@~/.claude/ai-novel-studio/templates/CHAPTER-OUTLINE.md
-@~/.claude/ai-novel-studio/templates/CHAPTER.md
-@~/.claude/ai-novel-studio/templates/REVIEW.md
 </execution_context>
 
 <context>

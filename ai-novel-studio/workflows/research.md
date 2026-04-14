@@ -3,7 +3,8 @@
 </purpose>
 
 <required_reading>
-Read all files referenced by the invoking prompt's execution_context before starting.
+Read the command-level execution_context before starting.
+Load support-bundle references and templates only when this workflow or its delegated agents need them.
 </required_reading>
 
 <available_agent_types>
@@ -87,6 +88,13 @@ fi
 if [[ -z "$OUTPUT_NAME" ]]; then
   OUTPUT_NAME=$(echo "$TOPIC" | tr ' /' '--' | tr -cd '[:alnum:]-_' | sed 's/--*/-/g' | sed 's/^-//; s/-$//')
 fi
+
+ANS_SUPPORT_ROOT="$HOME/.claude/ai-novel-studio"
+ANS_RESEARCH_TEMPLATE="$ANS_SUPPORT_ROOT/templates/RESEARCH.md"
+RESEARCH_FILES_TO_READ="$ANS_RESEARCH_TEMPLATE"
+if [[ -f "PROJECT.md" ]]; then
+  RESEARCH_FILES_TO_READ="PROJECT.md $RESEARCH_FILES_TO_READ"
+fi
 ```
 
 </initialization>
@@ -113,6 +121,7 @@ fi
 ```
 SpawnAgent(
   agent: ans-researcher,
+  files_to_read: [ $RESEARCH_FILES_TO_READ ],
   input: research_request,
   output: research/${OUTPUT_NAME}.md
 )

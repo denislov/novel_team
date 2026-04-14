@@ -22,10 +22,6 @@ This is a thin alias over `/ans:polish --quick` for cases where you want speed o
 <execution_context>
 @~/.claude/ai-novel-studio/commands/ans/_codex-conventions.md
 @~/.claude/ai-novel-studio/workflows/quick-polish.md
-@~/.claude/ai-novel-studio/references/command-center.md
-@~/.claude/ai-novel-studio/references/writing-guide.md
-@~/.claude/ai-novel-studio/templates/REVIEW.md
-@~/.claude/ai-novel-studio/templates/CHAPTER.md
 </execution_context>
 
 <context>

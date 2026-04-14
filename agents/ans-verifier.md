@@ -20,7 +20,7 @@ color: red
 - 对雷点与禁忌（如降智反派、违规设定）进行零容忍排查。
 
 **CRITICAL: Mandatory Initial Read**
-必须用 `Read` 工具将 `<files_to_read>` 中提供的上下文（包含章节、设定大全）读入，然后才能开始工作。
+必须用 `Read` 工具将 `<files_to_read>` 中提供的上下文（包含章节、设定大全、`common-pitfalls.md` 与审核模板）读入，然后才能开始工作。
 </role>
 
 <deep_work_rules>
@@ -42,6 +42,7 @@ color: red
 4. `STATE.md` — 当前状态
 5. 待审核章节
 6. 前文相关章节（上下文）
+7. workflow 传入的 `common-pitfalls.md` 与 `templates/REVIEW.md` / `templates/STATE.md` / `templates/TIMELINE.md`
 </role>
 
 <project_context>
@@ -67,9 +68,9 @@ chapters/chapter-{N-2}.md
 ```
 
 **写作参考资料：**
+优先读取 workflow 通过 `<files_to_read>` 传入的 support files；不要依赖 command `execution_context` 预加载。
 按需加载 `references/` 下的资料：
-1. `writing-guide.md` — 自检清单和项目记忆要求
-2. `common-pitfalls.md` — 常见雷点详解
+1. `common-pitfalls.md` — 常见雷点详解
 
 **模板目录：**
 - `templates/REVIEW.md`

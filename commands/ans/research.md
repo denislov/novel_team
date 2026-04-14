@@ -19,11 +19,8 @@ Use this command for fact checking, era reconstruction, professional knowledge l
 </objective>
 
 <execution_context>
-@~/.claude/ai-novel-studio/commands/ans/_codex-conventions.md
+@~/.claude/ai-novel-studio/commands/_codex-conventions.md
 @~/.claude/ai-novel-studio/workflows/research.md
-@~/.claude/ai-novel-studio/references/command-center.md
-@~/.claude/ai-novel-studio/references/writing-guide.md
-@~/.claude/ai-novel-studio/templates/RESEARCH.md
 </execution_context>
 
 <context>
@@ -38,6 +35,6 @@ Use this command for fact checking, era reconstruction, professional knowledge l
 
 <process>
 Execute the research workflow from @~/.claude/ai-novel-studio/workflows/research.md end-to-end.
-Interpret Claude-style workflow primitives using @~/.claude/ai-novel-studio/commands/ans/_codex-conventions.md.
+Interpret Claude-style workflow primitives using @~/.claude/ai-novel-studio/commands/_codex-conventions.md.
 Preserve all workflow gates (topic clarification, source gathering, cross-checking, report generation).
 </process>

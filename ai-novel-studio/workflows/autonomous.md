@@ -4,7 +4,8 @@ uses structured init context from ans-tools.cjs and includes gap closure mechani
 </purpose>
 
 <required_reading>
-Read all files referenced by the invoking prompt's execution_context before starting.
+Read the command-level execution_context before starting.
+Load support-bundle references and templates only when this workflow or its delegated agents need them.
 </required_reading>
 
 <available_agent_types>
@@ -34,6 +35,15 @@ if [[ -z "$INIT" || "$INIT" == *"Error"* ]]; then
   echo "⚠️ ans-tools.cjs init 失败，回退到基础检查"
   [[ ! -f "PROJECT.md" ]] && echo "错误：PROJECT.md 不存在" && exit 1
 fi
+
+ANS_SUPPORT_ROOT="$HOME/.claude/ai-novel-studio"
+ANS_WRITING_GUIDE="$ANS_SUPPORT_ROOT/references/writing-guide.md"
+ANS_COMMON_PITFALLS="$ANS_SUPPORT_ROOT/references/common-pitfalls.md"
+ANS_OUTLINE_TEMPLATE="$ANS_SUPPORT_ROOT/templates/CHAPTER-OUTLINE.md"
+ANS_CHAPTER_TEMPLATE="$ANS_SUPPORT_ROOT/templates/CHAPTER.md"
+ANS_REVIEW_TEMPLATE="$ANS_SUPPORT_ROOT/templates/REVIEW.md"
+ANS_STATE_TEMPLATE="$ANS_SUPPORT_ROOT/templates/STATE.md"
+ANS_TIMELINE_TEMPLATE="$ANS_SUPPORT_ROOT/templates/TIMELINE.md"
 ```
 
 从 `$INIT` JSON 中提取关键字段：
@@ -190,6 +200,8 @@ CHAPTER_INIT=$(node "$HOME/.claude/ai-novel-studio/bin/ans-tools.cjs" init write
 
 如果 `outline_exists == false`：
 - SpawnAgent ans-planner，产出 `chapters/outlines/outline-{N}.md`
+- planner 的 `files_to_read` 至少包含：
+  `PROJECT.md ROADMAP.md TIMELINE.md CHARACTERS.md STATE.md $ANS_WRITING_GUIDE $ANS_OUTLINE_TEMPLATE`
 - 如果 `config.workflow.plan_check == true`：SpawnAgent ans-plan-checker，验证大纲与 CHARACTERS.md / TIMELINE.md 的一致性
 
 如果 `outline_exists == true`：
@@ -200,6 +212,7 @@ CHAPTER_INIT=$(node "$HOME/.claude/ai-novel-studio/bin/ans-tools.cjs" init write
 ```
 SpawnAgent ans-writer:
   - 输入: outline, previous chapter, CHARACTERS.md, TIMELINE.md
+  - `files_to_read` 额外附带: `$ANS_WRITING_GUIDE`, `$ANS_CHAPTER_TEMPLATE`
   - 产出: chapters/draft/chapter-{N}-draft.md
   - 字数目标: chapter_words（不超过 chapter_word_ceiling）
 ```
@@ -216,6 +229,7 @@ node "$HOME/.claude/ai-novel-studio/bin/ans-tools.cjs" chapter budget "$CURRENT_
 ```
 SpawnAgent ans-verifier:
   - 输入: chapter draft, outline, CHARACTERS.md, TIMELINE.md
+  - `files_to_read` 额外附带: `$ANS_COMMON_PITFALLS`, `$ANS_REVIEW_TEMPLATE`, `$ANS_STATE_TEMPLATE`, `$ANS_TIMELINE_TEMPLATE`
   - 产出结构化 JSON：
     {
       "status": "passed" | "gaps_found" | "human_needed",
@@ -256,6 +270,8 @@ if gap_type == "structural":
 elif gap_type == "content":
   SpawnAgent ans-writer (修复模式: 只修改正文中的问题段落)
 ```
+
+Gap Closure 中的 planner / writer 重试也必须沿用同一组 workflow-owned support files，不能再依赖 command `execution_context` 预加载模板。
 
 3. **Re-verify：**
 ```

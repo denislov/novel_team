@@ -3,7 +3,8 @@
 </purpose>
 
 <required_reading>
-Read all files referenced by the invoking prompt's execution_context before starting.
+Read the command-level execution_context before starting.
+Load support-bundle references and templates only when this workflow or its delegated agents need them.
 </required_reading>
 
 <available_agent_types>
@@ -78,6 +79,13 @@ fi
 
 # 加载最小上下文
 PROJECT=$(cat PROJECT.md)
+ANS_SUPPORT_ROOT="$HOME/.claude/ai-novel-studio"
+ANS_WRITING_GUIDE="$ANS_SUPPORT_ROOT/references/writing-guide.md"
+ANS_CHAPTER_TEMPLATE="$ANS_SUPPORT_ROOT/templates/CHAPTER.md"
+FILES_TO_READ="PROJECT.md $ANS_WRITING_GUIDE $ANS_CHAPTER_TEMPLATE"
+[[ -f "CHARACTERS.md" ]] && FILES_TO_READ="$FILES_TO_READ CHARACTERS.md"
+[[ -f "TIMELINE.md" ]] && FILES_TO_READ="$FILES_TO_READ TIMELINE.md"
+[[ -f "STATE.md" ]] && FILES_TO_READ="$FILES_TO_READ STATE.md"
 ```
 
 </initialization>
@@ -107,6 +115,7 @@ PROJECT=$(cat PROJECT.md)
 ```
 SpawnAgent(
   agent: ans-writer,
+  files_to_read: [ $FILES_TO_READ ],
   input: writer_input,
   output: chapters/draft/chapter-${CHAPTER_NUMBER}-quick.md
 )

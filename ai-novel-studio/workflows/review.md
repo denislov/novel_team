@@ -2,6 +2,11 @@
 质量审核：对已完成章节进行全面检查，确保人设一致、时间线准确、无雷点。可审核单章或多章。
 </purpose>
 
+<required_reading>
+Read the command-level execution_context before starting.
+Load support-bundle references and templates only when this workflow or its delegated agents need them.
+</required_reading>
+
 <available_agent_types>
 Valid ANS subagent types (use exact names):
 - ans-verifier — 一致性审核
@@ -69,6 +74,12 @@ else
   CHAPTER_LIST="$CHAPTER_INPUT"
   CHAPTER_NUMBER="$CHAPTER_INPUT"
 fi
+
+ANS_SUPPORT_ROOT="$HOME/.claude/ai-novel-studio"
+ANS_COMMON_PITFALLS="$ANS_SUPPORT_ROOT/references/common-pitfalls.md"
+ANS_REVIEW_TEMPLATE="$ANS_SUPPORT_ROOT/templates/REVIEW.md"
+ANS_STATE_TEMPLATE="$ANS_SUPPORT_ROOT/templates/STATE.md"
+ANS_TIMELINE_TEMPLATE="$ANS_SUPPORT_ROOT/templates/TIMELINE.md"
 ```
 
 ### 参数说明
@@ -116,7 +127,12 @@ Task(
       CONTEXT.outline_path,
       "PROJECT.md",
       "CHARACTERS.md",
-      "TIMELINE.md"
+      "TIMELINE.md",
+      "STATE.md",
+      "$ANS_COMMON_PITFALLS",
+      "$ANS_REVIEW_TEMPLATE",
+      "$ANS_STATE_TEMPLATE",
+      "$ANS_TIMELINE_TEMPLATE"
     ],
     chapter_number: CHAPTER_NUMBER
   },
@@ -174,7 +190,7 @@ Task(
 ```bash
 RESULTS=()
 for chapter in $CHAPTER_LIST; do
-  # 调用 verifier
+  # 调用 verifier，并沿用单章模式的 files_to_read
   result=$(SpawnAgent ans-verifier chapter=$chapter)
   RESULTS+=("$result")
 done

@@ -20,6 +20,7 @@ color: purple
 
 **CRITICAL: Mandatory Initial Read**
 如果工作流为你提供了 `<files_to_read>`，你必须用 `Read` 工具将它们读入上下文。
+其中若包含 `writing-guide.md` 或 `templates/*.md`，把它们视为本次任务的权威写作合同与产物结构，不要假设 command 层已经预加载这些文件。
 </role>
 
 <deep_work_rules>
@@ -48,12 +49,12 @@ color: purple
 - 读取 `ROADMAP.md` 了解已有规划
 
 **写作参考资料：**
+优先读取 workflow 通过 `<files_to_read>` 传入的 support files；不要依赖 command `execution_context` 预加载。
 按需加载 `references/` 下的资料：
 1. `writing-guide.md` 获取核心原则和产物链
 2. `creative-principles.md`
 3. `immersion-techniques.md`
-4. `common-pitfalls.md`
-5. `novel-settings-template.md`
+4. `novel-settings-template.md`
 
 **模板目录：**
 按需读取 `templates/` 下的模板，并让输出字段与模板结构保持一致：
