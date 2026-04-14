@@ -12,7 +12,9 @@
  * Commands:
  *   state load|get|update|patch|refresh|json|write-target|range-target
  *   chapter inspect|list|budget|budget-sync|promote|paths
- *   init write-chapter|autonomous|manager|new-project|review|progress
+ *   init write-chapter|plan-batch|autonomous|manager|new-project|review|progress
+ *   check budget
+ *   verify extract
  *   validate consistency|health
  *   config get|set
  */
@@ -81,11 +83,15 @@ Commands:
   chapter paths <N>                 Get artifact paths for chapter
 
   init write-chapter [N]            Context for write-chapter workflow
+  init plan-batch [START-END]       Context for plan-batch workflow
   init autonomous                   Context for autonomous workflow
   init manager                      Context for manager workflow
   init new-project                  Context for new-project workflow
   init review [N]                   Context for review workflow
   init progress                     Context for progress workflow
+
+  check budget --chapter N          Analyze chapter budget (alias of chapter budget)
+  verify extract --report <path>    Extract structured verdict JSON from review report
 
   validate consistency              Cross-chapter name consistency
   validate health                   Project file integrity check
@@ -114,6 +120,10 @@ function main() {
         return routeChapter(root, subcommand, rest, raw);
       case 'init':
         return routeInit(root, subcommand, rest, raw);
+      case 'check':
+        return routeCheck(root, subcommand, rest, raw);
+      case 'verify':
+        return routeVerify(root, subcommand, rest, raw);
       case 'validate':
         return routeValidate(root, subcommand, rest, raw);
       case 'config':
@@ -147,8 +157,10 @@ function routeState(root, sub, rest, raw) {
       return state.cmdStateJson(root, raw);
     case 'get':
       return state.cmdStateGet(root, rest[0] || named.field, raw);
-    case 'update':
-      return state.cmdStateUpdate(root, rest[0], rest[1]);
+    case 'update': {
+      const value = rest[1] === '--set' ? rest[2] : rest[1];
+      return state.cmdStateUpdate(root, rest[0], value);
+    }
     case 'patch': {
       // Parse remaining --key value pairs
       const patches = {};
@@ -205,6 +217,8 @@ function routeInit(root, sub, rest, raw) {
   switch (sub) {
     case 'write-chapter':
       return init.cmdInitWriteChapter(root, chapterNum, raw);
+    case 'plan-batch':
+      return init.cmdInitPlanBatch(root, rest[0] || null, raw);
     case 'autonomous':
       return init.cmdInitAutonomous(root, raw);
     case 'manager':
@@ -212,15 +226,39 @@ function routeInit(root, sub, rest, raw) {
     case 'new-project':
       return init.cmdInitNewProject(root, raw);
     case 'review':
-      return init.cmdInitReview(root, chapterNum, raw);
+      return init.cmdInitReview(root, rest[0] || null, raw);
     case 'progress':
       return init.cmdInitProgress(root, raw);
     default:
-      error(`unknown init subcommand: ${sub}. Try: write-chapter, autonomous, manager, new-project, review, progress`);
+      error(`unknown init subcommand: ${sub}. Try: write-chapter, plan-batch, autonomous, manager, new-project, review, progress`);
   }
 }
 
 // ─── Validate routes ──────────────────────────────────────────────────────────
+
+function routeCheck(root, sub, rest, raw) {
+  const chapter = require('./lib/chapter.cjs');
+  const named = parseNamedArgs(rest, ['chapter', 'source'], []);
+
+  switch (sub) {
+    case 'budget':
+      return chapter.cmdChapterBudget(root, named.chapter || rest[0], named.source || 'formal', raw);
+    default:
+      error(`unknown check subcommand: ${sub}. Try: budget`);
+  }
+}
+
+function routeVerify(root, sub, rest, raw) {
+  const verify = require('./lib/verify.cjs');
+  const named = parseNamedArgs(rest, ['report'], []);
+
+  switch (sub) {
+    case 'extract':
+      return verify.cmdVerifyExtract(root, named.report, raw);
+    default:
+      error(`unknown verify subcommand: ${sub}. Try: extract`);
+  }
+}
 
 function routeValidate(root, sub, rest, raw) {
   const verify = require('./lib/verify.cjs');

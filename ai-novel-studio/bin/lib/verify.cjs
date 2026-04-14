@@ -216,9 +216,50 @@ function cmdValidateHealth(root, raw) {
   core.output(health, raw);
 }
 
+function cmdVerifyExtract(root, reportPath, raw) {
+  if (!reportPath) {
+    core.error('verify extract requires --report <path>');
+  }
+
+  const fullPath = path.isAbsolute(reportPath)
+    ? reportPath
+    : path.join(root, reportPath);
+
+  if (!core.fileExists(fullPath)) {
+    core.error(`review report not found: ${reportPath}`);
+  }
+
+  const text = core.readText(fullPath);
+
+  const fencedMatches = [...text.matchAll(/```json\s*([\s\S]*?)```/g)];
+  for (let index = fencedMatches.length - 1; index >= 0; index -= 1) {
+    try {
+      const parsed = JSON.parse(fencedMatches[index][1]);
+      core.output(parsed, raw);
+      return;
+    } catch {
+      // Keep scanning.
+    }
+  }
+
+  const verdictMatch = text.match(/##\s+Structured Verdict[\s\S]*?```json\s*([\s\S]*?)```/);
+  if (verdictMatch) {
+    try {
+      const parsed = JSON.parse(verdictMatch[1]);
+      core.output(parsed, raw);
+      return;
+    } catch {
+      // Fall through to explicit error below.
+    }
+  }
+
+  core.error(`could not extract structured verdict JSON from ${reportPath}`);
+}
+
 module.exports = {
   checkCharacterNames,
   checkProjectHealth,
   cmdValidateConsistency,
   cmdValidateHealth,
+  cmdVerifyExtract,
 };

@@ -47,6 +47,6 @@ Use this command after one arc is stable and you need the next major stage desig
 
 <process>
 Execute the plan-arc workflow from @workflows/plan-arc.md end-to-end.
-Interpret Claude-style workflow primitives using @commands/_codex-conventions.md.
+Interpret Claude-style workflow primitives using the conventions file already loaded in `execution_context`.
 Preserve all workflow gates (project load, optional research, architect pass, roadmap/timeline/cast updates).
 </process>

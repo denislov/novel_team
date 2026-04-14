@@ -1,6 +1,6 @@
 ---
 description: "Verify chapter consistency, timeline accuracy, and logic using the review workflow as a focused validation pass"
-argument-hint: "[N|START-END] [--quick] [--json]"
+argument-hint: "[N|START-END] [--quick] [--deep] [--json]"
 allowed-tools:
   - Read
   - Write
@@ -21,7 +21,7 @@ This is a thin alias over `/ans:review`, optimized for consistency checking afte
 
 <execution_context>
 @~/.claude/ai-novel-studio/commands/ans/_codex-conventions.md
-@~/.claude/ai-novel-studio/workflows/review.md
+@~/.claude/ai-novel-studio/workflows/verify.md
 @~/.claude/ai-novel-studio/references/command-center.md
 @~/.claude/ai-novel-studio/references/writing-guide.md
 @~/.claude/ai-novel-studio/references/common-pitfalls.md
@@ -37,13 +37,14 @@ This is a thin alias over `/ans:review`, optimized for consistency checking afte
 
 **Flags:**
 - `--quick` — Show concise verification results
+- `--deep` — Include cross-chapter consistency analysis
 - `--json` — Emit structured output for tooling
 
 If no chapter is provided, the workflow defaults to the latest chapter.
 </context>
 
 <process>
-Execute the review workflow from @~/.claude/ai-novel-studio/workflows/review.md end-to-end as a consistency-verification alias.
+Execute the verify workflow from @~/.claude/ai-novel-studio/workflows/verify.md end-to-end as a consistency-verification alias.
 Interpret Claude-style workflow primitives using @~/.claude/ai-novel-studio/commands/ans/_codex-conventions.md.
 Preserve all workflow gates (project checks, verifier pass, per-chapter reporting, batch aggregation).
 </process>

@@ -10,6 +10,7 @@ Read all files referenced by the invoking prompt's execution_context before star
 <available_agent_types>
 Valid ans-creator subagent types (use exact names):
 - ans-planner — 创建章节大纲
+- ans-plan-checker — 检查大纲一致性
 - ans-writer — 产出章节正文
 - ans-editor — 润色优化文字
 - ans-verifier — 一致性与质量审核
@@ -32,6 +33,8 @@ if echo "$INIT" | grep -q '"error"'; then
   echo "初始化失败，项目未就绪。"
   exit 1
 fi
+
+PLAN_CHECK_ENABLED=$(echo "$INIT" | node -e "const d=JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));console.log(d.config?.workflow?.plan_check !== false)" 2>/dev/null)
 ```
 
 ## 2. 解析运行参数
@@ -93,6 +96,21 @@ if [[ "$SKIP_PLAN" == "false" ]] && [[ ! -f "chapters/outlines/outline-${CHAPTER
     echo "错误：大纲生成失败。"
     AskUserQuestion("规划任务失败，是否重试？")
   fi
+
+  if [[ "$PLAN_CHECK_ENABLED" == "true" ]]; then
+    Task(
+      subagent_type: "ans-plan-checker",
+      objective: "检查第 ${CHAPTER_NUMBER} 章大纲的一致性",
+      files_to_read: [
+        "PROJECT.md",
+        "CHARACTERS.md",
+        "TIMELINE.md",
+        "ROADMAP.md",
+        "STATE.md",
+        "chapters/outlines/outline-${CHAPTER_NUMBER}.md"
+      ]
+    )
+  fi
 fi
 ```
 
@@ -128,7 +146,7 @@ fi
 ### 4.2 字数闸门核查
 
 ```bash
-node bin/ans-tools.cjs check budget --chapter ${CHAPTER_NUMBER}
+node bin/ans-tools.cjs chapter budget ${CHAPTER_NUMBER} --source formal
 
 # 如果超出预算，ans-tools 将拦截。后续可在这里实现自主裁切与重新规划。
 ```
@@ -213,7 +231,7 @@ fi
 一切结束后，通过系统级工具更新中心化进度：
 
 ```bash
-node bin/ans-tools.cjs state update target_chapter --set "$((CHAPTER_NUMBER + 1))"
+node bin/ans-tools.cjs state refresh --latest-completed "已完成第${CHAPTER_NUMBER}章" --next-goal "第$((CHAPTER_NUMBER + 1))章规划或核对"
 ```
 
 </state_update>

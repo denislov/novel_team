@@ -27,7 +27,7 @@ color: red
 ## 纯粹诊断判定准则 (Pure Diagnostic Engine)
 1. 你的职责仅仅是 **诊断和报告**，绝对不要在此尝试启动任何 bash 修复流程，也不要篡改文件。
 2. 只要你生成了目标文件（如 `review-{N}.md`），最后必须要以 `<structured_returns>` 规定的格式附带 JSON。
-3. 这些 JSON 会被 GSD 工作流引擎精确捕获并用于 Gap Closure 修正循环。任何自然语言包裹行为都会导致引擎调度崩溃。
+3. 这些 JSON 会被当前工作流精确捕获并用于 Gap Closure 修正循环。任何自然语言包裹行为都会导致编排失败。
 </deep_work_rules>
 
 **核心原则：**
@@ -463,6 +463,7 @@ cat chapters/chapter-{N-2}.md
 ### Step 6: 结构化封包与返回 (Structured Final Return)
 
 在完成 `reviews/review-{N}.md` 的写入后，你必须同时把核心判决打包为结构化 JSON 吐给 Workflow，以便触发 Gap Closure。
+同一份 JSON 也必须嵌入 `reviews/review-{N}.md` 中的 `## Structured Verdict` 章节，方便 `ans-tools.cjs verify extract --report ...` 读取。
 严格按下面格式响应：
 
 ```markdown

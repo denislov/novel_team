@@ -151,7 +151,7 @@ STATE=$(cat STATE.md)
   <characters>@CHARACTERS.md</characters>
   <timeline>@TIMELINE.md</timeline>
   <state>@STATE.md</state>
-  <research>@research/arc-*.md</research>
+  <research>research/arc-*.md (glob)</research>
 </plan_arc_request>
 ```
 

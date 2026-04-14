@@ -1,6 +1,8 @@
 # Novel Codex Conventions
 
-This plugin was originally authored as a Claude Code plugin. In Codex, keep the same workflow intent and artifact contract, but translate the old workflow DSL into normal Codex behavior.
+This file is a compatibility shim for older command references that point to
+`commands/_codex-conventions.md`. The canonical source remains
+`commands/ans/_codex-conventions.md`; keep both in sync.
 
 ## Path Rules
 
@@ -17,13 +19,12 @@ This plugin was originally authored as a Claude Code plugin. In Codex, keep the 
 - `SpawnAgent(...)` / `Task(...)`
   Use ANS named agents by default.
   Map `Task(subagent_type: "ans-x", input: Y, output: Z)` to the appropriate sub-agent invocation.
-  Treat `input` as the agent brief and required context (especially `files_to_read`).
+  Treat `input` as the agent brief and required context, especially `files_to_read`.
   Treat `output` as the file path the sub-agent should write directly.
   Wait for the agent result, then continue the parent workflow.
-  The agent must return its standard Markdown header (e.g. `## WRITING COMPLETE`) for the workflow to detect completion.
   If required named agents are unavailable, stop and tell the user to validate the ANS install before continuing:
-  - Installed CLI path: `ans-tool --codex --global --validate`
-  - Source checkout path: `node bin/install.js --codex --local --validate`
+  - Installed CLI path: `ans-tool --validate --global`
+  - Source checkout path: `node bin/install.js --validate --local`
   Only inline work that the workflow itself does not declare as a delegated stage.
 - `SlashCommand`
   Treat it as routing to the corresponding file under `commands/`.

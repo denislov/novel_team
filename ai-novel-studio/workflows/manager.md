@@ -73,7 +73,7 @@ fi
 <step name="offer_actions">
 使用 AskUserQuestion 提供动作菜单。
 
-**Compound Option 模式（GSD 移植）：** 如果推荐动作明确，第一个选项合并执行：
+**Compound Option 模式：** 如果推荐动作明确，第一个选项合并执行：
 
 ```
 AskUserQuestion(

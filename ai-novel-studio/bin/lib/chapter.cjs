@@ -1,14 +1,14 @@
 /**
  * Chapter — Chapter operations and budget management for ANS
  *
- * Combines chapter_ops.cjs and chapter_budget.cjs functionality
+ * Combines lib/chapter_ops.cjs and lib/chapter_budget.cjs functionality
  * with structured JSON output for workflow consumption.
  */
 
 const path = require('node:path');
 const core = require('./core.cjs');
-const chapterOps = require('../chapter_ops.cjs');
-const chapterBudget = require('../chapter_budget.cjs');
+const chapterOps = require('./chapter_ops.cjs');
+const chapterBudget = require('./chapter_budget.cjs');
 
 // ─── CLI Commands ─────────────────────────────────────────────────────────────
 

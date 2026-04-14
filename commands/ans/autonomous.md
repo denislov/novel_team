@@ -47,6 +47,6 @@ Designed for batch creation with controlled pause points rather than single-chap
 
 <process>
 Execute the autonomous workflow from @workflows/autonomous.md end-to-end.
-Interpret Claude-style workflow primitives using @commands/_codex-conventions.md.
+Interpret Claude-style workflow primitives using the conventions file already loaded in `execution_context`.
 Preserve all workflow gates (range inference, batching, planner/writer/verifier orchestration, pause logic, state updates).
 </process>

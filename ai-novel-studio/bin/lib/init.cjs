@@ -4,15 +4,13 @@
  * Each workflow gets a dedicated init command that returns a JSON payload
  * containing all the context it needs to operate. This replaces the fragile
  * inline bash grep patterns used in workflow markdown files.
- *
- * Modeled after GSD's init.cjs pattern.
  */
 
 const fs = require('node:fs');
 const path = require('node:path');
 const core = require('./core.cjs');
 const { loadConfig } = require('./config.cjs');
-const novelState = require('../novel_state.cjs');
+const novelState = require('./novel_state.cjs');
 
 // ─── Helper: attach common project metadata ──────────────────────────────────
 
@@ -53,6 +51,7 @@ function cmdInitWriteChapter(root, chapter, raw) {
 
     // Target
     target_chapter: targetChapter,
+    next_chapter: stats.next_chapter,
     mode: writeTarget.mode,
 
     // Paths
@@ -76,6 +75,48 @@ function cmdInitWriteChapter(root, chapter, raw) {
     current_chapter: stats.current_chapter,
     total_words: stats.total_words,
     title: stats.title,
+  };
+
+  core.output(withProjectMeta(root, result), raw);
+}
+
+// ─── init plan-batch [START-END] ─────────────────────────────────────────────
+
+function cmdInitPlanBatch(root, rangeText, raw) {
+  const config = loadConfig(root);
+  let stats;
+  try {
+    stats = novelState.computeStats(root);
+  } catch (e) {
+    core.error(e.message);
+  }
+
+  let range;
+  if (rangeText && /^\d+-\d+$/.test(String(rangeText).trim())) {
+    const [start, end] = String(rangeText).trim().split('-').map(Number);
+    range = { start, end, range_text: `${start}-${end}` };
+  } else {
+    const start = stats.next_chapter;
+    const size = Math.max(Number(config.batch_size) || 3, 1);
+    const end = start + size - 1;
+    range = { start, end, range_text: `${start}-${end}` };
+  }
+
+  const result = {
+    config,
+    title: stats.title,
+    story_format: stats.story_format,
+    planning_unit: stats.planning_unit,
+    current_arc: stats.current_arc,
+    current_chapter: stats.current_chapter,
+    next_chapter: stats.next_chapter,
+    latest_outline: stats.latest_outline,
+    latest_chapter: stats.latest_chapter,
+    recommended_command: stats.recommended_command,
+    recommended_args: stats.recommended_args,
+    range_start: range.start,
+    range_end: range.end,
+    range_text: range.range_text,
   };
 
   core.output(withProjectMeta(root, result), raw);
@@ -258,13 +299,36 @@ function cmdInitReview(root, chapterOrRange, raw) {
     core.error(e.message);
   }
 
-  let targetChapter;
+  let rangeText = '';
+  let chapterNumbers = [];
+
   if (chapterOrRange) {
-    targetChapter = Number(chapterOrRange);
+    const normalized = String(chapterOrRange).trim();
+    if (/^\d+-\d+$/.test(normalized)) {
+      const [start, end] = normalized.split('-').map(Number);
+      rangeText = normalized;
+      chapterNumbers = Array.from({ length: end - start + 1 }, (_, index) => start + index);
+    } else if (/^\d+(?:\s+\d+)+$/.test(normalized)) {
+      chapterNumbers = normalized.split(/\s+/).map(Number);
+      rangeText = `${chapterNumbers[0]}-${chapterNumbers[chapterNumbers.length - 1]}`;
+    } else if (/^\d+$/.test(normalized)) {
+      chapterNumbers = [Number(normalized)];
+      rangeText = normalized;
+    }
+  }
+
+  let targetChapter;
+  if (chapterNumbers.length > 0) {
+    targetChapter = chapterNumbers[0];
   } else if (stats.first_unreviewed) {
     targetChapter = stats.first_unreviewed;
   } else {
     targetChapter = stats.current_chapter || 1;
+  }
+
+  if (!rangeText) {
+    rangeText = String(targetChapter);
+    chapterNumbers = [targetChapter];
   }
 
   const chapterPath = path.join(root, 'chapters', `chapter-${targetChapter}.md`);
@@ -274,6 +338,9 @@ function cmdInitReview(root, chapterOrRange, raw) {
   const result = {
     config,
     target_chapter: targetChapter,
+    range_text: rangeText,
+    chapter_numbers: chapterNumbers,
+    is_batch: chapterNumbers.length > 1,
     chapter_path: chapterPath,
     review_path: reviewPath,
     outline_path: outlinePath,
@@ -306,6 +373,7 @@ function cmdInitProgress(root, raw) {
 
 module.exports = {
   cmdInitWriteChapter,
+  cmdInitPlanBatch,
   cmdInitAutonomous,
   cmdInitManager,
   cmdInitNewProject,

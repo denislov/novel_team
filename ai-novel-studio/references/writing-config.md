@@ -71,14 +71,15 @@ node ans-tools.cjs config set batch_size 5
 node ans-tools.cjs config set workflow.auto_polish true
 ```
 
-## 与 GSD 配置的对比
+## 配置设计取舍
 
-| GSD 配置 | ANS 等价 | 说明 |
-|----------|----------|------|
-| `granularity` | `review_strictness` | 精细度 |
-| `parallelization` | *(不支持)* | Q2 决定不需要并行 |
-| `research` | `workflow.research_before_write` | 研究开关 |
-| `plan_checker` | `workflow.plan_check` | 规划检查开关 |
-| `verifier` | `workflow.skip_verify` | 审核开关（反义） |
-| `branching_strategy` | *(不支持)* | 小说项目不需要分支策略 |
-| `context_window` | `workflow.context_monitor_threshold` | 上下文管理 |
+ANS 的配置刻意保持简洁，只保留小说工作流真正需要的开关：
+
+- `review_strictness`：控制审核深度
+- `workflow.plan_check`：控制大纲检查
+- `workflow.consistency_check`：控制跨章节一致性检查
+- `workflow.research_before_write`：控制写前考据
+- `workflow.skip_verify`：控制是否跳过审核
+- `workflow.context_monitor_threshold`：控制上下文提醒阈值
+
+不提供与小说创作关系不强的工程化开关，例如并行化策略或分支策略。

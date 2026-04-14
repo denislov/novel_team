@@ -1,13 +1,13 @@
 /**
  * State — Project state management for ANS
  *
- * Thin wrapper around novel_state.cjs exports, exposed via CLI subcommands.
+ * Thin wrapper around lib/novel_state.cjs exports, exposed via CLI subcommands.
  * Adds structured JSON output and atomic(ish) state updates.
  */
 
 const path = require('node:path');
 const core = require('./core.cjs');
-const novelState = require('../novel_state.cjs');
+const novelState = require('./novel_state.cjs');
 
 // ─── CLI Commands ─────────────────────────────────────────────────────────────
 

@@ -24,6 +24,8 @@ const ANS_COPILOT_INSTRUCTIONS_CLOSE_MARKER = '<!-- /ANS Configuration -->';
 const CODEX_AGENT_SANDBOX = {
   'ans-architect': 'workspace-write',
   'ans-editor': 'workspace-write',
+  'ans-consistency-checker': 'read-only',
+  'ans-plan-checker': 'read-only',
   'ans-planner': 'workspace-write',
   'ans-researcher': 'workspace-write',
   'ans-verifier': 'workspace-write',
@@ -114,7 +116,7 @@ Please install a Linux-native Node.js inside WSL:
   curl -fsSL https://fnm.vercel.app/install | bash
   fnm install --lts
 
-Then re-run: npx ai-novel-studio-cc@latest
+Then re-run: npx ans-tool@latest
 `);
     process.exit(1);
   }
@@ -285,9 +287,9 @@ const banner = '\n' +
   '  ╚██████╔╝███████║██████╔╝\n' +
   '   ╚═════╝ ╚══════╝╚═════╝' + reset + '\n' +
   '\n' +
-  '  Get Shit Done ' + dim + 'v' + pkg.version + reset + '\n' +
-  '  A meta-prompting, context engineering and spec-driven\n' +
-  '  development system for Claude Code, OpenCode, Gemini, Codex, Copilot, Antigravity, Cursor, and Windsurf by TÂCHES.\n';
+  '  AI Novel Studio ' + dim + 'v' + pkg.version + reset + '\n' +
+  '  A structured fiction workflow for Claude Code, OpenCode,\n' +
+  '  Gemini, Codex, Copilot, Antigravity, Cursor, and Windsurf.\n';
 
 // Parse --config-dir argument
 function parseConfigDirArg() {
@@ -325,7 +327,7 @@ if (hasUninstall) {
 
 // Show help if requested
 if (hasHelp) {
-  console.log(`  ${yellow}Usage:${reset} npx ai-novel-studio-cc [options]\n\n  ${yellow}Options:${reset}\n    ${cyan}-g, --global${reset}              Install globally (to config directory)\n    ${cyan}-l, --local${reset}               Install locally (to current directory)\n    ${cyan}--claude${reset}                  Install for Claude Code only\n    ${cyan}--opencode${reset}                Install for OpenCode only\n    ${cyan}--gemini${reset}                  Install for Gemini only\n    ${cyan}--codex${reset}                   Install for Codex only\n    ${cyan}--copilot${reset}                 Install for Copilot only\n    ${cyan}--antigravity${reset}             Install for Antigravity only\n    ${cyan}--cursor${reset}                  Install for Cursor only\n    ${cyan}--windsurf${reset}                Install for Windsurf only\n    ${cyan}--all${reset}                     Install for all runtimes\n    ${cyan}--sdk${reset}                     Also install ANS SDK CLI (ans-sdk)\n    ${cyan}-u, --uninstall${reset}           Uninstall ANS (remove all ANS files)\n    ${cyan}-c, --config-dir <path>${reset}   Specify custom config directory\n    ${cyan}-h, --help${reset}                Show this help message\n    ${cyan}--force-statusline${reset}        Replace existing statusline config\n\n  ${yellow}Examples:${reset}\n    ${dim}# Interactive install (prompts for runtime and location)${reset}\n    npx ai-novel-studio-cc\n\n    ${dim}# Install for Claude Code globally${reset}\n    npx ai-novel-studio-cc --claude --global\n\n    ${dim}# Install for Gemini globally${reset}\n    npx ai-novel-studio-cc --gemini --global\n\n    ${dim}# Install for Codex globally${reset}\n    npx ai-novel-studio-cc --codex --global\n\n    ${dim}# Install for Copilot globally${reset}\n    npx ai-novel-studio-cc --copilot --global\n\n    ${dim}# Install for Copilot locally${reset}\n    npx ai-novel-studio-cc --copilot --local\n\n    ${dim}# Install for Antigravity globally${reset}\n    npx ai-novel-studio-cc --antigravity --global\n\n    ${dim}# Install for Antigravity locally${reset}\n    npx ai-novel-studio-cc --antigravity --local\n\n    ${dim}# Install for Cursor globally${reset}\n    npx ai-novel-studio-cc --cursor --global\n\n    ${dim}# Install for Cursor locally${reset}\n    npx ai-novel-studio-cc --cursor --local\n\n    ${dim}# Install for Windsurf globally${reset}\n    npx ai-novel-studio-cc --windsurf --global\n\n    ${dim}# Install for Windsurf locally${reset}\n    npx ai-novel-studio-cc --windsurf --local\n\n    ${dim}# Install for all runtimes globally${reset}\n    npx ai-novel-studio-cc --all --global\n\n    ${dim}# Install to custom config directory${reset}\n    npx ai-novel-studio-cc --codex --global --config-dir ~/.codex-work\n\n    ${dim}# Install to current project only${reset}\n    npx ai-novel-studio-cc --claude --local\n\n    ${dim}# Uninstall ANS from Cursor globally${reset}\n    npx ai-novel-studio-cc --cursor --global --uninstall\n\n  ${yellow}Notes:${reset}\n    The --config-dir option is useful when you have multiple configurations.\n    It takes priority over CLAUDE_CONFIG_DIR / GEMINI_CONFIG_DIR / CODEX_HOME / COPILOT_CONFIG_DIR / ANTIGRAVITY_CONFIG_DIR / CURSOR_CONFIG_DIR / WINDSURF_CONFIG_DIR environment variables.\n`);
+  console.log(`  ${yellow}Usage:${reset} npx ans-tool [options]\n\n  ${yellow}Options:${reset}\n    ${cyan}-g, --global${reset}              Install globally (to config directory)\n    ${cyan}-l, --local${reset}               Install locally (to current directory)\n    ${cyan}--claude${reset}                  Install for Claude Code only\n    ${cyan}--opencode${reset}                Install for OpenCode only\n    ${cyan}--gemini${reset}                  Install for Gemini only\n    ${cyan}--codex${reset}                   Install for Codex only\n    ${cyan}--copilot${reset}                 Install for Copilot only\n    ${cyan}--antigravity${reset}             Install for Antigravity only\n    ${cyan}--cursor${reset}                  Install for Cursor only\n    ${cyan}--windsurf${reset}                Install for Windsurf only\n    ${cyan}--all${reset}                     Install for all runtimes\n    ${cyan}--sdk${reset}                     Also install ANS SDK CLI (ans-sdk)\n    ${cyan}--validate${reset}                Validate an existing install\n    ${cyan}--repair${reset}                  Reinstall over an existing install\n    ${cyan}-u, --uninstall${reset}           Uninstall ANS (remove all ANS files)\n    ${cyan}-c, --config-dir <path>${reset}   Specify custom config directory\n    ${cyan}-h, --help${reset}                Show this help message\n    ${cyan}--force-statusline${reset}        Replace existing statusline config\n\n  ${yellow}Examples:${reset}\n    ${dim}# Interactive install (prompts for runtime and location)${reset}\n    npx ans-tool\n\n    ${dim}# Install for Claude Code globally${reset}\n    npx ans-tool --claude --global\n\n    ${dim}# Install for Codex globally${reset}\n    npx ans-tool --codex --global\n\n    ${dim}# Validate an existing Codex install${reset}\n    npx ans-tool --codex --global --validate\n\n    ${dim}# Repair a Claude install in the current project${reset}\n    npx ans-tool --claude --local --repair\n\n    ${dim}# Install for all runtimes globally${reset}\n    npx ans-tool --all --global\n\n    ${dim}# Install to custom config directory${reset}\n    npx ans-tool --codex --global --config-dir ~/.codex-work\n\n    ${dim}# Uninstall ANS from Cursor globally${reset}\n    npx ans-tool --cursor --global --uninstall\n\n  ${yellow}Notes:${reset}\n    The --config-dir option is useful when you have multiple configurations.\n    It takes priority over CLAUDE_CONFIG_DIR / GEMINI_CONFIG_DIR / CODEX_HOME / COPILOT_CONFIG_DIR / ANTIGRAVITY_CONFIG_DIR / CURSOR_CONFIG_DIR / WINDSURF_CONFIG_DIR environment variables.\n`);
   process.exit(0);
 }
 
@@ -347,6 +349,19 @@ function buildHookCommand(configDir, hookName) {
   // Use forward slashes for Node.js compatibility on all platforms
   const hooksPath = configDir.replace(/\\/g, '/') + '/hooks/' + hookName;
   return `node "${hooksPath}"`;
+}
+
+function replaceClaudePathReferences(content, mentionPathPrefix, shellPathPrefix, dirName) {
+  let rewritten = content;
+  rewritten = rewritten.replace(/~\/\.claude\//g, mentionPathPrefix);
+  rewritten = rewritten.replace(/\$HOME\/\.claude\//g, shellPathPrefix);
+  rewritten = rewritten.replace(/\.\/\.claude\//g, `./${dirName}/`);
+  return rewritten;
+}
+
+function replaceSupportBundleRelativeRefs(content, mentionPathPrefix) {
+  const supportRoot = `${mentionPathPrefix}ai-novel-studio/`;
+  return content.replace(/@(?=(commands|workflows|references|templates|agents)\/)/g, `@${supportRoot}`);
 }
 
 /**
@@ -2695,10 +2710,11 @@ function convertClaudeToGeminiToml(content) {
  * @param {string} srcDir - Source directory (e.g., commands/ans/)
  * @param {string} destDir - Destination directory (e.g., command/)
  * @param {string} prefix - Prefix for filenames (e.g., 'ans')
- * @param {string} pathPrefix - Path prefix for file references
+ * @param {string} mentionPathPrefix - Path prefix for prompt/file mentions
+ * @param {string} shellPathPrefix - Path prefix for shell commands
  * @param {string} runtime - Target runtime ('claude' or 'opencode')
  */
-function copyFlattenedCommands(srcDir, destDir, prefix, pathPrefix, runtime) {
+function copyFlattenedCommands(srcDir, destDir, prefix, mentionPathPrefix, shellPathPrefix, runtime) {
   if (!fs.existsSync(srcDir)) {
     return;
   }
@@ -2722,7 +2738,7 @@ function copyFlattenedCommands(srcDir, destDir, prefix, pathPrefix, runtime) {
     if (entry.isDirectory()) {
       // Recurse into subdirectories, adding to prefix
       // e.g., commands/ans/debug/start.md -> command/ans-debug-start.md
-      copyFlattenedCommands(srcPath, destDir, `${prefix}-${entry.name}`, pathPrefix, runtime);
+      copyFlattenedCommands(srcPath, destDir, `${prefix}-${entry.name}`, mentionPathPrefix, shellPathPrefix, runtime);
     } else if (entry.name.endsWith('.md')) {
       // Flatten: help.md -> ans-help.md
       const baseName = entry.name.replace('.md', '');
@@ -2730,14 +2746,10 @@ function copyFlattenedCommands(srcDir, destDir, prefix, pathPrefix, runtime) {
       const destPath = path.join(destDir, destName);
 
       let content = fs.readFileSync(srcPath, 'utf8');
-      const globalClaudeRegex = /~\/\.claude\//g;
-      const globalClaudeHomeRegex = /\$HOME\/\.claude\//g;
-      const localClaudeRegex = /\.\/\.claude\//g;
       const opencodeDirRegex = /~\/\.opencode\//g;
-      content = content.replace(globalClaudeRegex, pathPrefix);
-      content = content.replace(globalClaudeHomeRegex, pathPrefix);
-      content = content.replace(localClaudeRegex, `./${getDirName(runtime)}/`);
-      content = content.replace(opencodeDirRegex, pathPrefix);
+      content = replaceClaudePathReferences(content, mentionPathPrefix, shellPathPrefix, getDirName(runtime));
+      content = replaceSupportBundleRelativeRefs(content, mentionPathPrefix);
+      content = content.replace(opencodeDirRegex, mentionPathPrefix);
       content = processAttribution(content, getCommitAttribution(runtime));
       content = convertClaudeToOpencodeFrontmatter(content);
 
@@ -2756,7 +2768,7 @@ function listCodexSkillNames(skillsDir, prefix = 'ans-') {
     .sort();
 }
 
-function copyCommandsAsCodexSkills(srcDir, skillsDir, prefix, pathPrefix, runtime) {
+function copyCommandsAsCodexSkills(srcDir, skillsDir, prefix, mentionPathPrefix, shellPathPrefix, runtime) {
   if (!fs.existsSync(srcDir)) {
     return;
   }
@@ -2791,14 +2803,10 @@ function copyCommandsAsCodexSkills(srcDir, skillsDir, prefix, pathPrefix, runtim
       fs.mkdirSync(skillDir, { recursive: true });
 
       let content = fs.readFileSync(srcPath, 'utf8');
-      const globalClaudeRegex = /~\/\.claude\//g;
-      const globalClaudeHomeRegex = /\$HOME\/\.claude\//g;
-      const localClaudeRegex = /\.\/\.claude\//g;
       const codexDirRegex = /~\/\.codex\//g;
-      content = content.replace(globalClaudeRegex, pathPrefix);
-      content = content.replace(globalClaudeHomeRegex, pathPrefix);
-      content = content.replace(localClaudeRegex, `./${getDirName(runtime)}/`);
-      content = content.replace(codexDirRegex, pathPrefix);
+      content = replaceClaudePathReferences(content, mentionPathPrefix, shellPathPrefix, getDirName(runtime));
+      content = replaceSupportBundleRelativeRefs(content, mentionPathPrefix);
+      content = content.replace(codexDirRegex, mentionPathPrefix);
       content = processAttribution(content, getCommitAttribution(runtime));
       content = convertClaudeCommandToCodexSkill(content, skillName);
 
@@ -2809,7 +2817,7 @@ function copyCommandsAsCodexSkills(srcDir, skillsDir, prefix, pathPrefix, runtim
   recurse(srcDir, prefix);
 }
 
-function copyCommandsAsCursorSkills(srcDir, skillsDir, prefix, pathPrefix, runtime) {
+function copyCommandsAsCursorSkills(srcDir, skillsDir, prefix, mentionPathPrefix, shellPathPrefix, runtime) {
   if (!fs.existsSync(srcDir)) {
     return;
   }
@@ -2844,14 +2852,10 @@ function copyCommandsAsCursorSkills(srcDir, skillsDir, prefix, pathPrefix, runti
       fs.mkdirSync(skillDir, { recursive: true });
 
       let content = fs.readFileSync(srcPath, 'utf8');
-      const globalClaudeRegex = /~\/\.claude\//g;
-      const globalClaudeHomeRegex = /\$HOME\/\.claude\//g;
-      const localClaudeRegex = /\.\/\.claude\//g;
       const cursorDirRegex = /~\/\.cursor\//g;
-      content = content.replace(globalClaudeRegex, pathPrefix);
-      content = content.replace(globalClaudeHomeRegex, pathPrefix);
-      content = content.replace(localClaudeRegex, `./${getDirName(runtime)}/`);
-      content = content.replace(cursorDirRegex, pathPrefix);
+      content = replaceClaudePathReferences(content, mentionPathPrefix, shellPathPrefix, getDirName(runtime));
+      content = replaceSupportBundleRelativeRefs(content, mentionPathPrefix);
+      content = content.replace(cursorDirRegex, mentionPathPrefix);
       content = processAttribution(content, getCommitAttribution(runtime));
       content = convertClaudeCommandToCursorSkill(content, skillName);
 
@@ -2866,7 +2870,7 @@ function copyCommandsAsCursorSkills(srcDir, skillsDir, prefix, pathPrefix, runti
  * Copy Claude commands as Windsurf skills — one folder per skill with SKILL.md.
  * Mirrors copyCommandsAsCursorSkills but uses Windsurf converters.
  */
-function copyCommandsAsWindsurfSkills(srcDir, skillsDir, prefix, pathPrefix, runtime) {
+function copyCommandsAsWindsurfSkills(srcDir, skillsDir, prefix, mentionPathPrefix, shellPathPrefix, runtime) {
   if (!fs.existsSync(srcDir)) {
     return;
   }
@@ -2901,14 +2905,10 @@ function copyCommandsAsWindsurfSkills(srcDir, skillsDir, prefix, pathPrefix, run
       fs.mkdirSync(skillDir, { recursive: true });
 
       let content = fs.readFileSync(srcPath, 'utf8');
-      const globalClaudeRegex = /~\/\.claude\//g;
-      const globalClaudeHomeRegex = /\$HOME\/\.claude\//g;
-      const localClaudeRegex = /\.\/\.claude\//g;
       const windsurfDirRegex = /~\/\.windsurf\//g;
-      content = content.replace(globalClaudeRegex, pathPrefix);
-      content = content.replace(globalClaudeHomeRegex, pathPrefix);
-      content = content.replace(localClaudeRegex, `./${getDirName(runtime)}/`);
-      content = content.replace(windsurfDirRegex, pathPrefix);
+      content = replaceClaudePathReferences(content, mentionPathPrefix, shellPathPrefix, getDirName(runtime));
+      content = replaceSupportBundleRelativeRefs(content, mentionPathPrefix);
+      content = content.replace(windsurfDirRegex, mentionPathPrefix);
       content = processAttribution(content, getCommitAttribution(runtime));
       content = convertClaudeCommandToWindsurfSkill(content, skillName);
 
@@ -3027,10 +3027,11 @@ function copyCommandsAsAntigravitySkills(srcDir, skillsDir, prefix, isGlobal = f
  * Deletes existing destDir first to remove orphaned files from previous versions
  * @param {string} srcDir - Source directory
  * @param {string} destDir - Destination directory
- * @param {string} pathPrefix - Path prefix for file references
+ * @param {string} mentionPathPrefix - Path prefix for prompt/file mentions
+ * @param {string} shellPathPrefix - Path prefix for shell commands
  * @param {string} runtime - Target runtime ('claude', 'opencode', 'gemini', 'codex')
  */
-function copyWithPathReplacement(srcDir, destDir, pathPrefix, runtime, isCommand = false, isGlobal = false) {
+function copyWithPathReplacement(srcDir, destDir, mentionPathPrefix, shellPathPrefix, runtime, isCommand = false, isGlobal = false) {
   const isOpencode = runtime === 'opencode';
   const isCodex = runtime === 'codex';
   const isCopilot = runtime === 'copilot';
@@ -3052,18 +3053,14 @@ function copyWithPathReplacement(srcDir, destDir, pathPrefix, runtime, isCommand
     const destPath = path.join(destDir, entry.name);
 
     if (entry.isDirectory()) {
-      copyWithPathReplacement(srcPath, destPath, pathPrefix, runtime, isCommand, isGlobal);
+      copyWithPathReplacement(srcPath, destPath, mentionPathPrefix, shellPathPrefix, runtime, isCommand, isGlobal);
     } else if (entry.name.endsWith('.md')) {
       // Replace ~/.claude/ and $HOME/.claude/ and ./.claude/ with runtime-appropriate paths
       // Skip generic replacement for Copilot — convertClaudeToCopilotContent handles all paths
       let content = fs.readFileSync(srcPath, 'utf8');
       if (!isCopilot && !isAntigravity) {
-        const globalClaudeRegex = /~\/\.claude\//g;
-        const globalClaudeHomeRegex = /\$HOME\/\.claude\//g;
-        const localClaudeRegex = /\.\/\.claude\//g;
-        content = content.replace(globalClaudeRegex, pathPrefix);
-        content = content.replace(globalClaudeHomeRegex, pathPrefix);
-        content = content.replace(localClaudeRegex, `./${dirName}/`);
+        content = replaceClaudePathReferences(content, mentionPathPrefix, shellPathPrefix, dirName);
+        content = replaceSupportBundleRelativeRefs(content, mentionPathPrefix);
       }
       content = processAttribution(content, getCommitAttribution(runtime));
 
@@ -3955,15 +3952,17 @@ function install(isGlobal, runtime = 'claude') {
     ? targetDir.replace(os.homedir(), '~')
     : targetDir.replace(process.cwd(), '.');
 
-  // Path prefix for file references in markdown content (e.g. ans-tools.cjs).
-  // Replaces $HOME/.claude/ or ~/.claude/ so the result is <pathPrefix>ai-novel-studio/bin/...
-  // For global installs: use $HOME/ so paths expand correctly inside double-quoted
-  // shell commands (~ does NOT expand inside double quotes, causing MODULE_NOT_FOUND).
-  // For local installs: use resolved absolute path (may be outside $HOME).
+  // Use separate prefixes for prompt/file mentions and shell commands.
+  // File mentions should keep `~` for global installs because runtimes may not
+  // expand `$HOME` inside `@file` references. Shell commands should keep
+  // `$HOME` because `~` does not expand reliably inside double quotes.
   const resolvedTarget = path.resolve(targetDir).replace(/\\/g, '/');
   const homeDir = os.homedir().replace(/\\/g, '/');
-  const pathPrefix = isGlobal && resolvedTarget.startsWith(homeDir)
+  const shellPathPrefix = isGlobal && resolvedTarget.startsWith(homeDir)
     ? '$HOME' + resolvedTarget.slice(homeDir.length) + '/'
+    : `${resolvedTarget}/`;
+  const mentionPathPrefix = isGlobal && resolvedTarget.startsWith(homeDir)
+    ? '~' + resolvedTarget.slice(homeDir.length) + '/'
     : `${resolvedTarget}/`;
 
   let runtimeLabel = 'Claude Code';
@@ -3994,7 +3993,7 @@ function install(isGlobal, runtime = 'claude') {
     
     // Copy commands/ans/*.md as command/ans-*.md (flatten structure)
     const ansSrc = path.join(src, 'commands', 'ans');
-    copyFlattenedCommands(ansSrc, commandDir, 'ans', pathPrefix, runtime);
+    copyFlattenedCommands(ansSrc, commandDir, 'ans', mentionPathPrefix, shellPathPrefix, runtime);
     if (verifyInstalled(commandDir, 'command/ans-*')) {
       const count = fs.readdirSync(commandDir).filter(f => f.startsWith('ans-')).length;
       console.log(`  ${green}✓${reset} Installed ${count} commands to command/`);
@@ -4004,7 +4003,7 @@ function install(isGlobal, runtime = 'claude') {
   } else if (isCodex) {
     const skillsDir = path.join(targetDir, 'skills');
     const ansSrc = path.join(src, 'commands', 'ans');
-    copyCommandsAsCodexSkills(ansSrc, skillsDir, 'ans', pathPrefix, runtime);
+    copyCommandsAsCodexSkills(ansSrc, skillsDir, 'ans', mentionPathPrefix, shellPathPrefix, runtime);
     const installedSkillNames = listCodexSkillNames(skillsDir);
     if (installedSkillNames.length > 0) {
       console.log(`  ${green}✓${reset} Installed ${installedSkillNames.length} skills to skills/`);
@@ -4044,7 +4043,7 @@ function install(isGlobal, runtime = 'claude') {
   } else if (isCursor) {
     const skillsDir = path.join(targetDir, 'skills');
     const ansSrc = path.join(src, 'commands', 'ans');
-    copyCommandsAsCursorSkills(ansSrc, skillsDir, 'ans', pathPrefix, runtime);
+    copyCommandsAsCursorSkills(ansSrc, skillsDir, 'ans', mentionPathPrefix, shellPathPrefix, runtime);
     const installedSkillNames = listCodexSkillNames(skillsDir); // reuse — same dir structure
     if (installedSkillNames.length > 0) {
       console.log(`  ${green}✓${reset} Installed ${installedSkillNames.length} skills to skills/`);
@@ -4054,7 +4053,7 @@ function install(isGlobal, runtime = 'claude') {
   } else if (isWindsurf) {
     const skillsDir = path.join(targetDir, 'skills');
     const ansSrc = path.join(src, 'commands', 'ans');
-    copyCommandsAsWindsurfSkills(ansSrc, skillsDir, 'ans', pathPrefix, runtime);
+    copyCommandsAsWindsurfSkills(ansSrc, skillsDir, 'ans', mentionPathPrefix, shellPathPrefix, runtime);
     const installedSkillNames = listCodexSkillNames(skillsDir); // reuse — same dir structure
     if (installedSkillNames.length > 0) {
       console.log(`  ${green}✓${reset} Installed ${installedSkillNames.length} skills to skills/`);
@@ -4068,7 +4067,7 @@ function install(isGlobal, runtime = 'claude') {
     
     const ansSrc = path.join(src, 'commands', 'ans');
     const ansDest = path.join(commandsDir, 'ans');
-    copyWithPathReplacement(ansSrc, ansDest, pathPrefix, runtime, true, isGlobal);
+    copyWithPathReplacement(ansSrc, ansDest, mentionPathPrefix, shellPathPrefix, runtime, true, isGlobal);
     if (verifyInstalled(ansDest, 'commands/ans')) {
       console.log(`  ${green}✓${reset} Installed commands/ans`);
     } else {
@@ -4079,7 +4078,7 @@ function install(isGlobal, runtime = 'claude') {
   // Copy ai-novel-studio skill with path replacement
   const skillSrc = path.join(src, 'ai-novel-studio');
   const skillDest = path.join(targetDir, 'ai-novel-studio');
-  copyWithPathReplacement(skillSrc, skillDest, pathPrefix, runtime, false, isGlobal);
+  copyWithPathReplacement(skillSrc, skillDest, mentionPathPrefix, shellPathPrefix, runtime, false, isGlobal);
   if (verifyInstalled(skillDest, 'ai-novel-studio')) {
     console.log(`  ${green}✓${reset} Installed ai-novel-studio`);
   } else {
@@ -4110,8 +4109,9 @@ function install(isGlobal, runtime = 'claude') {
         const dirRegex = /~\/\.claude\//g;
         const homeDirRegex = /\$HOME\/\.claude\//g;
         if (!isCopilot && !isAntigravity) {
-          content = content.replace(dirRegex, pathPrefix);
-          content = content.replace(homeDirRegex, pathPrefix);
+          content = content.replace(dirRegex, mentionPathPrefix);
+          content = content.replace(homeDirRegex, shellPathPrefix);
+          content = replaceSupportBundleRelativeRefs(content, mentionPathPrefix);
         }
         content = processAttribution(content, getCommitAttribution(runtime));
         // Convert frontmatter for runtime compatibility (agents need different handling)
@@ -4193,6 +4193,9 @@ function install(isGlobal, runtime = 'claude') {
             try { fs.chmodSync(destFile, 0o755); } catch (e) { /* Windows doesn't support chmod */ }
           } else {
             fs.copyFileSync(srcFile, destFile);
+            if (entry.endsWith('.sh')) {
+              try { fs.chmodSync(destFile, 0o755); } catch (e) { /* Windows doesn't support chmod */ }
+            }
           }
         }
       }
@@ -4206,7 +4209,7 @@ function install(isGlobal, runtime = 'claude') {
 
   // Clear stale update cache so next session re-evaluates hook versions
   // targetDir is e.g. ~/.claude/ai-novel-studio/, parent is the config dir
-  const updateCacheFile = path.join(path.dirname(targetDir), 'cache', 'ans-update-check.json');
+  const updateCacheFile = path.join(os.homedir(), '.cache', 'ans', 'ans-update-check.json');
   try { fs.unlinkSync(updateCacheFile); } catch (e) { /* cache may not exist yet */ }
 
   if (failures.length > 0) {
@@ -4276,6 +4279,35 @@ function install(isGlobal, runtime = 'claude') {
     console.log(`  ${green}✓${reset} Generated config.toml with ${agentCount} agent roles`);
     console.log(`  ${green}✓${reset} Generated ${agentCount} agent .toml config files`);
 
+    // Codex registers SessionStart hooks via config.toml, so the hook files
+    // must exist even though Codex does not use settings.json.
+    const codexHooksSrc = path.join(src, 'hooks', 'dist');
+    if (fs.existsSync(codexHooksSrc)) {
+      const codexHooksDest = path.join(targetDir, 'hooks');
+      fs.mkdirSync(codexHooksDest, { recursive: true });
+      const configDirReplacement = getConfigDirFromHome(runtime, isGlobal);
+
+      for (const entry of fs.readdirSync(codexHooksSrc)) {
+        const srcFile = path.join(codexHooksSrc, entry);
+        if (!fs.statSync(srcFile).isFile()) continue;
+
+        const destFile = path.join(codexHooksDest, entry);
+        if (entry.endsWith('.js')) {
+          let content = fs.readFileSync(srcFile, 'utf8');
+          content = content.replace(/'\.claude'/g, configDirReplacement);
+          content = content.replace(/\{\{ANS_VERSION\}\}/g, pkg.version);
+          fs.writeFileSync(destFile, content);
+          try { fs.chmodSync(destFile, 0o755); } catch (e) { /* Windows */ }
+        } else {
+          fs.copyFileSync(srcFile, destFile);
+          if (entry.endsWith('.sh')) {
+            try { fs.chmodSync(destFile, 0o755); } catch (e) { /* Windows */ }
+          }
+        }
+      }
+      console.log(`  ${green}✓${reset} Installed hooks`);
+    }
+
     // Add Codex hooks (SessionStart for update checking) — requires codex_hooks feature flag
     const configPath = path.join(targetDir, 'config.toml');
     try {
@@ -4285,7 +4317,7 @@ function install(isGlobal, runtime = 'claude') {
       configContent = setManagedCodexHooksOwnership(codexHooksFeature.content, codexHooksFeature.ownership);
 
       // Add SessionStart hook for update checking
-      const updateCheckScript = path.resolve(targetDir, 'ai-novel-studio', 'hooks', 'ans-update-check.js').replace(/\\/g, '/');
+      const updateCheckScript = path.resolve(targetDir, 'hooks', 'ans-update-check.js').replace(/\\/g, '/');
       const hookBlock =
         `${eol}# ANS Hooks${eol}` +
         `[[hooks]]${eol}` +
@@ -4665,7 +4697,13 @@ function registerContextMonitorHook(targetDir, runtime) {
   const eventName = runtime === 'gemini' ? 'AfterTool' : 'PostToolUse';
   if (!settings.hooks[eventName]) settings.hooks[eventName] = [];
 
-  const hookCommand = `node ${path.join(targetDir, 'hooks', 'ans-context-monitor.js').replace(/\\/g, '/')}`;
+  const hookFile = path.join(targetDir, 'hooks', 'ans-context-monitor.js');
+  if (!fs.existsSync(hookFile)) {
+    console.log(`  ${yellow}⚠${reset} Skipped Context Monitor hook registration — ans-context-monitor.js not found`);
+    return;
+  }
+
+  const hookCommand = `node ${hookFile.replace(/\\/g, '/')}`;
   
   const exists = settings.hooks[eventName].some(h => 
     h.hooks && h.hooks.some(sub => sub.command === hookCommand)
@@ -4730,6 +4768,8 @@ if (process.env.ANS_TEST_MODE) {
     writeManifest,
     reportLocalPatches,
     validateHookFields,
+    replaceClaudePathReferences,
+    replaceSupportBundleRelativeRefs,
     installSdk,
     promptSdk,
   };

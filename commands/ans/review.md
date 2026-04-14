@@ -1,6 +1,6 @@
 ---
 description: "Review one or more chapters for consistency, timeline accuracy, logic gaps, and common web-novel pitfalls"
-argument-hint: "[N|START-END] [--quick] [--full] [--json]"
+argument-hint: "[N|START-END] [--quick] [--full] [--deep] [--json]"
 allowed-tools:
   - Read
   - Write
@@ -32,6 +32,7 @@ Default target: the latest chapter if no explicit chapter argument is provided.
 **Flags:**
 - `--quick` — Show concise results only
 - `--full` — Show the full report detail
+- `--deep` — Also run cross-chapter consistency analysis
 - `--json` — Output structured JSON-style results for scripting
 </context>
 

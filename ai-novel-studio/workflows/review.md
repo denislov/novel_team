@@ -5,6 +5,7 @@
 <available_agent_types>
 Valid ANS subagent types (use exact names):
 - ans-verifier — 一致性审核
+- ans-consistency-checker — 跨章节一致性检查
 </available_agent_types>
 
 <codex_execution_policy>
@@ -18,8 +19,11 @@ allow_inline_fallback: false
 ## 1. 解析参数
 
 ```bash
-CHAPTER_RANGE=""
+CHAPTER_INPUT=""
+CHAPTER_LIST=""
+CHAPTER_NUMBER=""
 OUTPUT_FORMAT="report"
+DEEP=false
 
 for arg in "$ARGUMENTS"; do
   case $arg in
@@ -27,11 +31,14 @@ for arg in "$ARGUMENTS"; do
       # 范围格式：1-10
       START=$(echo $arg | cut -d'-' -f1)
       END=$(echo $arg | cut -d'-' -f2)
-      CHAPTER_RANGE=$(seq $START $END)
+      CHAPTER_INPUT="$arg"
+      CHAPTER_LIST=$(seq $START $END)
       ;;
     [0-9]*)
       # 单章
-      CHAPTER_RANGE=$arg
+      CHAPTER_INPUT="$arg"
+      CHAPTER_LIST="$arg"
+      CHAPTER_NUMBER="$arg"
       ;;
     --json)
       OUTPUT_FORMAT="json"
@@ -42,12 +49,25 @@ for arg in "$ARGUMENTS"; do
     --full)
       OUTPUT_FORMAT="full"
       ;;
+    --deep)
+      OUTPUT_FORMAT="full"
+      DEEP=true
+      ;;
   esac
 done
 
 # 默认：审核最新正式章节
-if [[ -z "$CHAPTER_RANGE" ]]; then
-  CHAPTER_RANGE=$(node bin/ans-tools.cjs state range-target --kind review --raw --pick range_text)
+if [[ -z "$CHAPTER_INPUT" ]]; then
+  CHAPTER_INPUT=$(node bin/ans-tools.cjs state range-target --kind review --raw --pick range_text)
+fi
+
+if [[ "$CHAPTER_INPUT" == *"-"* ]]; then
+  START=$(echo "$CHAPTER_INPUT" | cut -d'-' -f1)
+  END=$(echo "$CHAPTER_INPUT" | cut -d'-' -f2)
+  CHAPTER_LIST=$(seq $START $END)
+else
+  CHAPTER_LIST="$CHAPTER_INPUT"
+  CHAPTER_NUMBER="$CHAPTER_INPUT"
 fi
 ```
 
@@ -59,6 +79,7 @@ fi
 | `[范围]` | 审核范围，如 `1-10` |
 | `--quick` | 快速模式，只显示结果 |
 | `--full` | 完整模式，详细报告（默认） |
+| `--deep` | 附加跨章节一致性检查 |
 | `--json` | JSON 格式输出 |
 
 </process>
@@ -68,7 +89,11 @@ fi
 ## 2. 加载上下文
 
 ```bash
-CONTEXT=$(node bin/ans-tools.cjs init review ${CHAPTER_RANGE} --raw)
+CONTEXT=$(node bin/ans-tools.cjs init review "${CHAPTER_INPUT}" --raw)
+
+if [[ -z "$CHAPTER_NUMBER" ]]; then
+  CHAPTER_NUMBER=$(echo "$CONTEXT" | node -e "const d=JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));console.log(d.target_chapter||'')" 2>/dev/null)
+fi
 ```
 
 若 `project_exists` 为 false，提示并退出。
@@ -148,12 +173,22 @@ Task(
 
 ```bash
 RESULTS=()
-for chapter in $CHAPTER_RANGE; do
+for chapter in $CHAPTER_LIST; do
   # 调用 verifier
   result=$(SpawnAgent ans-verifier chapter=$chapter)
   RESULTS+=("$result")
 done
 ```
+
+### 4.1.1 深度模式附加检查
+
+当 `DEEP == true` 时，额外调用：
+
+```bash
+SpawnAgent ans-consistency-checker range="$CHAPTER_INPUT"
+```
+
+用于检查跨章节设定漂移、长期伏笔和时间线偏差。
 
 ### 4.2 汇总报告
 

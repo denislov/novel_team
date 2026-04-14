@@ -10,6 +10,7 @@ Read all files referenced by the invoking prompt's execution_context before star
 <available_agent_types>
 Valid ans-creator subagent types (use exact names):
 - ans-planner — 逐章规划大纲专家
+- ans-plan-checker — 大纲一致性检查
 </available_agent_types>
 
 <codex_execution_policy>
@@ -24,7 +25,7 @@ allow_inline_fallback: false
 
 ```bash
 # 获取全局初始化上下文
-INIT=$(node bin/ans-tools.cjs init plan-batch)
+INIT=$(node bin/ans-tools.cjs init plan-batch --raw)
 
 if echo "$INIT" | grep -q '"error"'; then
   echo "初始化失败，项目未就绪。"
@@ -56,6 +57,8 @@ for arg in "$ARGUMENTS"; do
       ;;
   esac
 done
+
+PLAN_CHECK_ENABLED=$(echo "$INIT" | node -e "const d=JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));console.log(d.config?.workflow?.plan_check !== false)" 2>/dev/null)
 
 # 如果未提供范围，向用户提问
 if [[ -z "$RANGE" ]]; then
@@ -115,6 +118,21 @@ for CHAPTER in $(seq $START $END); do
     echo "严重错误：认知引擎未按预期输出文件 chapters/outlines/outline-${CHAPTER}.md！"
     exit 1
   fi
+
+  if [[ "$PLAN_CHECK_ENABLED" == "true" ]]; then
+    Task(
+      subagent_type: "ans-plan-checker",
+      objective: "检查第 ${CHAPTER} 章大纲与项目设定的一致性",
+      files_to_read: [
+        "PROJECT.md",
+        "CHARACTERS.md",
+        "TIMELINE.md",
+        "ROADMAP.md",
+        "STATE.md",
+        "chapters/outlines/outline-${CHAPTER}.md"
+      ]
+    )
+  fi
 done
 ```
 
@@ -123,9 +141,8 @@ done
 批量任务结束后，使用强耦合的状态管理库同步队列：
 
 ```bash
-# 刷新队列
-node bin/ans-tools.cjs state update queue --set "['${START}'-'${END}']"
-node bin/ans-tools.cjs state update target_chapter --set "${START}"
+# 用文件系统事实回写 STATE.md，而不是手工写入派生字段
+node bin/ans-tools.cjs state refresh --latest-completed "已完成第${START}-${END}章大纲" --next-goal "第${START}章写作"
 ```
 
 </planning_flow>

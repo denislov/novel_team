@@ -22,7 +22,9 @@ allow_inline_fallback: false
 ## 1. 解析参数
 
 ```bash
-CHAPTER_RANGE=""
+CHAPTER_INPUT=""
+CHAPTER_LIST=""
+CHAPTER_NUMBER=""
 MODE="standard"
 COMPARE=false
 
@@ -31,10 +33,13 @@ for arg in "$ARGUMENTS"; do
     [0-9]*-[0-9]*)
       START=$(echo $arg | cut -d'-' -f1)
       END=$(echo $arg | cut -d'-' -f2)
-      CHAPTER_RANGE=$(seq $START $END)
+      CHAPTER_INPUT="$arg"
+      CHAPTER_LIST=$(seq $START $END)
       ;;
     [0-9]*)
-      CHAPTER_RANGE=$arg
+      CHAPTER_INPUT="$arg"
+      CHAPTER_LIST="$arg"
+      CHAPTER_NUMBER="$arg"
       ;;
     --quick)
       MODE="quick"
@@ -52,8 +57,17 @@ for arg in "$ARGUMENTS"; do
 done
 
 # 默认：润色最新正式章节
-if [[ -z "$CHAPTER_RANGE" ]]; then
-  CHAPTER_RANGE=$(node bin/ans-tools.cjs state range-target --kind polish --raw --pick range_text)
+if [[ -z "$CHAPTER_INPUT" ]]; then
+  CHAPTER_INPUT=$(node bin/ans-tools.cjs state range-target --kind polish --raw --pick range_text)
+fi
+
+if [[ "$CHAPTER_INPUT" == *"-"* ]]; then
+  START=$(echo "$CHAPTER_INPUT" | cut -d'-' -f1)
+  END=$(echo "$CHAPTER_INPUT" | cut -d'-' -f2)
+  CHAPTER_LIST=$(seq $START $END)
+else
+  CHAPTER_LIST="$CHAPTER_INPUT"
+  CHAPTER_NUMBER="$CHAPTER_INPUT"
 fi
 ```
 
@@ -204,7 +218,7 @@ node bin/ans-tools.cjs chapter promote ${CHAPTER_NUMBER} --source polished
 
 ```bash
 RESULTS=()
-for chapter in $CHAPTER_RANGE; do
+for chapter in $CHAPTER_LIST; do
   # 调用 editor
   result=$(SpawnAgent ans-editor chapter=$chapter mode=$MODE)
   RESULTS+=("$result")

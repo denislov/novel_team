@@ -18,6 +18,6 @@ Output ONLY the reference content below. Do NOT add:
 </execution_context>
 
 <process>
-Output the complete novel command reference from @workflows/help.md.
+Output the complete novel command reference from the workflow file already loaded in `execution_context`.
 Display the reference content directly with no additions or modifications.
 </process>

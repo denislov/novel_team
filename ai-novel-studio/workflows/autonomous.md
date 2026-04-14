@@ -10,8 +10,10 @@ Read all files referenced by the invoking prompt's execution_context before star
 <available_agent_types>
 Valid ans-creator subagent types (use exact names):
 - ans-planner — 章节规划
+- ans-plan-checker — 大纲一致性检查
 - ans-writer — 内容产出
 - ans-verifier — 质量审核
+- ans-consistency-checker — 跨章节一致性检查
 </available_agent_types>
 
 <codex_execution_policy>
@@ -188,7 +190,7 @@ CHAPTER_INIT=$(node "$HOME/.claude/ai-novel-studio/bin/ans-tools.cjs" init write
 
 如果 `outline_exists == false`：
 - SpawnAgent ans-planner，产出 `chapters/outlines/outline-{N}.md`
-- 如果 `config.workflow.plan_check == true`：验证大纲与 CHARACTERS.md / TIMELINE.md 的一致性
+- 如果 `config.workflow.plan_check == true`：SpawnAgent ans-plan-checker，验证大纲与 CHARACTERS.md / TIMELINE.md 的一致性
 
 如果 `outline_exists == true`：
 - 直接进入写作步骤
@@ -235,7 +237,7 @@ SpawnAgent ans-verifier:
 | `gaps_found` | 进入 Step 5 Gap Closure |
 | `human_needed` | 暂停，用 AskUserQuestion 展示问题 |
 
-### Step 5: Gap Closure（新增 — GSD 模式移植）
+### Step 5: Gap Closure
 
 这是与旧版本最大的区别。旧版本审核失败只能让 writer 重写或跳过。
 新版本引入**结构化 Gap Closure**：
@@ -313,6 +315,7 @@ AskUserQuestion(
 
 ```bash
 node "$HOME/.claude/ai-novel-studio/bin/ans-tools.cjs" validate consistency
+SpawnAgent ans-consistency-checker range="1-$CURRENT_CHAPTER"
 ```
 
 如果发现人物名不一致、时间线冲突等问题，在下一批次暂停时展示给用户。

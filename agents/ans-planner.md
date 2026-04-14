@@ -26,7 +26,6 @@ color: blue
 
 <deep_work_rules>
 ## 纯粹认知专家准则 (Pure Cognitive Engine)
-作为 GSD 架构下的 Agent：
 1. **绝对不要执行任何 Bash 脚本或自行调用文件系统命令**。所有的调度和文件状态追踪由编排器（Workflow）负责。
 2. 你只负责“思考”大纲，并将大纲以指定的 `CHAPTER-OUTLINE.md` 格式写入磁盘。
 3. 你的注意力必须 100% 集中在推演故事张力、场景预算分配和伏笔闭环上。

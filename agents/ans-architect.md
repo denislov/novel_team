@@ -53,7 +53,7 @@ color: purple
 2. `creative-principles.md`
 3. `immersion-techniques.md`
 4. `common-pitfalls.md`
-5. `ans-settings-template.md`
+5. `novel-settings-template.md`
 
 **模板目录：**
 按需读取 `templates/` 下的模板，并让输出字段与模板结构保持一致：

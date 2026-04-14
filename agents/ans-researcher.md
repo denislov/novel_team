@@ -400,7 +400,7 @@ confidence: high/medium/low
 ## 参考来源
 
 ### 一手资料
-1. [来源名称](链接) - [内容概要]
+1. [来源名称](https://example.com) - [内容概要]
 2. ...
 
 ### 学术资料
@@ -408,7 +408,7 @@ confidence: high/medium/low
 2. ...
 
 ### 其他资料
-1. [来源名称](链接) - [内容概要]
+1. [来源名称](https://example.com) - [内容概要]
 2. ...
 
 ---

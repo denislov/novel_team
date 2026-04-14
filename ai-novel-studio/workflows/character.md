@@ -7,8 +7,8 @@ Read all files referenced by the invoking prompt's execution_context before star
 </required_reading>
 
 <available_agent_types>
-Valid novel-creator subagent types (use exact names):
-- novel-architect — 人物设计和档案创建
+Valid ans-creator subagent types (use exact names):
+- ans-architect — 人物设计和档案创建
 </available_agent_types>
 
 <codex_execution_policy>
@@ -163,11 +163,11 @@ AskUserQuestion(
 
 ### 3.2 生成人物档案
 
-调用 `novel-architect` 生成详细档案：
+调用 `ans-architect` 生成详细档案：
 
 ```
 SpawnAgent(
-  agent: novel-architect,
+  agent: ans-architect,
   input: {
     task: "create_character",
     character_info: {

@@ -1,14 +1,13 @@
 #!/usr/bin/env node
 // ans-hook-version: {{ANS_VERSION}}
 // Context Monitor — PostToolUse/AfterTool hook for AI Novel Studio
-// Ported from GSD's gsd-context-monitor.js, adapted for novel writing.
 //
 // Novel writing sessions consume context faster than coding sessions because:
 // - Each chapter is 3000-5000 Chinese characters
 // - Multiple reference files (CHARACTERS.md, TIMELINE.md) are loaded
 // - Cross-chapter context is needed for consistency
 //
-// Thresholds (more aggressive than GSD):
+// Thresholds:
 //   WARNING  (remaining <= 40%): Agent should finish current chapter and pause
 //   CRITICAL (remaining <= 25%): Agent should save progress immediately
 //
@@ -18,7 +17,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 
-const WARNING_THRESHOLD = 40;  // remaining_percentage <= 40% (GSD uses 35%)
+const WARNING_THRESHOLD = 40;  // remaining_percentage <= 40%
 const CRITICAL_THRESHOLD = 25; // remaining_percentage <= 25%
 const STALE_SECONDS = 60;
 const DEBOUNCE_CALLS = 5;

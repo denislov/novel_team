@@ -21,7 +21,7 @@ This is a thin alias over `/ans:polish --quick` for cases where you want speed o
 
 <execution_context>
 @~/.claude/ai-novel-studio/commands/_codex-conventions.md
-@~/.claude/ai-novel-studio/workflows/polish.md
+@~/.claude/ai-novel-studio/workflows/quick-polish.md
 @~/.claude/ai-novel-studio/references/command-center.md
 @~/.claude/ai-novel-studio/references/writing-guide.md
 @~/.claude/ai-novel-studio/templates/REVIEW.md
@@ -42,7 +42,7 @@ This is a thin alias over `/ans:polish --quick` for cases where you want speed o
 </context>
 
 <process>
-Execute the polish workflow from @workflows/polish.md end-to-end with quick mode as the default behavior.
-Interpret Claude-style workflow primitives using @commands/_codex-conventions.md.
+Execute the quick-polish workflow from @workflows/quick-polish.md end-to-end with quick mode as the default behavior.
+Interpret Claude-style workflow primitives using the conventions file already loaded in `execution_context`.
 Preserve all workflow gates (chapter selection, editor pass, report generation, result acceptance).
 </process>

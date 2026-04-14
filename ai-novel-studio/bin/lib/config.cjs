@@ -2,7 +2,7 @@
  * Config — Project-level configuration management for ANS
  *
  * Reads/writes config.json in the project root.
- * Follows GSD's "absent = enabled" pattern for workflow flags.
+ * Uses "absent = enabled" defaults for workflow flags.
  */
 
 const fs = require('node:fs');
