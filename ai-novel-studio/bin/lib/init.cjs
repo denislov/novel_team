@@ -276,8 +276,14 @@ function cmdInitNewProject(root, raw) {
   const config = loadConfig(root);
 
   // Detect existing materials
-  const hasExistingMaterial = core.fileExists(path.join(root, 'chapters'))
-    || fs.readdirSync(root).some(f => f.endsWith('.md') && f !== 'README.md');
+  let hasExistingMaterial = core.fileExists(path.join(root, 'chapters'));
+  if (!hasExistingMaterial) {
+    try {
+      hasExistingMaterial = fs.readdirSync(root).some(f => f.endsWith('.md') && f !== 'README.md');
+    } catch {
+      // Directory unreadable — assume no existing material
+    }
+  }
 
   const result = {
     config,

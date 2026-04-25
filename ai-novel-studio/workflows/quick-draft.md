@@ -8,7 +8,7 @@ Load support-bundle references and templates only when this workflow or its dele
 </required_reading>
 
 <available_agent_types>
-Valid ans-creator subagent types (use exact names):
+Valid ANS subagent types (use exact names):
 - ans-writer — 产出章节正文
 </available_agent_types>
 
@@ -113,8 +113,9 @@ FILES_TO_READ="PROJECT.md $ANS_WRITING_GUIDE $ANS_CHAPTER_TEMPLATE"
 ### 3.2 调用 Writer
 
 ```
-SpawnAgent(
-  agent: ans-writer,
+Task(
+  subagent_type: "ans-writer",
+  objective: "快速产出第 ${CHAPTER_NUMBER} 章草稿",
   files_to_read: [ $FILES_TO_READ ],
   input: writer_input,
   output: chapters/draft/chapter-${CHAPTER_NUMBER}-quick.md

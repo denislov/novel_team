@@ -86,12 +86,7 @@ function fileExists(filePath) {
 }
 
 function readText(filePath) {
-  const buffer = fs.readFileSync(filePath);
-  const utf8 = buffer.toString('utf8');
-  if (!utf8.includes('\uFFFD')) {
-    return utf8;
-  }
-  return buffer.toString('utf8');
+  return fs.readFileSync(filePath, 'utf8');
 }
 
 function frontmatterValue(text, key) {

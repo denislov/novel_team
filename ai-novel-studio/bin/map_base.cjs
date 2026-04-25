@@ -267,56 +267,61 @@ function main(argv = process.argv.slice(2)) {
     return 1;
   }
 
-  const sourceDir = path.resolve(args.source_dir);
-  if (!fileExists(sourceDir) || !fs.statSync(sourceDir).isDirectory()) {
-    console.error(`source directory not found: ${sourceDir}`);
-    return 2;
-  }
+  try {
+    const sourceDir = path.resolve(args.source_dir);
+    if (!fileExists(sourceDir) || !fs.statSync(sourceDir).isDirectory()) {
+      console.error(`source directory not found: ${sourceDir}`);
+      return 2;
+    }
 
-  const coreCount = CORE_FILES.filter((name) => fileExists(path.join(sourceDir, name))).length;
-  if (coreCount >= 3 && !args.merge) {
-    console.log('检测到当前目录已经接近或已经是结构化项目。');
-    console.log('如果需要继续吸收散落资料，请使用 /novel:map-base --merge');
-    return 0;
-  }
+    const coreCount = CORE_FILES.filter((name) => fileExists(path.join(sourceDir, name))).length;
+    if (coreCount >= 3 && !args.merge) {
+      console.log('检测到当前目录已经接近或已经是结构化项目。');
+      console.log('如果需要继续吸收散落资料，请使用 /novel:map-base --merge');
+      return 0;
+    }
 
-  if (!args.dry_run) {
-    ['chapters/draft', 'chapters/outlines', 'characters', 'research', 'reviews'].forEach((dir) => {
-      fs.mkdirSync(path.join(sourceDir, dir), { recursive: true });
+    if (!args.dry_run) {
+      ['chapters/draft', 'chapters/outlines', 'characters', 'research', 'reviews'].forEach((dir) => {
+        fs.mkdirSync(path.join(sourceDir, dir), { recursive: true });
+      });
+    }
+
+    const scanResult = buildScanResult(sourceDir, scanCandidates(sourceDir));
+    if (!scanResult.actionable.length) {
+      console.log('未发现足够的已有小说材料，无法执行 map-base。');
+      console.log('空目录或只有很少想法时，直接运行：/novel:new-project');
+      console.log('如果你有核心设定文档，请把文档放进当前目录后再运行：/novel:map-base');
+      return 1;
+    }
+    const planResult = buildPlanResult({
+      sourceDir,
+      scanResult,
+      force: args.force,
+      dryRun: args.dry_run,
     });
-  }
+    if (args.dry_run) {
+      const generated = planResult.coreWrites.map(([filePath]) => `- would generate \`${path.basename(filePath)}\``);
+      console.log(buildReport({
+        ...planResult.reportInput,
+        generated,
+        skipped: [],
+      }));
+    } else {
+      const writeResult = executeWritePlan(planResult, args.force);
+      console.log('map-base completed');
+      console.log(`source: ${sourceDir}`);
+      console.log(`report: ${writeResult.reportPath}`);
+      console.log(`planned copies: ${planResult.planned.length}`);
+      console.log(`generated core files: ${writeResult.generated.length}`);
+      if (planResult.reportInput.unresolved.length) console.log(`needs review: ${planResult.reportInput.unresolved.length}`);
+    }
 
-  const scanResult = buildScanResult(sourceDir, scanCandidates(sourceDir));
-  if (!scanResult.actionable.length) {
-    console.log('未发现足够的已有小说材料，无法执行 map-base。');
-    console.log('空目录或只有很少想法时，直接运行：/novel:new-project');
-    console.log('如果你有核心设定文档，请把文档放进当前目录后再运行：/novel:map-base');
+    return 0;
+  } catch (error) {
+    console.error(`map-base failed: ${error.message}`);
     return 1;
   }
-  const planResult = buildPlanResult({
-    sourceDir,
-    scanResult,
-    force: args.force,
-    dryRun: args.dry_run,
-  });
-  if (args.dry_run) {
-    const generated = planResult.coreWrites.map(([filePath]) => `- would generate \`${path.basename(filePath)}\``);
-    console.log(buildReport({
-      ...planResult.reportInput,
-      generated,
-      skipped: [],
-    }));
-  } else {
-    const writeResult = executeWritePlan(planResult, args.force);
-    console.log('map-base completed');
-    console.log(`source: ${sourceDir}`);
-    console.log(`report: ${writeResult.reportPath}`);
-    console.log(`planned copies: ${planResult.planned.length}`);
-    console.log(`generated core files: ${writeResult.generated.length}`);
-    if (planResult.reportInput.unresolved.length) console.log(`needs review: ${planResult.reportInput.unresolved.length}`);
-  }
-
-  return 0;
 }
 
 if (require.main === module) {

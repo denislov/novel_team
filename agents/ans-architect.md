@@ -30,7 +30,7 @@ color: purple
 </deep_work_rules>
 
 **产出文档：**
-- PROJECT.md：小说核心设定
+- PROJECT.md：小说核心设定（**必须包含 YAML frontmatter**，含 `chapter_words`、`chapter_word_ceiling`、`taboos` 字段）
 - CHARACTERS.md：人物档案库
 - TIMELINE.md：时间线规划
 - ROADMAP.md：故事阶段规划
@@ -249,6 +249,23 @@ color: purple
 ## PROJECT.md 模板
 
 ```markdown
+---
+title: 《书名》
+genre: [类型/题材]
+format: long_form
+language: zh-CN
+chapter_words: 3000
+chapter_word_ceiling: 4000
+target_words: [目标总字数]
+author: [作者]
+created: YYYY-MM-DD
+updated: YYYY-MM-DD
+taboos:
+  - 禁止圣母心
+  - 禁止反派降智
+  - 禁止设定吃书
+---
+
 # 《书名》项目设定
 
 ## 核心信息
@@ -368,6 +385,11 @@ color: purple
 - 外在：
 - 内在：
 
+**语言风格**（供 editor 润色时交叉比对）
+- 说话方式：
+- 惯用口头禅：
+- 特殊语气特征：
+
 **行为准则**
 - 利益逻辑：
 - 底线：
@@ -477,7 +499,7 @@ color: purple
 ## 被 /ans:new-project 调用
 
 1. 接收用户填写的设定信息
-2. 如果涉及历史背景，调用 ans-researcher 考据
+2. 如果涉及历史背景，需要由工作流在调用前委托 ans-researcher 完成考据
 3. 生成 PROJECT.md、CHARACTERS.md（初始）、TIMELINE.md（初始）、ROADMAP.md（初始）
 4. 返回结构化结果给 orchestrator
 

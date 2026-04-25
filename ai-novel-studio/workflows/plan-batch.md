@@ -9,7 +9,7 @@ Load support-bundle references and templates only when this workflow or its dele
 </required_reading>
 
 <available_agent_types>
-Valid ans-creator subagent types (use exact names):
+Valid ANS subagent types (use exact names):
 - ans-planner — 逐章规划大纲专家
 - ans-plan-checker — 大纲一致性检查
 </available_agent_types>
@@ -106,15 +106,15 @@ for CHAPTER in $(seq $START $END); do
   if [[ -f "$PREV_FILE" ]]; then
     FILES_TO_READ="$FILES_TO_READ $PREV_FILE"
   fi
+
+  echo "正在编排第 ${CHAPTER} 章的大纲推演任务..."
   
   # 调用认知专家 ans-planner
   Task(
     subagent_type: "ans-planner",
     objective: "规划第 ${CHAPTER} 章大纲",
     batch_goal: "$GOAL",
-    files_to_read: [
-      $FILES_TO_READ
-    ]
+    files_to_read: [ $FILES_TO_READ ]
   )
   
   # 拦截 ## PLANNING COMPLETE 结构化回复

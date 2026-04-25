@@ -1,7 +1,7 @@
 ---
 name: ans-consistency-checker
 description: 跨章节一致性检查器。扫描多章节内容，检测人名/地名/功法名不一致、人设偏移、时间线矛盾、伏笔遗失等问题。被 /ans:validate、/ans:autonomous（定期检查点）、/ans:review（深度审核模式）调用。
-tools: Read, Grep, Glob, Bash
+tools: Read, Write, Grep, Glob, Bash
 color: orange
 ---
 
@@ -40,7 +40,7 @@ color: orange
 
 ```bash
 # 获取结构级一致性数据（人物名频率等）
-STRUCT=$(node "$HOME/.claude/ai-novel-studio/bin/ans-tools.cjs" validate consistency 2>/dev/null)
+node "$ANS_TOOLS" validate consistency
 ```
 
 从 CLI 输出获取：
@@ -115,6 +115,8 @@ STRUCT=$(node "$HOME/.claude/ai-novel-studio/bin/ans-tools.cjs" validate consist
 
 ## 输出格式
 
+## CONSISTENCY CHECK COMPLETE
+
 ```json
 {
   "status": "consistent" | "issues_found" | "critical_inconsistency",
@@ -173,7 +175,7 @@ STRUCT=$(node "$HOME/.claude/ai-novel-studio/bin/ans-tools.cjs" validate consist
 
 ### Step 1: 获取结构数据
 ```bash
-node "$HOME/.claude/ai-novel-studio/bin/ans-tools.cjs" validate consistency
+node "$ANS_TOOLS" validate consistency
 ```
 
 ### Step 2: 加载权威来源
@@ -190,7 +192,8 @@ node "$HOME/.claude/ai-novel-studio/bin/ans-tools.cjs" validate consistency
 将扫描结果与权威来源比对，发现偏差
 
 ### Step 5: 生成报告
-输出结构化 JSON 报告，按严重程度排序
+使用 `Write` 工具将检查报告写入 `reviews/consistency-check-{N}.md`，确保检查结果可追溯。
+同时输出结构化 JSON 报告返回给编排器，按严重程度排序。
 
 ### Step 6: 建议更新
 如果发现问题，建议需要更新哪些文件：

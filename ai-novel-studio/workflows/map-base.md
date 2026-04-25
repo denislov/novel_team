@@ -197,10 +197,28 @@ node bin/map_base.cjs --from="$SOURCE_DIR" $([ "$MERGE" = true ] && echo --merge
 
 ### 5.1 Architect 输入
 
+基于扫描和归类结果，构造请求 XML：
+
+```xml
+<map_base_request>
+  <source_dir>${SOURCE_DIR}</source_dir>
+  <mode>$([ "$MERGE" = true ] && echo "merge" || echo "create")</mode>
+  <force>${FORCE}</force>
+  <scanned_materials>
+    @reviews/map-base-report.md
+  </scanned_materials>
+</map_base_request>
+```
+
+调用 Architect 生成核心文件：
+
 ```
 Task(
   subagent_type: "ans-architect",
   input: map_base_request,
+  files_to_read: [
+    "reviews/map-base-report.md"
+  ],
   output: [
     PROJECT.md,
     CHARACTERS.md,
@@ -209,7 +227,6 @@ Task(
     STATE.md
   ]
 )
-```
 
 ### 5.2 STATE 初始化原则
 

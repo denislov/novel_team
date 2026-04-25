@@ -223,7 +223,13 @@ done
 当 `DEEP == true` 时，额外调用：
 
 ```bash
-SpawnAgent ans-consistency-checker range="$CHAPTER_INPUT"
+Task(
+  subagent_type: "ans-consistency-checker",
+  objective: "跨章节一致性检查：${CHAPTER_INPUT}",
+  input: {
+    range: CHAPTER_INPUT
+  }
+)
 ```
 
 用于检查跨章节设定漂移、长期伏笔和时间线偏差。

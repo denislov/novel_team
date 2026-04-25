@@ -317,7 +317,7 @@ function main(argv = process.argv.slice(2)) {
   const root = path.resolve(args.root);
 
   try {
-    const result = args.command === 'inspect'
+    const result = (args.command === 'inspect' || args.command === 'gate')
       ? analyzeChapter(root, args.chapter, args.source)
       : syncChapterMetadata(root, args.chapter, args.source);
     printResult(result, args.json);

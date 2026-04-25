@@ -9,7 +9,7 @@ Load support-bundle references and templates only when this workflow or its dele
 </required_reading>
 
 <available_agent_types>
-Valid ans-creator subagent types (use exact names):
+Valid ANS subagent types (use exact names):
 - ans-planner — 章节规划
 - ans-plan-checker — 大纲一致性检查
 - ans-writer — 内容产出
@@ -148,19 +148,19 @@ for CURRENT_CHAPTER in START..END:
   ┌──────────────────────────────────────────────┐
   │  Step 2: 检查大纲                             │
   │  outline_exists? → 直接写作                    │
-  │  no outline?     → SpawnAgent ans-planner   │
+  │  no outline?     → Task(ans-planner)   │
   └──────────────────────────────────────────────┘
           │
           ▼
   ┌──────────────────────────────────────────────┐
   │  Step 3: 写作                                 │
-  │  SpawnAgent ans-writer chapter=$N           │
+  │  Task(ans-writer) chapter=$N           │
   └──────────────────────────────────────────────┘
           │
           ▼
   ┌──────────────────────────────────────────────┐
   │  Step 4: 审核 (if !SKIP_VERIFY)              │
-  │  SpawnAgent ans-verifier chapter=$N         │
+  │  Task(ans-verifier) chapter=$N         │
   │                                              │
   │  → status: passed     → 继续                  │
   │  → status: gaps_found → Gap Closure (Step 5) │
@@ -199,10 +199,10 @@ CHAPTER_INIT=$(node "$HOME/.claude/ai-novel-studio/bin/ans-tools.cjs" init write
 ### Step 2: 检查/创建大纲
 
 如果 `outline_exists == false`：
-- SpawnAgent ans-planner，产出 `chapters/outlines/outline-{N}.md`
+- Task(ans-planner)，产出 `chapters/outlines/outline-{N}.md`
 - planner 的 `files_to_read` 至少包含：
   `PROJECT.md ROADMAP.md TIMELINE.md CHARACTERS.md STATE.md $ANS_WRITING_GUIDE $ANS_OUTLINE_TEMPLATE`
-- 如果 `config.workflow.plan_check == true`：SpawnAgent ans-plan-checker，验证大纲与 CHARACTERS.md / TIMELINE.md 的一致性
+- 如果 `config.workflow.plan_check == true`：Task(ans-plan-checker)，验证大纲与 CHARACTERS.md / TIMELINE.md 的一致性
 
 如果 `outline_exists == true`：
 - 直接进入写作步骤
@@ -210,7 +210,7 @@ CHAPTER_INIT=$(node "$HOME/.claude/ai-novel-studio/bin/ans-tools.cjs" init write
 ### Step 3: 写作
 
 ```
-SpawnAgent ans-writer:
+Task(ans-writer):
   - 输入: outline, previous chapter, CHARACTERS.md, TIMELINE.md
   - `files_to_read` 额外附带: `$ANS_WRITING_GUIDE`, `$ANS_CHAPTER_TEMPLATE`
   - 产出: chapters/draft/chapter-{N}-draft.md
@@ -227,7 +227,7 @@ node "$HOME/.claude/ai-novel-studio/bin/ans-tools.cjs" chapter budget "$CURRENT_
 ### Step 4: 审核
 
 ```
-SpawnAgent ans-verifier:
+Task(ans-verifier):
   - 输入: chapter draft, outline, CHARACTERS.md, TIMELINE.md
   - `files_to_read` 额外附带: `$ANS_COMMON_PITFALLS`, `$ANS_REVIEW_TEMPLATE`, `$ANS_STATE_TEMPLATE`, `$ANS_TIMELINE_TEMPLATE`
   - 产出结构化 JSON：
@@ -265,17 +265,17 @@ SpawnAgent ans-verifier:
 
 ```
 if gap_type == "structural":
-  SpawnAgent ans-planner (修复模式: 只修改大纲中的问题部分)
-  SpawnAgent ans-writer (基于修复后的大纲重写)
+  Task(ans-planner) (修复模式: 只修改大纲中的问题部分)
+  Task(ans-writer) (基于修复后的大纲重写)
 elif gap_type == "content":
-  SpawnAgent ans-writer (修复模式: 只修改正文中的问题段落)
+  Task(ans-writer) (修复模式: 只修改正文中的问题段落)
 ```
 
 Gap Closure 中的 planner / writer 重试也必须沿用同一组 workflow-owned support files，不能再依赖 command `execution_context` 预加载模板。
 
 3. **Re-verify：**
 ```
-SpawnAgent ans-verifier (chapter=$N)
+Task(ans-verifier) (chapter=$N)
 if still gaps_found or human_needed:
   → 标记问题，询问用户：
     AskUserQuestion(
@@ -331,7 +331,7 @@ AskUserQuestion(
 
 ```bash
 node "$HOME/.claude/ai-novel-studio/bin/ans-tools.cjs" validate consistency
-SpawnAgent ans-consistency-checker range="1-$CURRENT_CHAPTER"
+Task(ans-consistency-checker) range="1-$CURRENT_CHAPTER"
 ```
 
 如果发现人物名不一致、时间线冲突等问题，在下一批次暂停时展示给用户。

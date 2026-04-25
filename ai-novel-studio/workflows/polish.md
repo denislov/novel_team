@@ -8,7 +8,7 @@ Load support-bundle references and templates only when this workflow or its dele
 </required_reading>
 
 <available_agent_types>
-Valid ans-creator subagent types (use exact names):
+Valid ANS subagent types (use exact names):
 - ans-editor — 编辑润色
 </available_agent_types>
 
@@ -139,8 +139,9 @@ CHAPTER=$(cat chapters/chapter-${CHAPTER_NUMBER}.md)
 ### 3.2 调用 Editor
 
 ```
-SpawnAgent(
-  agent: ans-editor,
+Task(
+  subagent_type: "ans-editor",
+  objective: "润色第 ${CHAPTER_NUMBER} 章",
   files_to_read: [
     "PROJECT.md",
     "CHARACTERS.md",
@@ -233,8 +234,23 @@ node bin/ans-tools.cjs chapter promote ${CHAPTER_NUMBER} --source polished
 ```bash
 RESULTS=()
 for chapter in $CHAPTER_LIST; do
-  # 调用 editor，并沿用单章模式的 files_to_read
-  result=$(SpawnAgent ans-editor chapter=$chapter mode=$MODE)
+  # 调用 editor，传递完整的上下文
+  result=$(Task(
+    subagent_type: "ans-editor",
+    objective: "润色第 ${chapter} 章",
+    files_to_read: [
+      "PROJECT.md",
+      "CHARACTERS.md",
+      "chapters/chapter-${chapter}.md",
+      "$ANS_WRITING_GUIDE",
+      "$ANS_REVIEW_TEMPLATE",
+      "$ANS_CHAPTER_TEMPLATE"
+    ],
+    input: {
+      chapter_number: chapter,
+      mode: MODE
+    }
+  ))
   RESULTS+=("$result")
 done
 ```

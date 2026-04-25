@@ -8,8 +8,9 @@ Load support-bundle references and templates only when this workflow or its dele
 </required_reading>
 
 <available_agent_types>
-Valid ans-creator subagent types (use exact names):
+Valid ANS subagent types (use exact names):
 - ans-architect — 人物设计和档案创建
+- ans-verifier — 人物一致性检查
 </available_agent_types>
 
 <codex_execution_policy>
@@ -172,8 +173,11 @@ AskUserQuestion(
 调用 `ans-architect` 生成详细档案：
 
 ```
-SpawnAgent(
-  agent: ans-architect,
+PROJECT=$(cat PROJECT.md)
+CHARACTERS=$(cat CHARACTERS.md)
+
+Task(
+  subagent_type: "ans-architect",
   files_to_read: [
     "PROJECT.md",
     "CHARACTERS.md",
@@ -365,15 +369,25 @@ AskUserQuestion(
 
 检查人物在各章节中的表现是否一致：
 
-### 6.1 扫描章节
+### 6.1 委托一致性检查
 
-```bash
-# 扫描所有章节，提取人物出场记录
-for chapter in $(find chapters -maxdepth 1 -type f | grep -E '/chapter-[0-9]+\.md$' | sort -V); do
-  # 检查人物是否出场
-  # 提取人物行为
-  # 对比人设
-done
+将人物一致性检查委托给 `ans-verifier`，聚焦于该人物的行为一致性和语言风格一致性。
+
+```
+CHECK_FILES="PROJECT.md CHARACTERS.md"
+[[ -f "characters/${CHARACTER_NAME}.md" ]] && CHECK_FILES="$CHECK_FILES characters/${CHARACTER_NAME}.md"
+
+Task(
+  subagent_type: "ans-verifier",
+  objective: "检查人物 ${CHARACTER_NAME} 在各章中的行为一致性",
+  files_to_read: [ $CHECK_FILES ],
+  input: {
+    check_type: "character_consistency",
+    character_name: CHARACTER_NAME,
+    character_file: "characters/${CHARACTER_NAME}.md",
+    chapters_glob: "chapters/chapter-*.md"
+  }
+)
 ```
 
 ### 6.2 一致性报告

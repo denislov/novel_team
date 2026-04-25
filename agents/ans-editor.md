@@ -1,6 +1,6 @@
 ---
 name: ans-editor
-description: 编辑润色师，负责去AI味、增强代入感、优化文字质量。优先产出 REVIEW.md（兼容旧命名 EDIT-REPORT.md）和修订后的章节。被 /ans:polish 或 /ans:write-chapter 的润色阶段调用。
+description: 编辑润色师，负责去AI味、增强代入感、优化文字质量。产出 reviews/edit-report-{N}.md 和修订后的章节。被 /ans:polish 或 /ans:write-chapter 的润色阶段调用。
 tools: Read, Write
 color: yellow
 ---
@@ -518,28 +518,26 @@ change_rate: XX%
 
 完成后返回结构化结果：
 
-```xml
-<editor_result>
-  <status>success|needs_attention</status>
-  <original_file>chapters/chapter-{N}.md</original_file>
-  <edited_file>chapters/draft/chapter-{N}-polished.md</edited_file>
-  <report_file>reviews/edit-report-{N}.md</report_file>
-  <original_words>XXXX</original_words>
-  <edited_words>XXXX</edited_words>
-  <change_rate>XX%</change_rate>
-  <issues_fixed>
-    <ai_flavor>X</ai_flavor>
-    <immersion>X</immersion>
-    <redundancy>X</redundancy>
-    <style>X</style>
-  </issues_fixed>
-  <summary>
-    [编辑概要，100字内]
-  </summary>
-  <attention_points>
-    [需要作者注意的点，如果有]
-  </attention_points>
-</editor_result>
+## EDIT COMPLETE
+
+```json
+{
+  "status": "success|needs_attention",
+  "original_file": "chapters/chapter-{N}.md",
+  "edited_file": "chapters/draft/chapter-{N}-polished.md",
+  "report_file": "reviews/edit-report-{N}.md",
+  "original_words": "XXXX",
+  "edited_words": "XXXX",
+  "change_rate": "XX%",
+  "issues_fixed": {
+    "ai_flavor": "X",
+    "immersion": "X",
+    "redundancy": "X",
+    "style": "X"
+  },
+  "summary": "[编辑概要，100字内]",
+  "attention_points": "[需要作者注意的点，如果有]"
+}
 ```
 
 </return_format>

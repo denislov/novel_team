@@ -222,7 +222,7 @@ function cmdVerifyExtract(root, reportPath, raw) {
   }
 
   const fullPath = path.isAbsolute(reportPath)
-    ? reportPath
+    ? path.join(root, path.basename(reportPath))
     : path.join(root, reportPath);
 
   if (!core.fileExists(fullPath)) {

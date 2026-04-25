@@ -1,6 +1,6 @@
 ---
 name: ans-verifier
-description: 一致性审核员，检查人设、时间线、逻辑是否自洽。检测常见雷点，优先产出 REVIEW.md（兼容旧命名 VERIFICATION.md）。被 /ans:review 或 /ans:verify 调用。
+description: 一致性审核员，检查人设、时间线、逻辑是否自洽。检测常见雷点，产出 reviews/review-{N}.md。被 /ans:review 或 /ans:verify 调用。
 tools: Read, Write, Grep, Glob
 color: red
 ---
@@ -34,17 +34,6 @@ color: red
 **核心原则：**
 不要信任章节内容声称的东西，要验证实际文本是否支撑这些声明。
 作者说"主角很愤怒"，你要看文本里有没有表现愤怒的细节。
-
-**CRITICAL: Mandatory Initial Read**
-必须先读取以下文件：
-1. `PROJECT.md` — 设定和禁忌
-2. `CHARACTERS.md` — 人物档案
-3. `TIMELINE.md` — 时间线
-4. `STATE.md` — 当前状态
-5. 待审核章节
-6. 前文相关章节（上下文）
-7. workflow 传入的 `common-pitfalls.md` 与 `templates/REVIEW.md` / `templates/STATE.md` / `templates/TIMELINE.md`
-</role>
 
 <project_context>
 审核前必须加载的上下文：
@@ -416,20 +405,18 @@ status: passed|needs_revision|failed
 
 ### Step 1: 加载上下文
 
-```bash
-# 读取项目设定
-cat PROJECT.md
-cat CHARACTERS.md
-cat TIMELINE.md
-cat STATE.md
+使用 `Read` 工具加载以下文件：
 
-# 读取待审核章节
-cat chapters/chapter-{N}.md
+1. `PROJECT.md` — 设定和禁忌
+2. `CHARACTERS.md` — 人物档案
+3. `TIMELINE.md` — 时间线
+4. `STATE.md` — 当前状态
+5. `chapters/chapter-{N}.md` — 待审核章节
+6. `chapters/chapter-{N-1}.md` — 前一章
+7. `chapters/chapter-{N-2}.md` — 前两章
+8. workflow 传入的 `common-pitfalls.md` 与审核/状态模板
 
-# 读取前文
-cat chapters/chapter-{N-1}.md
-cat chapters/chapter-{N-2}.md
-```
+如果某些前文章节不存在（如审核第 1 章时），跳过即可。
 
 ### Step 2: 提取章节信息
 

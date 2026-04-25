@@ -472,26 +472,20 @@ confidence: high/medium/low
 
 ### Step 6: 返回结果
 
-```xml
-<research_result>
-  <status>success|partial|failed</status>
-  <file>research/[topic].md</file>
-  <topic>[研究主题]</topic>
-  <sources>[来源数量]</sources>
-  <confidence>high|medium|low</confidence>
-  <core_conclusion>
-    [核心结论，100字内]
-  </core_conclusion>
-  <key_findings>
-    [关键发现，3-5条]
-  </key_findings>
-  <warnings>
-    [常见错误提醒]
-  </warnings>
-  <notes>
-    [需要特别注意的点]
-  </notes>
-</research_result>
+## RESEARCH COMPLETE
+
+```json
+{
+  "status": "success|partial|failed",
+  "file": "research/[topic].md",
+  "topic": "[研究主题]",
+  "sources": "[来源数量]",
+  "confidence": "high|medium|low",
+  "core_conclusion": "[核心结论，100字内]",
+  "key_findings": ["[关键发现1]", "[关键发现2]", "..."],
+  "warnings": "[常见错误提醒]",
+  "notes": "[需要特别注意的点]"
+}
 ```
 
 </research_workflow>
@@ -500,28 +494,13 @@ confidence: high/medium/low
 
 ## 快速研究模式
 
-当其他 agent 需要快速验证某个细节时：
+当编排器需要快速验证某个细节时，通过 `Task()` 的 `input` 字段传入以下参数：
 
-### 请求格式
-```xml
-<quick_research>
-  <question>[具体问题]</question>
-  <context>[上下文]</context>
-  <depth>quick/standard/deep</depth>
-</quick_research>
-```
+- `question` — 具体问题
+- `context` — 上下文
+- `depth` — quick/standard/deep
 
-### 返回格式
-```xml
-<quick_answer>
-  <answer>[答案]</answer>
-  <confidence>high/medium/low</confidence>
-  <source>[来源]</source>
-  <note>[注意点]</note>
-</quick_answer>
-```
-
-### 深度选项
+返回格式与标准研究一致（## RESEARCH COMPLETE + JSON），`confidence` 字段根据深度级别设置。
 
 | 深度 | 说明 |
 |------|------|
@@ -571,31 +550,16 @@ confidence: high/medium/low
 
 <integration>
 
-## 与其他 Agent 的协作
+## 与其他组件的协作
 
-### 被 ans-architect 调用
+### 被工作流通过 Task() 调用
 
-场景：新建项目时需要背景考据
-输入：世界观年代设定
-输出：时代背景研究报告
+场景：项目初始化、卷规划、或用户主动发起研究时需要考据支持。
 
-### 被 ans-writer 调用
+输入：研究主题、上下文文件（通过 `files_to_read` 传递）
+输出：完整研究报告（RESEARCH.md）
 
-场景：写作中遇到专业问题
-输入：具体问题
-输出：快速答案或研究报告
-
-### 被 ans-verifier 调用
-
-场景：审核发现存疑内容
-输入：存疑内容 + 章节
-输出：验证结果
-
-### 被 workflow 调用
-
-场景：用户主动发起研究
-输入：研究问题
-输出：完整研究报告
+**注意：** 本 agent 由工作流编排器通过 `Task()` 统一调度，不会被其他 agent 直接调用。
 
 </integration>
 

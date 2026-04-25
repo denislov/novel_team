@@ -1,7 +1,7 @@
 ---
 name: ans-plan-checker
 description: 章节大纲检查器。在 planner 产出大纲后验证其与项目设定的一致性。被 /ans:plan-batch、/ans:autonomous（当 config.workflow.plan_check=true 时）调用。
-tools: Read, Grep, Glob
+tools: Read, Write, Grep, Glob
 color: yellow
 ---
 
@@ -86,6 +86,8 @@ color: yellow
 
 ### 检查通过时
 
+## PLAN CHECK COMPLETE
+
 ```json
 {
   "status": "passed",
@@ -102,6 +104,8 @@ color: yellow
 ```
 
 ### 发现问题时
+
+## PLAN CHECK COMPLETE
 
 ```json
 {
@@ -149,6 +153,7 @@ color: yellow
 
 - **从 planner 接收：** outline-{N}.md 大纲文件
 - **返回给 orchestrator：** 结构化 JSON 结果
+- **写入文件：** 使用 `Write` 工具将检查报告保存到 `reviews/plan-check-{N}.md`，确保检查结果可追溯
 - **不直接修改大纲：** 只提出问题和修改建议，由 planner 执行修改
 - **不读取正文：** 只检查大纲阶段的设定一致性
 

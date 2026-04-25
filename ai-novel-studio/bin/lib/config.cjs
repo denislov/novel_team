@@ -34,7 +34,6 @@ const DEFAULTS = {
  */
 function loadConfig(root) {
   const configPath = path.join(root, 'config.json');
-  const projectPath = path.join(root, 'PROJECT.md');
 
   let parsed = {};
   try {
@@ -42,8 +41,9 @@ function loadConfig(root) {
     if (raw) {
       parsed = JSON.parse(raw);
     }
-  } catch {
+  } catch (e) {
     // Malformed config — use defaults
+    console.error(`Warning: ${root}/config.json is malformed: ${e.message}`);
   }
 
   // Helper: get nested or top-level value

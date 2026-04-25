@@ -8,7 +8,7 @@ Load support-bundle references and templates only when this workflow or its dele
 </required_reading>
 
 <available_agent_types>
-Valid ans-creator subagent types (use exact names):
+Valid ANS subagent types (use exact names):
 - ans-architect — 规划新卷或新阶段
 - ans-researcher — 为新卷背景做补充考据（如需要）
 </available_agent_types>
@@ -123,8 +123,9 @@ AskUserQuestion(
 ```bash
 ARC_SLUG=$(echo "${ARC_NAME:-arc}" | tr ' /' '--' | tr -cd '[:alnum:]-_' | sed 's/--*/-/g' | sed 's/^-//; s/-$//')
 mkdir -p research
-SpawnAgent(
-  agent: ans-researcher,
+Task(
+  subagent_type: "ans-researcher",
+  objective: "补做卷前研究：${RESEARCH_TOPIC}",
   files_to_read: [
     "PROJECT.md",
     "$ANS_RESEARCH_TEMPLATE"
@@ -172,12 +173,16 @@ STATE=$(cat STATE.md)
 
 ### 4.3 调用 Architect
 
+**注意：Architect 将直接覆写 PROJECT.md / ROADMAP.md / CHARACTERS.md / TIMELINE.md。**
+工作流应在调用前通过 `ans-tools.cjs` 备份当前版本，或提醒用户在调用前手动备份。
+
 ```
 ARCHITECT_FILES_TO_READ="PROJECT.md ROADMAP.md CHARACTERS.md TIMELINE.md STATE.md $ANS_WRITING_GUIDE $ANS_PROJECT_TEMPLATE $ANS_ROADMAP_TEMPLATE $ANS_CHARACTERS_TEMPLATE $ANS_TIMELINE_TEMPLATE $ANS_STATE_TEMPLATE"
 [[ -f "research/arc-${ARC_SLUG}.md" ]] && ARCHITECT_FILES_TO_READ="$ARCHITECT_FILES_TO_READ research/arc-${ARC_SLUG}.md"
 
-SpawnAgent(
-  agent: ans-architect,
+Task(
+  subagent_type: "ans-architect",
+  objective: "规划新卷：${ARC_NAME}",
   files_to_read: [ $ARCHITECT_FILES_TO_READ ],
   input: plan_arc_request,
   output: [

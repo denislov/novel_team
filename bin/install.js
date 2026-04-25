@@ -64,8 +64,6 @@ const hasCopilot = args.includes('--copilot');
 const hasAntigravity = args.includes('--antigravity');
 const hasCursor = args.includes('--cursor');
 const hasWindsurf = args.includes('--windsurf');
-const hasSdk = args.includes('--sdk');
-const hasBoth = args.includes('--both'); // Legacy flag, keeps working
 const hasAll = args.includes('--all');
 const hasUninstall = args.includes('--uninstall') || args.includes('-u');
 const hasValidate = args.includes('--validate');
@@ -75,8 +73,6 @@ const hasRepair = args.includes('--repair');
 let selectedRuntimes = [];
 if (hasAll) {
   selectedRuntimes = ['claude', 'opencode', 'gemini', 'codex', 'copilot', 'antigravity', 'cursor', 'windsurf'];
-} else if (hasBoth) {
-  selectedRuntimes = ['claude', 'opencode'];
 } else {
   if (hasOpencode) selectedRuntimes.push('opencode');
   if (hasClaude) selectedRuntimes.push('claude');
@@ -155,7 +151,6 @@ function getConfigDirFromHome(runtime, isGlobal) {
   if (runtime === 'gemini') return "'.gemini'";
   if (runtime === 'codex') return "'.codex'";
   if (runtime === 'antigravity') {
-    if (!isGlobal) return "'.agent'";
     return "'.gemini', 'antigravity'";
   }
   if (runtime === 'cursor') return "'.cursor'";
@@ -317,7 +312,6 @@ function parseConfigDirArg() {
 }
 const explicitConfigDir = parseConfigDirArg();
 const hasHelp = args.includes('--help') || args.includes('-h');
-const forceStatusline = args.includes('--force-statusline');
 
 console.log(banner);
 
@@ -327,8 +321,7 @@ if (hasUninstall) {
 
 // Show help if requested
 if (hasHelp) {
-  console.log(`  ${yellow}Usage:${reset} npx ans-tool [options]\n\n  ${yellow}Options:${reset}\n    ${cyan}-g, --global${reset}              Install globally (to config directory)\n    ${cyan}-l, --local${reset}               Install locally (to current directory)\n    ${cyan}--claude${reset}                  Install for Claude Code only\n    ${cyan}--opencode${reset}                Install for OpenCode only\n    ${cyan}--gemini${reset}                  Install for Gemini only\n    ${cyan}--codex${reset}                   Install for Codex only\n    ${cyan}--copilot${reset}                 Install for Copilot only\n    ${cyan}--antigravity${reset}             Install for Antigravity only\n    ${cyan}--cursor${reset}                  Install for Cursor only\n    ${cyan}--windsurf${reset}                Install for Windsurf only\n    ${cyan}--all${reset}                     Install for all runtimes\n    ${cyan}--sdk${reset}                     Also install ANS SDK CLI (ans-sdk)\n    ${cyan}--validate${reset}                Validate an existing install\n    ${cyan}--repair${reset}                  Reinstall over an existing install\n    ${cyan}-u, --uninstall${reset}           Uninstall ANS (remove all ANS files)\n    ${cyan}-c, --config-dir <path>${reset}   Specify custom config directory\n    ${cyan}-h, --help${reset}                Show this help message\n    ${cyan}--force-statusline${reset}        Replace existing statusline config\n\n  ${yellow}Examples:${reset}\n    ${dim}# Interactive install (prompts for runtime and location)${reset}\n    npx ans-tool\n\n    ${dim}# Install for Claude Code globally${reset}\n    npx ans-tool --claude --global\n\n    ${dim}# Install for Codex globally${reset}\n    npx ans-tool --codex --global\n\n    ${dim}# Validate an existing Codex install${reset}\n    npx ans-tool --codex --global --validate\n\n    ${dim}# Repair a Claude install in the current project${reset}\n    npx ans-tool --claude --local --repair\n\n    ${dim}# Install for all runtimes globally${reset}\n    npx ans-tool --all --global\n\n    ${dim}# Install to custom config directory${reset}\n    npx ans-tool --codex --global --config-dir ~/.codex-work\n\n    ${dim}# Uninstall ANS from Cursor globally${reset}\n    npx ans-tool --cursor --global --uninstall\n\n  ${yellow}Notes:${reset}\n    The --config-dir option is useful when you have multiple configurations.\n    It takes priority over CLAUDE_CONFIG_DIR / GEMINI_CONFIG_DIR / CODEX_HOME / COPILOT_CONFIG_DIR / ANTIGRAVITY_CONFIG_DIR / CURSOR_CONFIG_DIR / WINDSURF_CONFIG_DIR environment variables.\n`);
-  process.exit(0);
+  console.log(`  ${yellow}Usage:${reset} npx ans-tool [options]\n\n  ${yellow}Options:${reset}\n    ${cyan}-g, --global${reset}              Install globally (to config directory)\n    ${cyan}-l, --local${reset}               Install locally (to current directory)\n    ${cyan}--claude${reset}                  Install for Claude Code only\n    ${cyan}--opencode${reset}                Install for OpenCode only\n    ${cyan}--gemini${reset}                  Install for Gemini only\n    ${cyan}--codex${reset}                   Install for Codex only\n    ${cyan}--copilot${reset}                 Install for Copilot only\n    ${cyan}--antigravity${reset}             Install for Antigravity only\n    ${cyan}--cursor${reset}                  Install for Cursor only\n    ${cyan}--windsurf${reset}                Install for Windsurf only\n    ${cyan}--all${reset}                     Install for all runtimes\n    ${cyan}--validate${reset}                Validate an existing install\n    ${cyan}--repair${reset}                  Reinstall over an existing install\n    ${cyan}-u, --uninstall${reset}           Uninstall ANS (remove all ANS files)\n    ${cyan}-c, --config-dir <path>${reset}   Specify custom config directory\n    ${cyan}-h, --help${reset}                Show this help message\n\n  ${yellow}Examples:${reset}\n    ${dim}# Interactive install (prompts for runtime and location)${reset}\n    npx ans-tool\n\n    ${dim}# Install for Claude Code globally${reset}\n    npx ans-tool --claude --global\n\n    ${dim}# Install for Codex globally${reset}\n    npx ans-tool --codex --global\n\n    ${dim}# Validate an existing Codex install${reset}\n    npx ans-tool --codex --global --validate\n\n    ${dim}# Repair a Claude install in the current project${reset}\n    npx ans-tool --claude --local --repair\n\n    ${dim}# Install for all runtimes globally${reset}\n    npx ans-tool --all --global\n\n    ${dim}# Install to custom config directory${reset}\n    npx ans-tool --codex --global --config-dir ~/.codex-work\n\n    ${dim}# Uninstall ANS from Cursor globally${reset}\n    npx ans-tool --cursor --global --uninstall\n\n  ${yellow}Notes:${reset}\n    The --config-dir option is useful when you have multiple configurations.\n    It takes priority over CLAUDE_CONFIG_DIR / GEMINI_CONFIG_DIR / CODEX_HOME / COPILOT_CONFIG_DIR / ANTIGRAVITY_CONFIG_DIR / CURSOR_CONFIG_DIR / WINDSURF_CONFIG_DIR environment variables.\n`);
 }
 
 /**
@@ -3293,6 +3286,7 @@ function validateHookFields(settings) {
  */
 function uninstall(isGlobal, runtime = 'claude') {
   const isOpencode = runtime === 'opencode';
+  const isGemini = runtime === 'gemini';
   const isCodex = runtime === 'codex';
   const isCopilot = runtime === 'copilot';
   const isAntigravity = runtime === 'antigravity';
@@ -3446,41 +3440,8 @@ function uninstall(isGlobal, runtime = 'claude') {
         console.log(`  ${green}✓${reset} Removed ${skillCount} Antigravity skills`);
       }
     }
-  } else if (isCursor) {
-    // Cursor: remove skills/ans-*/ directories (same layout as Codex skills)
-    const skillsDir = path.join(targetDir, 'skills');
-    if (fs.existsSync(skillsDir)) {
-      let skillCount = 0;
-      const entries = fs.readdirSync(skillsDir, { withFileTypes: true });
-      for (const entry of entries) {
-        if (entry.isDirectory() && entry.name.startsWith('ans-')) {
-          fs.rmSync(path.join(skillsDir, entry.name), { recursive: true });
-          skillCount++;
-        }
-      }
-      if (skillCount > 0) {
-        removedCount++;
-        console.log(`  ${green}✓${reset} Removed ${skillCount} Cursor skills`);
-      }
-    }
-  } else if (isWindsurf) {
-    // Windsurf: remove skills/ans-*/ directories (same layout as Cursor skills)
-    const skillsDir = path.join(targetDir, 'skills');
-    if (fs.existsSync(skillsDir)) {
-      let skillCount = 0;
-      const entries = fs.readdirSync(skillsDir, { withFileTypes: true });
-      for (const entry of entries) {
-        if (entry.isDirectory() && entry.name.startsWith('ans-')) {
-          fs.rmSync(path.join(skillsDir, entry.name), { recursive: true });
-          skillCount++;
-        }
-      }
-      if (skillCount > 0) {
-        removedCount++;
-        console.log(`  ${green}✓${reset} Removed ${skillCount} Windsurf skills`);
-      }
-    }
   } else {
+    // Claude Code & Gemini: nested structure in commands/ans/ directory
     const ansCommandsDir = path.join(targetDir, 'commands', 'ans');
     if (fs.existsSync(ansCommandsDir)) {
       fs.rmSync(ansCommandsDir, { recursive: true });
@@ -3691,13 +3652,22 @@ function configureOpencodePermissions(isGlobal = true) {
   
   let modified = false;
 
-  // Configure read permission
-  if (!config.permission.read || typeof config.permission.read !== 'object') {
+  // Configure read permission — only add ANS path, preserve existing permissions
+  if (config.permission.read && typeof config.permission.read === 'string') {
+    // User has a global permission string like "allow-all" — convert to object with ANS path
+    const existingValue = config.permission.read;
     config.permission.read = {};
-  }
-  if (config.permission.read[ansPath] !== 'allow') {
     config.permission.read[ansPath] = 'allow';
+    config.permission.read._preserved_global = existingValue;
     modified = true;
+  } else {
+    if (!config.permission.read || typeof config.permission.read !== 'object') {
+      config.permission.read = {};
+    }
+    if (config.permission.read[ansPath] !== 'allow') {
+      config.permission.read[ansPath] = 'allow';
+      modified = true;
+    }
   }
 
   // Configure external_directory permission (the safety guard for paths outside project)
@@ -4334,7 +4304,7 @@ function install(isGlobal, runtime = 'claude') {
       console.warn(`  ${yellow}⚠${reset}  Could not configure Codex hooks: ${e.message}`);
     }
 
-    return { settingsPath: null, settings: null, statuslineCommand: null, runtime };
+    return { settingsPath: null, settings: null, runtime };
   }
 
   if (isCopilot) {
@@ -4347,209 +4317,37 @@ function install(isGlobal, runtime = 'claude') {
       console.log(`  ${green}✓${reset} Generated copilot-instructions.md`);
     }
     // Copilot: no settings.json, no hooks, no statusline (like Codex)
-    return { settingsPath: null, settings: null, statuslineCommand: null, runtime };
+    return { settingsPath: null, settings: null, runtime };
   }
 
   if (isCursor) {
     // Cursor uses skills — no config.toml, no settings.json hooks needed
-    return { settingsPath: null, settings: null, statuslineCommand: null, runtime };
+    return { settingsPath: null, settings: null, runtime };
   }
 
   if (isWindsurf) {
     // Windsurf uses skills — no config.toml, no settings.json hooks needed
-    return { settingsPath: null, settings: null, statuslineCommand: null, runtime };
+    return { settingsPath: null, settings: null, runtime };
   }
 
-  return { settingsPath: null, settings: null, statuslineCommand: null, runtime };
+  return { settingsPath: null, settings: null, runtime };
 }
 
 /**
  * Apply statusline config, then print completion message
  */
-function finishInstall(settingsPath, settings, statuslineCommand, shouldInstallStatusline, runtime = 'claude', isGlobal = true) {
-  const isOpencode = runtime === 'opencode';
-  const isCodex = runtime === 'codex';
-  const isCopilot = runtime === 'copilot';
-  const isCursor = runtime === 'cursor';
-  const isWindsurf = runtime === 'windsurf';
-
-  if (shouldInstallStatusline && !isOpencode && !isCodex && !isCopilot && !isCursor && !isWindsurf) {
-    settings.statusLine = {
-      type: 'command',
-      command: statuslineCommand
-    };
-    console.log(`  ${green}✓${reset} Configured statusline`);
-  }
-
-  // Write settings when runtime supports settings.json
-  if (!isCodex && !isCopilot && !isCursor && !isWindsurf) {
-    writeSettings(settingsPath, settings);
-  }
-
-  // Configure OpenCode permissions
-  if (isOpencode) {
-    configureOpencodePermissions(isGlobal);
-  }
-
-  // For non-Claude runtimes, set resolve_model_ids: "omit" in ~/.ans/defaults.json
-  // so resolveModelInternal() returns '' instead of Claude aliases (opus/sonnet/haiku)
-  // that the runtime can't resolve. Users can still use model_overrides for explicit IDs.
-  // See #1156.
-  if (runtime !== 'claude') {
-    const ansDir = path.join(os.homedir(), '.ans');
-    const defaultsPath = path.join(ansDir, 'defaults.json');
-    try {
-      fs.mkdirSync(ansDir, { recursive: true });
-      let defaults = {};
-      try { defaults = JSON.parse(fs.readFileSync(defaultsPath, 'utf8')); } catch { /* new file */ }
-      if (defaults.resolve_model_ids !== 'omit') {
-        defaults.resolve_model_ids = 'omit';
-        fs.writeFileSync(defaultsPath, JSON.stringify(defaults, null, 2) + '\n');
-        console.log(`  ${green}✓${reset} Set resolve_model_ids: "omit" in ~/.ans/defaults.json`);
-      }
-    } catch (e) {
-      console.log(`  ${yellow}⚠${reset} Could not write ~/.ans/defaults.json: ${e.message}`);
-    }
-  }
-
-  let program = 'Claude Code';
-  if (runtime === 'opencode') program = 'OpenCode';
-  if (runtime === 'gemini') program = 'Gemini';
-  if (runtime === 'codex') program = 'Codex';
-  if (runtime === 'copilot') program = 'Copilot';
-  if (runtime === 'antigravity') program = 'Antigravity';
-  if (runtime === 'cursor') program = 'Cursor';
-
-  let command = '/ans:new-project';
-  if (runtime === 'opencode') command = '/ans-new-project';
-  if (runtime === 'codex') command = '$ans-new-project';
-  if (runtime === 'copilot') command = '/ans-new-project';
-  if (runtime === 'antigravity') command = '/ans-new-project';
-  if (runtime === 'cursor') command = 'ans-new-project (mention the skill name)';
-  console.log(`
-  ${green}Done!${reset} Open a blank directory in ${program} and run ${cyan}${command}${reset}.
-
-  ${cyan}Join the community:${reset} https://discord.gg/ans
-`);
-}
-
 /**
  * Handle statusline configuration with optional prompt
  */
-function handleStatusline(settings, isInteractive, callback) {
-  const hasExisting = settings.statusLine != null;
-  console.log(settings)
-
-  if (!hasExisting) {
-    callback(true);
-    return;
-  }
-
-  if (forceStatusline) {
-    callback(true);
-    return;
-  }
-
-  if (!isInteractive) {
-    console.log(`  ${yellow}⚠${reset} Skipping statusline (already configured)`);
-    console.log(`    Use ${cyan}--force-statusline${reset} to replace\n`);
-    callback(false);
-    return;
-  }
-
-  const existingCmd = settings.statusLine.command || settings.statusLine.url || '(custom)';
-
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-  });
-
-  console.log(`
-  ${yellow}⚠${reset} Existing statusline detected\n
-  Your current statusline:
-    ${dim}command: ${existingCmd}${reset}
-
-  ANS includes a statusline showing:
-    • Model name
-    • Current task (from todo list)
-    • Context window usage (color-coded)
-
-  ${cyan}1${reset}) Keep existing
-  ${cyan}2${reset}) Replace with ANS statusline
-`);
-
-  rl.question(`  Choice ${dim}[1]${reset}: `, (answer) => {
-    rl.close();
-    const choice = answer.trim() || '1';
-    callback(choice === '2');
-  });
-}
-
 /**
  * Install the ANS SDK globally via npm.
  * @returns {boolean} true if install succeeded
  */
-function installSdk() {
-  const sdkVersion = pkg.version;
-  const sdkPkg = `@ans-build/sdk@${sdkVersion}`;
-  console.log(`\n  ${cyan}Installing ANS SDK...${reset}`);
-  console.log(`  ${dim}npm install -g ${sdkPkg}${reset}\n`);
-  try {
-    require('child_process').execSync(`npm install -g ${sdkPkg}`, { stdio: 'inherit' });
-    console.log(`\n  ${green}✓${reset} ANS SDK installed (${cyan}ans-sdk${reset} command available)`);
-    return true;
-  } catch (e) {
-    console.log(`\n  ${yellow}⚠${reset} SDK install failed: ${e.message}`);
-    console.log(`  ${dim}You can install it manually: npm install -g ${sdkPkg}${reset}`);
-    return false;
-  }
-}
-
 /**
  * Prompt the user to optionally install the ANS SDK.
  * Called after runtime installation completes.
  * @param {Function} callback - called with true/false
  */
-function promptSdk(callback) {
-  if (!process.stdin.isTTY) {
-    callback(false);
-    return;
-  }
-
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-  });
-
-  let answered = false;
-
-  rl.on('close', () => {
-    if (!answered) {
-      answered = true;
-      callback(false);
-    }
-  });
-
-  console.log(`
-  ${yellow}Also install the ANS SDK?${reset}
-
-  The SDK provides a standalone CLI for autonomous execution:
-    ${dim}ans-sdk init @prd.md${reset}    Bootstrap a project from a PRD
-    ${dim}ans-sdk auto${reset}            Run full autonomous lifecycle
-    ${dim}ans-sdk run "prompt"${reset}    Execute a milestone from text
-
-  ${cyan}1${reset}) No
-  ${cyan}2${reset}) Yes ${dim}(runs: npm install -g @ans-build/sdk)${reset}
-`);
-
-  rl.question(`  Choice ${dim}[1]${reset}: `, (answer) => {
-    answered = true;
-    rl.close();
-    const choice = answer.trim() || '1';
-    callback(choice === '2');
-  });
-}
-
 /**
  * Prompt for runtime selection
  */
@@ -4668,62 +4466,15 @@ function promptLocation(runtimes) {
  * Install ANS for all selected runtimes
  */
 function installAllRuntimes(runtimes, isGlobal, isInteractive) {
-  const results = [];
 
   for (const runtime of runtimes) {
     const result = install(isGlobal, runtime);
-    // Register Context Monitor Hook for settings.json compatible runtimes
-    registerContextMonitorHook(hasGlobal ? getGlobalDir(runtime) : path.join(process.cwd(), getDirName(runtime)), runtime);
-    results.push(result);
   }
 }
 
 /**
  * Register the ans-context-monitor.js hook in settings.json
  */
-function registerContextMonitorHook(targetDir, runtime) {
-  if (runtime === 'codex' || runtime === 'copilot' || runtime === 'cursor' || runtime === 'windsurf') return;
-
-  const settingsPath = path.join(targetDir, 'settings.json');
-  let settings = {};
-  try {
-    if (fs.existsSync(settingsPath)) {
-      settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
-    }
-  } catch (e) {}
-
-  if (!settings.hooks) settings.hooks = {};
-  // Handle Gemini's AfterTool and Claude's PostToolUse
-  const eventName = runtime === 'gemini' ? 'AfterTool' : 'PostToolUse';
-  if (!settings.hooks[eventName]) settings.hooks[eventName] = [];
-
-  const hookFile = path.join(targetDir, 'hooks', 'ans-context-monitor.js');
-  if (!fs.existsSync(hookFile)) {
-    console.log(`  ${yellow}⚠${reset} Skipped Context Monitor hook registration — ans-context-monitor.js not found`);
-    return;
-  }
-
-  const hookCommand = `node ${hookFile.replace(/\\/g, '/')}`;
-  
-  const exists = settings.hooks[eventName].some(h => 
-    h.hooks && h.hooks.some(sub => sub.command === hookCommand)
-  );
-
-  if (!exists) {
-    settings.hooks[eventName].push({
-      events: ["PostToolUse", "AfterTool"],
-      hooks: [
-        {
-          type: "command",
-          command: hookCommand
-        }
-      ]
-    });
-    fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + '\n');
-    console.log(`  ${green}✓${reset} Registered Context Monitor hook in settings.json`);
-  }
-}
-
 // Test-only exports — skip main logic when loaded as a module for testing
 if (process.env.ANS_TEST_MODE) {
   module.exports = {
@@ -4767,11 +4518,9 @@ if (process.env.ANS_TEST_MODE) {
     copyCommandsAsWindsurfSkills,
     writeManifest,
     reportLocalPatches,
-    validateHookFields,
     replaceClaudePathReferences,
     replaceSupportBundleRelativeRefs,
-    installSdk,
-    promptSdk,
+
   };
 } else {
 
@@ -4801,11 +4550,13 @@ if (hasGlobal && hasLocal) {
     // Validate installation using manifest tracking
     const targetDir = hasGlobal ? getGlobalDir(runtime, explicitConfigDir) : path.join(process.cwd(), getDirName(runtime));
     console.log(`  Validating ANS for ${cyan}${runtime}${reset} at ${cyan}${targetDir}${reset}...`);
-    const modified = saveLocalPatches(targetDir);
-    if (modified.length === 0) {
-      console.log(`  ${green}✓${reset} Installation is fully intact and verified.`);
+    // Verify installation integrity using manifest tracking (read-only)
+    const manifestPath = path.join(targetDir, "ans-manifest.json");
+    if (fs.existsSync(manifestPath)) {
+      const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
+      console.log(`  ${green}✓${reset} Installation manifest found (v${manifest.version || 'unknown'}).`);
     } else {
-      console.log(`  ${yellow}⚠${reset} Found ${modified.length} modified/corrupted files.`);
+      console.log(`  ${yellow}⚠${reset} No installation manifest found. Run --repair to reinstall.`);
     }
   }
 } else if (hasRepair) {

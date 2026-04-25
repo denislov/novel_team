@@ -9,7 +9,7 @@ Load support-bundle references and templates only when this workflow or its dele
 </required_reading>
 
 <available_agent_types>
-Valid ans-creator subagent types (use exact names):
+Valid ANS subagent types (use exact names):
 - ans-planner — 创建章节大纲
 - ans-plan-checker — 检查大纲一致性
 - ans-writer — 产出章节正文
@@ -277,6 +277,26 @@ if [[ "$SKIP_VERIFY" == "false" ]]; then
       ]
     )
   fi
+
+  # Re-verify after gap closure
+  echo ">>> Re-verifying after gap closure..."
+  Task(
+    subagent_type: "ans-verifier",
+    objective: "重新审核第 ${CHAPTER_NUMBER} 章（差距闭合后）",
+    files_to_read: [
+      "PROJECT.md",
+      "CHARACTERS.md",
+      "TIMELINE.md",
+      "STATE.md",
+      "chapters/outlines/outline-${CHAPTER_NUMBER}.md",
+      "chapters/chapter-${CHAPTER_NUMBER}.md",
+      "$ANS_COMMON_PITFALLS",
+      "$ANS_REVIEW_TEMPLATE",
+      "$ANS_STATE_TEMPLATE",
+      "$ANS_TIMELINE_TEMPLATE"
+    ],
+    output: "reviews/review-${CHAPTER_NUMBER}.md"
+  )
 fi
 ```
 

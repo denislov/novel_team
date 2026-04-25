@@ -277,6 +277,20 @@ fi
 - `files_to_read: [ "$ANS_RESEARCH_TEMPLATE" ]`
 - 若项目已产生阶段性设定，再附带 `PROJECT.md`
 
+调用 Researcher：
+
+```
+RESEARCH_FILES="$ANS_RESEARCH_TEMPLATE"
+[[ -f "PROJECT.md" ]] && RESEARCH_FILES="$RESEARCH_FILES PROJECT.md"
+
+Task(
+  subagent_type: "ans-researcher",
+  objective: "考据项目背景：${genre} ${timeline_start}",
+  files_to_read: [ $RESEARCH_FILES ],
+  output: "research/background.md"
+)
+```
+
 </research_phase>
 
 <architecture_phase>

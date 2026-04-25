@@ -187,7 +187,7 @@ function routeState(root, sub, rest, raw) {
 
 function routeChapter(root, sub, rest, raw) {
   const chapter = require('./lib/chapter.cjs');
-  const named = parseNamedArgs(rest, ['source'], ['force', 'dry-run']);
+  const named = parseNamedArgs(rest, ['source', 'chapter'], ['force', 'dry-run']);
   const chapterNum = rest[0] && /^\d+$/.test(rest[0]) ? rest[0] : null;
 
   switch (sub) {

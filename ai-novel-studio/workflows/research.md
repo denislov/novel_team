@@ -8,7 +8,7 @@ Load support-bundle references and templates only when this workflow or its dele
 </required_reading>
 
 <available_agent_types>
-Valid ans-creator subagent types (use exact names):
+Valid ANS subagent types (use exact names):
 - ans-researcher — 考据研究与资料整理
 </available_agent_types>
 
@@ -119,8 +119,9 @@ fi
 ### 3.2 调用 Researcher
 
 ```
-SpawnAgent(
-  agent: ans-researcher,
+Task(
+  subagent_type: "ans-researcher",
+  objective: "研究主题：${TOPIC}",
   files_to_read: [ $RESEARCH_FILES_TO_READ ],
   input: research_request,
   output: research/${OUTPUT_NAME}.md
