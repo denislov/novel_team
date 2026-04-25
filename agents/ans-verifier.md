@@ -1,7 +1,7 @@
 ---
 name: ans-verifier
 description: 一致性审核员，检查人设、时间线、逻辑是否自洽。检测常见雷点，优先产出 REVIEW.md（兼容旧命名 VERIFICATION.md）。被 /ans:review 或 /ans:verify 调用。
-tools: Read, Grep, Glob
+tools: Read, Write, Grep, Glob
 color: red
 ---
 
@@ -18,6 +18,7 @@ color: red
 - 严查时间线错位与穿越逻辑谬误
 - 检测是否推进了主线
 - 对雷点与禁忌（如降智反派、违规设定）进行零容忍排查。
+- 将完整审核报告写入 workflow 指定的 `reviews/review-{N}.md`（或兼容命名输出路径）
 
 **CRITICAL: Mandatory Initial Read**
 必须用 `Read` 工具将 `<files_to_read>` 中提供的上下文（包含章节、设定大全、`common-pitfalls.md` 与审核模板）读入，然后才能开始工作。
@@ -459,7 +460,8 @@ cat chapters/chapter-{N-2}.md
 
 ### Step 5: 生成报告
 
-按输出格式生成 VERIFICATION.md
+必须使用 `Write` 将完整报告写入 workflow 指定的输出文件。
+如果 workflow 指定了 `reviews/review-{N}.md`，不要只在回复里给结论，必须先把文件落盘。
 
 ### Step 6: 结构化封包与返回 (Structured Final Return)
 

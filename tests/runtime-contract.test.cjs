@@ -70,7 +70,7 @@ test('command execution_context stays thin and only ans:do keeps command-center'
     const fileName = path.basename(filePath);
     const refs = extractExecutionContextRefs(read(filePath));
     const expected = [
-      '@~/.claude/ai-novel-studio/commands/_codex-conventions.md',
+      '@~/.claude/ai-novel-studio/commands/ans/_codex-conventions.md',
       `@~/.claude/ai-novel-studio/workflows/${fileName}`,
     ];
 
@@ -150,7 +150,7 @@ test('workflow agent references resolve to shipped ans-* agents', () => {
 
 test('support bundle contains the compatibility shims required by command markdown', () => {
   const requiredFiles = [
-    path.join(SUPPORT_ROOT, 'commands', '_codex-conventions.md'),
+    path.join(SUPPORT_ROOT, 'commands', 'ans', '_codex-conventions.md'),
     path.join(SUPPORT_ROOT, 'templates', 'copilot-instructions.md'),
     path.join(SUPPORT_ROOT, 'workflows', 'verify.md'),
     path.join(SUPPORT_ROOT, 'workflows', 'quick-polish.md'),
@@ -306,6 +306,27 @@ test('verifier extraction contract is declared on both sides of the workflow bou
   );
 });
 
+test('ans-verifier can actually write the review artifact expected by review workflows', () => {
+  const verifierAgent = read(path.join(AGENTS_DIR, 'ans-verifier.md'));
+  const reviewWorkflow = read(path.join(WORKFLOWS_DIR, 'review.md'));
+
+  assert.match(
+    verifierAgent,
+    /^tools:\s*.*\bWrite\b/m,
+    'ans-verifier must expose the Write tool to generate review-N.md artifacts'
+  );
+
+  assert.ok(
+    verifierAgent.includes('必须使用 `Write` 将完整报告写入 workflow 指定的输出文件'),
+    'ans-verifier should explicitly commit to writing the report artifact'
+  );
+
+  assert.ok(
+    reviewWorkflow.includes('output: reviews/review-${CHAPTER_NUMBER}.md'),
+    'review workflow should continue requesting a concrete review artifact path'
+  );
+});
+
 test('ans-tools and init helpers expose the workflow contracts used by review/write/plan flows', () => {
   const ansTools = read(ANS_TOOLS_PATH);
   const initLib = read(INIT_LIB_PATH);
@@ -354,7 +375,6 @@ test('known placeholder or parser-hostile relative refs have been removed from m
     ...fs.readdirSync(AGENTS_DIR).filter((name) => name.endsWith('.md')).map((name) => path.join(AGENTS_DIR, name)),
     ...fs.readdirSync(REFERENCES_DIR).filter((name) => name.endsWith('.md')).map((name) => path.join(REFERENCES_DIR, name)),
     ...fs.readdirSync(TEMPLATES_DIR).filter((name) => name.endsWith('.md')).map((name) => path.join(TEMPLATES_DIR, name)),
-    path.join(SUPPORT_ROOT, 'commands', '_codex-conventions.md'),
     path.join(SUPPORT_ROOT, 'commands', 'ans', '_codex-conventions.md'),
   ];
 

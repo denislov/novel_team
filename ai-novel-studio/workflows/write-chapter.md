@@ -218,7 +218,8 @@ if [[ "$SKIP_VERIFY" == "false" ]]; then
       "$ANS_REVIEW_TEMPLATE",
       "$ANS_STATE_TEMPLATE",
       "$ANS_TIMELINE_TEMPLATE"
-    ]
+    ],
+    output: "reviews/review-${CHAPTER_NUMBER}.md"
   )
   
   # 拦截 ## VERIFICATION COMPLETE

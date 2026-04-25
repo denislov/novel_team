@@ -190,9 +190,31 @@ Task(
 ```bash
 RESULTS=()
 for chapter in $CHAPTER_LIST; do
-  # 调用 verifier，并沿用单章模式的 files_to_read
-  result=$(SpawnAgent ans-verifier chapter=$chapter)
-  RESULTS+=("$result")
+  CHAPTER_CONTEXT=$(node bin/ans-tools.cjs init review "${chapter}" --raw)
+  CHAPTER_PATH=$(echo "$CHAPTER_CONTEXT" | node -e "const d=JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));console.log(d.chapter_path||'')" 2>/dev/null)
+  OUTLINE_PATH=$(echo "$CHAPTER_CONTEXT" | node -e "const d=JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));console.log(d.outline_path||'')" 2>/dev/null)
+
+  Task(
+    subagent_type: "ans-verifier",
+    input: {
+      files_to_read: [
+        CHAPTER_PATH,
+        OUTLINE_PATH,
+        "PROJECT.md",
+        "CHARACTERS.md",
+        "TIMELINE.md",
+        "STATE.md",
+        "$ANS_COMMON_PITFALLS",
+        "$ANS_REVIEW_TEMPLATE",
+        "$ANS_STATE_TEMPLATE",
+        "$ANS_TIMELINE_TEMPLATE"
+      ],
+      chapter_number: chapter
+    },
+    output: reviews/review-${chapter}.md
+  )
+
+  RESULTS+=("reviews/review-${chapter}.md")
 done
 ```
 
