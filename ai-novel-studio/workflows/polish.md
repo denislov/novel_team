@@ -219,7 +219,10 @@ AskUserQuestion(
 
 ```bash
 node bin/ans-tools.cjs chapter promote ${CHAPTER_NUMBER} --source polished
+node bin/ans-tools.cjs chapter normalize ${CHAPTER_NUMBER} --source formal
 ```
+
+`chapter normalize` 在 promote 之后执行 —— editor 可能仍然在 polished 文件中嵌入元数据尾段，promote 把整段拷过去，由 normalize 强制清理。幂等。
 
 </single_polish>
 

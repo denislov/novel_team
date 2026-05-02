@@ -23,11 +23,12 @@ Run the standard chapter production pipeline for a novel project.
 </objective>
 
 <execution_context>
-@~/.claude/ai-novel-studio/commands/ans/_codex-conventions.md
 @~/.claude/ai-novel-studio/workflows/write-chapter.md
 </execution_context>
 
 <context>
+ARGUMENTS: $ARGUMENTS
+
 Chapter number is taken from `$ARGUMENTS`.
 
 **Flags:**

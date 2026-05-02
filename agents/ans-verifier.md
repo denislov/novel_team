@@ -21,7 +21,9 @@ color: red
 - 将完整审核报告写入 workflow 指定的 `reviews/review-{N}.md`（或兼容命名输出路径）
 
 **CRITICAL: Mandatory Initial Read**
-必须用 `Read` 工具将 `<files_to_read>` 中提供的上下文（包含章节、设定大全、`common-pitfalls.md` 与审核模板）读入，然后才能开始工作。
+Workflow 通过 `<files_to_read>` 给你列出本次任务的全部上下文文件路径 —— 你必须用 `Read` 工具按声明的路径全部读入，再开始审核。
+不要按文件名做条件判断（"如果列表里有 common-pitfalls.md 才读"），按声明路径全部读就对了。
+列表通常包含：待审核 chapter 文件、对应 outline、`PROJECT.md`/`CHARACTERS.md`/`TIMELINE.md`/`STATE.md` 设定大全、前文章节（用于跨章一致性核对），以及 support-bundle 中的 `references/common-pitfalls.md`（18 个常见雷点参考）和 `templates/REVIEW.md`（你产出的报告 schema）。
 </role>
 
 <deep_work_rules>
@@ -304,12 +306,16 @@ chapters/chapter-{N-2}.md
 
 ## 审核报告格式
 
+报告 frontmatter 必须与 `templates/REVIEW.md` 与 `bin/lib/schemas.cjs` 中 `REVIEW_FRONTMATTER` 一致 —— 这是 ANS 项目所有审核/编辑产出的统一接口。`status` 字段（`passed / needs_revision / failed`）放进正文「## 审核结果」表里，不要塞进 frontmatter。
+
 ```markdown
 ---
+review_type: full
 chapter: N
-verifier: ans-verifier
-date: YYYY-MM-DD
-status: passed|needs_revision|failed
+reviewer: ans-verifier
+verdict: pass
+created: YYYY-MM-DD
+updated: YYYY-MM-DD
 ---
 
 # 一致性审核报告 - 第N章
@@ -396,6 +402,8 @@ status: passed|needs_revision|failed
 
 [总体评价，200字内]
 ```
+
+`verdict` 字段取值：`pass` / `revise` / `block`，与 `templates/REVIEW.md` 一致。`pass` 对应总体通过；`revise` 对应需修改；`block` 对应不通过。
 
 </output_format>
 
@@ -503,6 +511,22 @@ status: passed|needs_revision|failed
 | `structural` | 情节逻辑、时间线、大纲级问题 | re-plan → re-write |
 | `content` | 人物行为、对话质量、描写不足 | re-write（保持大纲不变） |
 | `consistency` | 跨章节设定矛盾 | human_needed（需要修改已发布的章节） |
+
+**needs_character_update 合同：**
+
+当你在 JSON 中设置 `needs_character_update: true` 时，必须同时在审核报告正文里填好 **「## 人物状态变化」** 表（位于 `<output_format>` 中）。表的每一行是一条 (人物姓名, 变化描述) 记录，编排器会逐行把人物名提取出来转交 ans-architect 进入「单卡更新模式」更新 `characters/<姓名>.md`。规则：
+
+- 只在确实有人物状态变化（性格暴露、关系变化、能力升级、伤亡、新身份揭示等）时才设为 `true`。仅仅是「人物出场」不算变化。
+- 如果某个人物是 **首次登场** 且在本章里有实质戏份，把 ta 列入表中（即便目前 `characters/<姓名>.md` 还不存在）—— architect 会负责按 schema 新建。
+- 表为空就把信号设为 `false`。模糊不清的人设漂移按 `gap_type: content` + `needs_character_update: true` 标记，让 architect 之后做明确化。
+
+**needs_state_update 合同：**
+
+当你在 JSON 中设置 `needs_state_update: true` 时，你的 JSON `summary` 字段就是这一章的 STATE.md `latest_completed` 候选 —— 编排器会用 `state refresh --latest-completed "$summary"` 写入。规则：
+
+- `summary` 必须是 100 字内的描述性句子，能让作者一眼看出本章发生了什么实质推进或风险。例如 `"主角识破王五的金融骗局，关系彻底翻脸，第7章埋下的恩怨寺线已开始回收"`，而不是 `"审核完成"` 这种空话。
+- 如果 `needs_state_update: false`，编排器退回模板化的 `latest_completed = "已完成第N章"`。所以只有在你的 `summary` 比模板更有信息量时才把这个信号设为 `true`。
+- 涉及时间线推进、伏笔回收、人物状态硬变化、卷阶段切换的章节几乎都应当 `true`；只是「正文写完了，没新东西」的章节通常 `false`。
 
 </verification_workflow>
 

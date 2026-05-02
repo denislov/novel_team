@@ -19,11 +19,12 @@ Use this command for fact checking, era reconstruction, professional knowledge l
 </objective>
 
 <execution_context>
-@~/.claude/ai-novel-studio/commands/ans/_codex-conventions.md
 @~/.claude/ai-novel-studio/workflows/research.md
 </execution_context>
 
 <context>
+ARGUMENTS: $ARGUMENTS
+
 **Arguments:**
 - `[topic]` — Research topic or question
 
@@ -35,6 +36,5 @@ Use this command for fact checking, era reconstruction, professional knowledge l
 
 <process>
 Execute the research workflow from @~/.claude/ai-novel-studio/workflows/research.md end-to-end.
-Interpret Claude-style workflow primitives using @~/.claude/ai-novel-studio/commands/ans/_codex-conventions.md.
 Preserve all workflow gates (topic clarification, source gathering, cross-checking, report generation).
 </process>

@@ -29,7 +29,7 @@ allow_inline_fallback: false
 
 ```bash
 # 使用 ans-tools.cjs init 替代散碎 grep——获取完整项目状态 JSON
-INIT=$(node "$HOME/.claude/ai-novel-studio/bin/ans-tools.cjs" init autonomous 2>/dev/null) || INIT=""
+INIT=$(node bin/ans-tools.cjs init autonomous 2>/dev/null) || INIT=""
 
 if [[ -z "$INIT" || "$INIT" == *"Error"* ]]; then
   echo "⚠️ ans-tools.cjs init 失败，回退到基础检查"
@@ -187,7 +187,7 @@ for CURRENT_CHAPTER in START..END:
 ### Step 1: 获取章节上下文
 
 ```bash
-CHAPTER_INIT=$(node "$HOME/.claude/ai-novel-studio/bin/ans-tools.cjs" init write-chapter "$CURRENT_CHAPTER" 2>/dev/null)
+CHAPTER_INIT=$(node bin/ans-tools.cjs init write-chapter "$CURRENT_CHAPTER" 2>/dev/null)
 ```
 
 从 `$CHAPTER_INIT` 提取：
@@ -219,7 +219,7 @@ Task(ans-writer):
 
 写作完成后执行字数检查：
 ```bash
-node "$HOME/.claude/ai-novel-studio/bin/ans-tools.cjs" chapter budget "$CURRENT_CHAPTER" --source draft
+node bin/ans-tools.cjs chapter budget "$CURRENT_CHAPTER" --source draft
 ```
 
 如果 `budget_status == over_ceiling`：要求 writer 分割或缩减。
@@ -289,10 +289,10 @@ if still gaps_found or human_needed:
 
 ```bash
 # Promote draft → formal
-node "$HOME/.claude/ai-novel-studio/bin/ans-tools.cjs" chapter promote "$CURRENT_CHAPTER" --source draft --force
+node bin/ans-tools.cjs chapter promote "$CURRENT_CHAPTER" --source draft --force
 
 # Refresh STATE.md（替代手动 perl 替换）
-node "$HOME/.claude/ai-novel-studio/bin/ans-tools.cjs" state refresh
+node bin/ans-tools.cjs state refresh
 ```
 
 </main_loop>
@@ -330,7 +330,7 @@ AskUserQuestion(
 当 `config.workflow.consistency_check == true` 时，每 5 章（可配置）运行结构化一致性检查：
 
 ```bash
-node "$HOME/.claude/ai-novel-studio/bin/ans-tools.cjs" validate consistency
+node bin/ans-tools.cjs validate consistency
 Task(ans-consistency-checker) range="1-$CURRENT_CHAPTER"
 ```
 

@@ -13,16 +13,16 @@ Shows the current project snapshot, identifies planning/writing/review gaps, rec
 </objective>
 
 <execution_context>
-@~/.claude/ai-novel-studio/commands/ans/_codex-conventions.md
 @~/.claude/ai-novel-studio/workflows/manager.md
 </execution_context>
 
 <context>
+ARGUMENTS: $ARGUMENTS
+
 No arguments required. Requires an active root-level novel project in the current directory.
 </context>
 
 <process>
 Execute the manager workflow from @~/.claude/ai-novel-studio/workflows/manager.md end-to-end.
-Interpret Claude-style workflow primitives using @~/.claude/ai-novel-studio/commands/ans/_codex-conventions.md.
 Maintain the dashboard loop until the user exits.
 </process>

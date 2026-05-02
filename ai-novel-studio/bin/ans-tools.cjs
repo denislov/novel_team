@@ -79,6 +79,8 @@ Commands:
   chapter list                      List all chapters with status
   chapter budget <N> [--source s]   Analyze chapter word budget
   chapter budget-sync <N>           Sync budget to frontmatter
+  chapter normalize <N> [--source s] [--dry-run]
+                                    Rewrite chapter to canonical schema
   chapter promote <N> [--source s]  Promote draft to formal
   chapter paths <N>                 Get artifact paths for chapter
 
@@ -199,12 +201,14 @@ function routeChapter(root, sub, rest, raw) {
       return chapter.cmdChapterBudget(root, chapterNum, named.source, raw);
     case 'budget-sync':
       return chapter.cmdChapterBudgetSync(root, chapterNum, named.source, raw);
+    case 'normalize':
+      return chapter.cmdChapterNormalize(root, chapterNum, named.source, named['dry-run'], raw);
     case 'promote':
       return chapter.cmdChapterPromote(root, chapterNum, named.source, named.force, named['dry-run'], raw);
     case 'paths':
       return chapter.cmdChapterPaths(root, chapterNum, raw);
     default:
-      error(`unknown chapter subcommand: ${sub}. Try: inspect, list, budget, budget-sync, promote, paths`);
+      error(`unknown chapter subcommand: ${sub}. Try: inspect, list, budget, budget-sync, normalize, promote, paths`);
   }
 }
 

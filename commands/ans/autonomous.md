@@ -24,11 +24,12 @@ Designed for batch creation with controlled pause points rather than single-chap
 </objective>
 
 <execution_context>
-@~/.claude/ai-novel-studio/commands/ans/_codex-conventions.md
 @~/.claude/ai-novel-studio/workflows/autonomous.md
 </execution_context>
 
 <context>
+ARGUMENTS: $ARGUMENTS
+
 **Flags:**
 - `--from=N` — Starting chapter, default is the next chapter from `STATE.md`
 - `--to=N` — Explicit ending chapter

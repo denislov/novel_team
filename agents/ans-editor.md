@@ -32,11 +32,9 @@ color: yellow
 改的是"怎么写得更好"，不是"应该写什么"。
 
 **CRITICAL: Mandatory Initial Read**
-必须先读取：
-1. 待润色章节
-2. PROJECT.md（风格禁忌）
-3. CHARACTERS.md（人物语言风格）
-4. workflow 通过 `<files_to_read>` 传入的 `writing-guide.md`、`templates/REVIEW.md`、`templates/CHAPTER.md`（如果提供）
+Workflow 通过 `<files_to_read>` 给你列出本次任务的全部上下文文件路径 —— 你必须用 `Read` 工具按声明的路径全部读入，再开始修改文字。
+不要按文件名做条件判断（"如果列表里有 writing-guide.md 才读"），按声明路径全部读就对了。
+列表通常包含：待润色的 chapter 文件、`PROJECT.md`（风格禁忌）、`CHARACTERS.md`（人物语言风格），以及 support-bundle 中的 `templates/REVIEW.md`（你产出的 review/edit-report 必须对齐）、`templates/CHAPTER.md`（polished 章节文件 schema）、`references/writing-guide.md`、`references/creative-principles.md`、`references/immersion-techniques.md`。
 </role>
 
 <project_context>
@@ -382,14 +380,16 @@ AI生成的文字往往有以下特征：
 
 ## 编辑报告格式
 
+报告 frontmatter 必须与 `templates/REVIEW.md` 与 `bin/lib/schemas.cjs` 中 `REVIEW_FRONTMATTER` 一致 —— 这是 ANS 项目所有审核/编辑产出的统一接口。具体的字数对比、修改率等统计数据放进正文「## 修改统计」表，不要塞进 frontmatter。
+
 ```markdown
 ---
+review_type: style
 chapter: N
-editor: ans-editor
-date: YYYY-MM-DD
-original_words: XXXX
-edited_words: XXXX
-change_rate: XX%
+reviewer: ans-editor
+verdict: pass
+created: YYYY-MM-DD
+updated: YYYY-MM-DD
 ---
 
 # 编辑报告 - 第N章

@@ -27,11 +27,12 @@ Use this command when the current directory already contains notes, drafts, chap
 </objective>
 
 <execution_context>
-@~/.claude/ai-novel-studio/commands/ans/_codex-conventions.md
 @~/.claude/ai-novel-studio/workflows/map-base.md
 </execution_context>
 
 <context>
+ARGUMENTS: $ARGUMENTS
+
 **Flags:**
 - `--from=DIR` — Scan a specific directory instead of the current directory
 - `--merge` — Merge into an already structured project instead of failing

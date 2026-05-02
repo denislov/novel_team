@@ -23,11 +23,12 @@ Use this command after one arc is stable and you need the next major stage desig
 </objective>
 
 <execution_context>
-@~/.claude/ai-novel-studio/commands/ans/_codex-conventions.md
 @~/.claude/ai-novel-studio/workflows/plan-arc.md
 </execution_context>
 
 <context>
+ARGUMENTS: $ARGUMENTS
+
 **Arguments:**
 - `[arc name]` — Name or label for the new arc
 

@@ -40,7 +40,7 @@ color: orange
 
 ```bash
 # 获取结构级一致性数据（人物名频率等）
-node "$ANS_TOOLS" validate consistency
+node bin/ans-tools.cjs validate consistency
 ```
 
 从 CLI 输出获取：
@@ -175,7 +175,7 @@ node "$ANS_TOOLS" validate consistency
 
 ### Step 1: 获取结构数据
 ```bash
-node "$ANS_TOOLS" validate consistency
+node bin/ans-tools.cjs validate consistency
 ```
 
 ### Step 2: 加载权威来源

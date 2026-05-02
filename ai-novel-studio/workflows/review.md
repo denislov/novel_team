@@ -80,6 +80,7 @@ ANS_COMMON_PITFALLS="$ANS_SUPPORT_ROOT/references/common-pitfalls.md"
 ANS_REVIEW_TEMPLATE="$ANS_SUPPORT_ROOT/templates/REVIEW.md"
 ANS_STATE_TEMPLATE="$ANS_SUPPORT_ROOT/templates/STATE.md"
 ANS_TIMELINE_TEMPLATE="$ANS_SUPPORT_ROOT/templates/TIMELINE.md"
+ANS_CHARACTER_CARD_TEMPLATE="$ANS_SUPPORT_ROOT/templates/CHARACTER-CARD.md"
 ```
 
 ### 参数说明
@@ -285,6 +286,68 @@ node bin/ans-tools.cjs state refresh
 保证 `STATE.md` 的下一步建议基于最新审核覆盖。
 
 </batch_review>
+
+<post_review_signals>
+
+## 4.5 后审核信号路由 (needs_character_update / needs_state_update)
+
+无论是单章还是批量审核，逐章扫描审核报告，对每章的结构化判定路由到下游：
+
+| 信号 | verifier 在哪里写 | 编排器接通到 |
+|------|-------------------|--------------|
+| `needs_character_update: true` | JSON flag + 报告正文「## 人物状态变化」表 | architect (mode: character_card_update) |
+| `needs_state_update: true` | JSON flag + 报告 `summary` 字段 | `state refresh --latest-completed "$summary"`（覆盖 4.4 的泛化模板） |
+
+```bash
+# 收集所有 needs_state_update=true 章节里 verifier 写的最有代表性的 summary，
+# 用作整批 review 完成时的 latest_completed 标签
+LATEST_STATE_SUMMARY=""
+
+for chapter in $CHAPTER_LIST; do
+  REPORT="reviews/review-${chapter}.md"
+  [[ ! -f "$REPORT" ]] && continue
+
+  VERDICT=$(node bin/ans-tools.cjs verify extract --report "$REPORT" 2>/dev/null) || continue
+
+  NEEDS_CHAR_UPDATE=$(echo "$VERDICT" | grep -o '"needs_character_update":\s*true' || true)
+  NEEDS_STATE_UPDATE=$(echo "$VERDICT" | grep -o '"needs_state_update":\s*true' || true)
+
+  if [[ -n "$NEEDS_CHAR_UPDATE" ]]; then
+    echo ">>> 第 ${chapter} 章 verifier 标记 needs_character_update=true，唤醒 architect 单卡更新模式..."
+    Task(
+      subagent_type: "ans-architect",
+      objective: "根据第 ${chapter} 章审核结果同步更新涉及人物的 characters/<姓名>.md 单卡",
+      files_to_read: [
+        "PROJECT.md",
+        "CHARACTERS.md",
+        "STATE.md",
+        "chapters/chapter-${chapter}.md",
+        "reviews/review-${chapter}.md",
+        "$ANS_CHARACTER_CARD_TEMPLATE"
+      ],
+      mode: "character_card_update"
+    )
+    # architect 不修改 CHARACTERS.md 总表 —— 总表的同步由 state refresh 处理。
+  fi
+
+  if [[ -n "$NEEDS_STATE_UPDATE" ]]; then
+    SUMMARY=$(echo "$VERDICT" | node -e "
+      const d = JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));
+      process.stdout.write(d.summary || '');
+    " 2>/dev/null || true)
+    if [[ -n "$SUMMARY" ]]; then
+      LATEST_STATE_SUMMARY="第${chapter}章: ${SUMMARY}"
+    fi
+  fi
+done
+
+# 如果至少一章触发了 needs_state_update，使用 verifier 的 summary 覆盖 4.4 的泛化 latest_completed
+if [[ -n "$LATEST_STATE_SUMMARY" ]]; then
+  node bin/ans-tools.cjs state refresh --latest-completed "$LATEST_STATE_SUMMARY"
+fi
+```
+
+</post_review_signals>
 
 <output_formats>
 

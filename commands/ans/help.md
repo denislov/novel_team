@@ -12,9 +12,12 @@ Output ONLY the reference content below. Do NOT add:
 </objective>
 
 <execution_context>
-@~/.claude/ai-novel-studio/commands/ans/_codex-conventions.md
 @~/.claude/ai-novel-studio/workflows/help.md
 </execution_context>
+
+<context>
+ARGUMENTS: $ARGUMENTS
+</context>
 
 <process>
 Output the complete novel command reference from the workflow file already loaded in `execution_context`.

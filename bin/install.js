@@ -1049,6 +1049,7 @@ Direct mapping:
 - \`Task(subagent_type="X", prompt="Y")\` → \`spawn_agent(agent_type="X", message="Y")\`
 - \`Task(model="...")\` → omit (Codex uses per-role config, not inline model selection)
 - \`fork_context: false\` by default — ANS agents load their own context via \`<files_to_read>\` blocks
+- \`Task(..., output: "path/to/file.md")\` → instruct the spawned agent to write its primary artifact to that exact path; do not improvise filenames or directories.
 
 Parallel fan-out:
 - Spawn multiple agents → collect agent IDs → \`wait(ids)\` for all to complete
@@ -1056,6 +1057,12 @@ Parallel fan-out:
 Result parsing:
 - Look for structured markers in agent output: \`CHECKPOINT\`, \`PLAN COMPLETE\`, \`SUMMARY\`, etc.
 - \`close_agent(id)\` after collecting results from each agent
+
+## D. Project Root & Fail-Closed Conventions
+- The current working directory is the novel project root. Reference project files as relative paths — \`PROJECT.md\`, \`CHARACTERS.md\`, \`chapters/chapter-N.md\`, \`characters/<name>.md\`, \`reviews/review-N.md\` — never absolute.
+- Core files live directly in the project root: \`PROJECT.md\`, \`CHARACTERS.md\`, \`TIMELINE.md\`, \`ROADMAP.md\`, \`STATE.md\`. Structured artifacts live under \`chapters/\`, \`characters/\`, \`research/\`, \`reviews/\`.
+- Support-bundle files (templates, references) live under the absolute path the workflow exports as \`$ANS_SUPPORT_ROOT\` (set by the workflow's init block). Do not improvise paths like \`~/.claude/...\` — use whatever the workflow handed you.
+- If a required ans-* agent is unavailable in this Codex install, halt and tell the user to run \`ans-tool --codex --global --validate\` (or \`node bin/install.js --codex --local --validate\` from a source checkout) before retrying. Never silently inline a delegated stage.
 </codex_skill_adapter>`;
 }
 

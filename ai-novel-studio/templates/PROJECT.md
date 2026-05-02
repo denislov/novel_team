@@ -12,10 +12,12 @@ planning_unit: chapter
 target_length_band: medium_long
 genre: [题材]
 era: [起始时间/世界线]
-target_words: [目标字数]
+target_words: [目标总字数]
 chapter_words: 3000
 chapter_word_ceiling: 4000
 target_chapters: [目标章数]
+target_volumes: [目标卷数；仅 long_form 有值，其它形态留空]
+target_stories: [目标故事篇数；仅 story_collection 有值，其它形态留空]
 status: 规划中
 created: YYYY-MM-DD
 updated: YYYY-MM-DD

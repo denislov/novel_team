@@ -13,9 +13,12 @@ Use this when you need situational awareness before continuing work.
 </objective>
 
 <execution_context>
-@~/.claude/ai-novel-studio/commands/ans/_codex-conventions.md
 @~/.claude/ai-novel-studio/workflows/progress.md
 </execution_context>
+
+<context>
+ARGUMENTS: $ARGUMENTS
+</context>
 
 <process>
 Execute the workflow `workflows/progress.md` using the exact arguments provided.

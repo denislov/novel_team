@@ -115,13 +115,15 @@ cat CHARACTERS.md
 
 <add_character>
 
-## 3. 添加人物 (--add)
+## 3. 添加人物 (--add) — brainstorm-first
 
-### 3.1 收集人物信息
+新版只问最少的输入（姓名 + 角色定位 + 可选种子描述），由 ans-architect 在 brainstorm 模式下提议完整人物卡，用户审核迭代到满意后再 commit 落地。这避免了让用户在还没看到人物全貌时就被迫回答 8 个微决定（外貌细节、内在标签、行为准则等）。
+
+### 3.1 收集最小输入
 
 ```
 AskUserQuestion(
-  header: "新人物设定",
+  header: "新人物种子",
   questions: [
     {
       key: "name",
@@ -135,127 +137,154 @@ AskUserQuestion(
       required: true
     },
     {
-      key: "identity",
-      question: "身份/职业？",
-      followUp: "如：商人、警察、学生等"
-    },
-    {
-      key: "personality_core",
-      question: "性格核心？",
-      followUp: "用一句话概括，如：外表温和内心冷酷"
-    },
-    {
-      key: "external_tags",
-      question: "外在标签？",
-      followUp: "外貌特征、穿着习惯、标志性物件"
-    },
-    {
-      key: "internal_tags",
-      question: "内在标签？",
-      followUp: "癖好、习惯、小缺点"
-    },
-    {
-      key: "relation_to_protagonist",
-      question: "与主角的关系？",
-      options: ["盟友", "敌人", "中立", "复杂", "其他"]
-    },
-    {
-      key: "first_appearance",
-      question: "首次登场章节？",
-      followUp: "留空则稍后设定"
+      key: "character_seed",
+      question: "（可选）一段话描述这个人物。可以包含：身份/背景、性格倾向、与主角的关系、你想让 ta 在故事里做什么。模糊也没关系；越具体则提议越贴预期。"
     }
   ]
 )
 ```
 
-### 3.2 生成人物档案
+`identity` / `personality_core` / `external_tags` / `internal_tags` / `relation_to_protagonist` / `first_appearance` 全部由 architect 在 brainstorm 阶段提议；不再让用户先回答这些。
 
-调用 `ans-architect` 生成详细档案：
+### 3.2 头脑风暴 (mode: "brainstorm" + scope: "character")
+
+```bash
+ITERATION=1
+PROPOSAL=""
+ADJUSTMENT_NOTES=""
+```
 
 ```
-PROJECT=$(cat PROJECT.md)
-CHARACTERS=$(cat CHARACTERS.md)
+BRAINSTORM_FILES_TO_READ="PROJECT.md CHARACTERS.md TIMELINE.md STATE.md $ANS_WRITING_GUIDE $ANS_CHARACTERS_TEMPLATE $ANS_CHARACTER_CARD_TEMPLATE"
+[[ -f "ROADMAP.md" ]] && BRAINSTORM_FILES_TO_READ="$BRAINSTORM_FILES_TO_READ ROADMAP.md"
+# 如果该姓名的单卡已存在（如先前用 --add 创建过又被删除一半），加进来做参考
+[[ -f "characters/${name}.md" ]] && BRAINSTORM_FILES_TO_READ="$BRAINSTORM_FILES_TO_READ characters/${name}.md"
 
 Task(
   subagent_type: "ans-architect",
-  files_to_read: [
-    "PROJECT.md",
-    "CHARACTERS.md",
-    "$ANS_WRITING_GUIDE",
-    "$ANS_CHARACTERS_TEMPLATE",
-    "$ANS_CHARACTER_CARD_TEMPLATE"
-  ],
-  input: {
-    task: "create_character",
-    character_info: {
-      name: CHARACTER_NAME,
-      role: role,
-      identity: identity,
-      personality_core: personality_core,
-      external_tags: external_tags,
-      internal_tags: internal_tags,
-      relation_to_protagonist: relation_to_protagonist,
-      first_appearance: first_appearance
-    },
-    project: PROJECT,
-    existing_characters: CHARACTERS
-  },
-  output: characters/${CHARACTER_NAME}.md
+  objective: "为新人物 ${name} 头脑风暴一份完整人物卡（第 ${ITERATION} 轮）",
+  files_to_read: [ $BRAINSTORM_FILES_TO_READ ],
+  input: character_brainstorm_input,
+  mode: "brainstorm",
+  scope: "character"
 )
 ```
 
-### 3.3 更新 CHARACTERS.md
+### 3.3 character_brainstorm_input XML 形态
 
-将新人物添加到总表：
+```xml
+<character_brainstorm_input>
+  <iteration>${ITERATION}</iteration>
+  <scope>character</scope>
 
-```markdown
-### [姓名]
+  <name>${name}</name>
+  <role>${role}</role>
 
-**基础信息**
-- 身份：[身份]
-- 类型：[主角/配角/反派]
-- 首次登场：第 [N] 章
+  <character_seed>
+    [用户在 3.1 提供的可选 seed 描述，未做任何加工。空字符串表示用户想让 architect 完全发散]
+  </character_seed>
 
-**性格标签**
-- 核心：[性格核心]
-- 外在：[外在标签]
-- 内在：[内在标签]
+  <previous_proposal>
+    <!-- 仅在 ITERATION > 1 时填充 -->
+    [上一轮 CHARACTER BRAINSTORM COMPLETE 全文]
+  </previous_proposal>
 
-**与主角关系**
-- 关系类型：[盟友/敌人/中立]
-- 关系描述：[具体描述]
-
-**详细档案**：[characters/姓名.md](characters/姓名.md)
+  <adjustment_notes>
+    <!-- 仅在 ITERATION > 1 时填充，是用户在 3.5 输入的调整方向 -->
+    [用户调整意见原文]
+  </adjustment_notes>
+</character_brainstorm_input>
 ```
 
-### 3.4 展示结果
+### 3.4 Brainstorm 期望输出
+
+architect 在对话中以 `## CHARACTER BRAINSTORM COMPLETE` 头部返回，结构详见 `agents/ans-architect.md` 的「人物 brainstorm 模式」节。要点：
+
+- 必须包含 CHARACTER-CARD.md schema 的所有主要字段：表层身份 / 内核真相 / 背景经历 / 行为规则 / 关系网络 / 剧情作用 / 角色弧线 / 红线
+- 必须给出 `first_appearance`（章号）—— 基于现有 ROADMAP/STATE 推算合理位置
+- 必须输出 `### 思考过程` 解释设计思路
+- **不写任何文件**
+
+### 3.5 审核与迭代
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- 👤 人物创建完成
+ 👤 人物卡提议（${name}，第 ${ITERATION} 轮）
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-【姓名】[姓名]
-【类型】[主角/配角/反派]
-【身份】[身份]
+[architect 返回的 CHARACTER BRAINSTORM COMPLETE 全文]
 
-【性格核心】
-[性格核心]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
 
-【外在标签】
-[外在标签]
+```
+AskUserQuestion(
+  header: "审核人物卡",
+  question: "对以上人物设定满意吗？",
+  options: [
+    "确认通过 —— 让 architect 落地为 characters/${name}.md",
+    "需要调整 —— 我说一下哪里要改",
+    "完全推倒重来 —— 我重新写种子",
+    "取消"
+  ]
+)
+```
 
-【内在标签】
-[内在标签]
+分发：
 
-【与主角关系】
-[关系类型] - [关系描述]
+- **确认通过** → `APPROVED_PROPOSAL`，进入 §3.6 commit。
+- **需要调整** → 让用户描述「哪里不满意、想改成什么」，存入 `ADJUSTMENT_NOTES`，`ITERATION=$((ITERATION+1))`，回到 §3.2。
+- **完全推倒重来** → 回到 §3.1 重新询问 `character_seed`（保留 `name` 与 `role`），`ITERATION=1`。
+- **取消** → 退出工作流。
 
-【首次登场】
-第 [N] 章
+设 `MAX_ITERATIONS=10` 上限。
+
+### 3.6 落地 (mode: "commit" + scope: "character")
+
+调用 architect 的 commit 模式，把 `APPROVED_PROPOSAL` 写入：
+
+- `characters/${name}.md`：完整单卡（按 CHARACTER-CARD.md schema）
+- `CHARACTERS.md`：在「核心人物」表追加新行；`role == "主角"` 时还需更新主角块；包含 `[详细卡片](characters/${name}.md)` 链接
+
+```
+ARCHITECT_FILES_TO_READ="PROJECT.md CHARACTERS.md $ANS_WRITING_GUIDE $ANS_CHARACTERS_TEMPLATE $ANS_CHARACTER_CARD_TEMPLATE"
+
+Task(
+  subagent_type: "ans-architect",
+  objective: "落地新人物卡：${name}",
+  files_to_read: [ $ARCHITECT_FILES_TO_READ ],
+  input: {
+    mode: "commit",
+    scope: "character",
+    name: name,
+    role: role,
+    approved_proposal: APPROVED_PROPOSAL
+  },
+  mode: "commit",
+  scope: "character",
+  output: [
+    "characters/${name}.md",
+    CHARACTERS.md
+  ]
+)
+```
+
+architect commit 模式必须严格按 `APPROVED_PROPOSAL` 落地：所有字段（性格核心、外貌、行为准则、关系网络等）原文使用，不允许在 commit 时再发明新字段。
+
+### 3.7 展示结果
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ 👤 人物卡已落地
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+【姓名】${name}
+【类型】${role}
+【批准迭代次数】${ITERATION} 轮
 
 【文件位置】
-characters/[姓名].md
+- characters/${name}.md（详细单卡）
+- CHARACTERS.md（总表已更新）
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```

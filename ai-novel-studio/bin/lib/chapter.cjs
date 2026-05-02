@@ -91,6 +91,27 @@ function cmdChapterPromote(root, chapter, sourceKey, force, dryRun, raw) {
 }
 
 /**
+ * chapter normalize <N> [--source <key>] [--dry-run] — Rewrite a chapter file
+ * to the canonical CHAPTER_FRONTMATTER schema and the canonical body shape
+ * (## 正文 + optional ## 章末钩子). Strips '## 章节元数据', '## 创作备注',
+ * '## 自检清单', and any agent-improvised forbidden frontmatter fields.
+ * Backs up the original to chapters/draft/chapter-N-backup-<ts>.md before
+ * overwriting. Idempotent.
+ */
+function cmdChapterNormalize(root, chapter, sourceKey, dryRun, raw) {
+  if (!chapter || isNaN(Number(chapter))) {
+    core.error('chapter normalize requires a chapter number');
+  }
+  const result = chapterOps.normalizeChapter(
+    root,
+    Number(chapter),
+    sourceKey || 'formal',
+    { dryRun: !!dryRun }
+  );
+  core.output(result, raw);
+}
+
+/**
  * chapter paths <N> — Get all artifact paths for a chapter.
  */
 function cmdChapterPaths(root, chapter, raw) {
@@ -110,6 +131,7 @@ module.exports = {
   cmdChapterList,
   cmdChapterBudget,
   cmdChapterBudgetSync,
+  cmdChapterNormalize,
   cmdChapterPromote,
   cmdChapterPaths,
 };

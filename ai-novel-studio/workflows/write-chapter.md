@@ -41,10 +41,23 @@ ANS_WRITING_GUIDE="$ANS_SUPPORT_ROOT/references/writing-guide.md"
 ANS_COMMON_PITFALLS="$ANS_SUPPORT_ROOT/references/common-pitfalls.md"
 ANS_OUTLINE_TEMPLATE="$ANS_SUPPORT_ROOT/templates/CHAPTER-OUTLINE.md"
 ANS_CHAPTER_TEMPLATE="$ANS_SUPPORT_ROOT/templates/CHAPTER.md"
+ANS_CHARACTER_CARD_TEMPLATE="$ANS_SUPPORT_ROOT/templates/CHARACTER-CARD.md"
 ANS_REVIEW_TEMPLATE="$ANS_SUPPORT_ROOT/templates/REVIEW.md"
 ANS_STATE_TEMPLATE="$ANS_SUPPORT_ROOT/templates/STATE.md"
 ANS_TIMELINE_TEMPLATE="$ANS_SUPPORT_ROOT/templates/TIMELINE.md"
 ```
+
+> **Centralized files_to_read**: `INIT` 的 JSON 包含 `files_to_read.<role>` 字段（roles: `planner` / `plan_checker` / `writer` / `editor` / `verifier` / `architect_character_update`），由 `bin/lib/init.cjs:buildWriteChapterFilesToRead()` 单点维护。下面各 Task() 的 `files_to_read:` 数组可以用以下方式从中提取，避免每个工作流自己维护一份脆弱的拼接逻辑：
+>
+> ```bash
+> PLANNER_FILES=$(echo "$INIT" | node -e "
+>   const d = JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));
+>   console.log(d.files_to_read.planner.join(' '));
+> ")
+> # 然后 Task(... files_to_read: [ $PLANNER_FILES ] )
+> ```
+>
+> 当前下面的 Task() 调用仍保留显式的 inline 文件列表作为 fallback —— 这两套是同步的，先保留 inline 形式确保兼容，后续 workflow 可以渐进迁移到完全消费 `INIT.files_to_read`。如果 inline 列表与 `init.cjs` 的中央列表漂移了，以 `init.cjs` 为准。
 
 ## 2. 解析运行参数
 
@@ -302,14 +315,82 @@ fi
 
 </verification_phase>
 
+<character_update_phase>
+
+## 6.5 后审核信号路由 (needs_character_update / needs_state_update)
+
+审核完成后，从最新的 `reviews/review-${CHAPTER_NUMBER}.md` 中重新提取结构化判定，把 `needs_character_update` 与 `needs_state_update` 两个布尔信号路由给后续阶段。这是 verifier 与编排器之间的合同：
+
+| 信号 | 由 verifier 在哪里说 | 编排器接通到 |
+|------|----------------------|--------------|
+| `needs_character_update: true` | JSON flag + 报告正文「## 人物状态变化」表 | architect (mode: character_card_update) |
+| `needs_state_update: true` | JSON flag + 报告 `summary` 字段 | `state refresh --latest-completed "$VERIFIER_SUMMARY"` (用 verifier 写的 summary 作为 STATE.md 的 latest_completed 字段，而不是泛化的「已完成第N章」模板) |
+
+```bash
+NEEDS_CHAR_UPDATE=""
+NEEDS_STATE_UPDATE=""
+VERIFIER_SUMMARY=""
+
+if [[ "$SKIP_VERIFY" == "false" ]]; then
+  FINAL_VERIFY=$(node bin/ans-tools.cjs verify extract --report "reviews/review-${CHAPTER_NUMBER}.md")
+  NEEDS_CHAR_UPDATE=$(echo "$FINAL_VERIFY" | grep -o '"needs_character_update":\s*true' || true)
+  NEEDS_STATE_UPDATE=$(echo "$FINAL_VERIFY" | grep -o '"needs_state_update":\s*true' || true)
+  VERIFIER_SUMMARY=$(echo "$FINAL_VERIFY" | node -e "
+    const d = JSON.parse(require('fs').readFileSync('/dev/stdin','utf8'));
+    process.stdout.write(d.summary || '');
+  " 2>/dev/null || true)
+
+  if [[ -n "$NEEDS_CHAR_UPDATE" ]]; then
+    echo ">>> Verifier 标记 needs_character_update=true，唤醒 architect 进入单卡更新模式..."
+    Task(
+      subagent_type: "ans-architect",
+      objective: "根据第 ${CHAPTER_NUMBER} 章审核结果同步更新涉及人物的 characters/<姓名>.md 单卡",
+      files_to_read: [
+        "PROJECT.md",
+        "CHARACTERS.md",
+        "STATE.md",
+        "chapters/chapter-${CHAPTER_NUMBER}.md",
+        "reviews/review-${CHAPTER_NUMBER}.md",
+        "$ANS_CHARACTER_CARD_TEMPLATE"
+      ],
+      mode: "character_card_update"
+    )
+    # architect 应基于 review 的「人物状态变化」表逐人物更新或新建 characters/<姓名>.md。
+    # 它不修改 CHARACTERS.md 总表 —— 总表的同步由后续 state refresh 处理。
+  fi
+fi
+```
+
+注意：在 `<process>` 节顶部的变量声明里需要确保 `ANS_CHARACTER_CARD_TEMPLATE="$ANS_SUPPORT_ROOT/templates/CHARACTER-CARD.md"` 已经被 export，与 `ANS_WRITING_GUIDE`、`ANS_CHAPTER_TEMPLATE` 等模板变量并列。
+
+</character_update_phase>
+
 <state_update>
 
 ## 7. 结算与状态更新
 
-一切结束后，通过系统级工具更新中心化进度：
+### 7.1 规范化章节产物
+
+在状态更新之前，先把正式章节文件规范化为干净 schema —— 删除 writer/editor 可能漏写的 `## 章节元数据 / ## 创作备注 / ## 自检清单` 等元数据尾段，把 frontmatter 收口到 `bin/lib/schemas.cjs` 的 CHAPTER_FRONTMATTER 字段集合。`chapter normalize` 是幂等的，已经合规的文件会得到 `no_op: true` 不会重写：
 
 ```bash
-node bin/ans-tools.cjs state refresh --latest-completed "已完成第${CHAPTER_NUMBER}章" --next-goal "第$((CHAPTER_NUMBER + 1))章规划或核对"
+node bin/ans-tools.cjs chapter normalize ${CHAPTER_NUMBER} --source formal
+```
+
+### 7.2 刷新中心化状态
+
+如果 verifier 在 6.5 阶段标记了 `needs_state_update: true`，使用它写的 `summary` 作为 STATE.md 的 `latest_completed` —— 这比泛化的「已完成第N章」模板信息量更大。否则退回模板：
+
+```bash
+if [[ -n "$NEEDS_STATE_UPDATE" && -n "$VERIFIER_SUMMARY" ]]; then
+  node bin/ans-tools.cjs state refresh \
+    --latest-completed "$VERIFIER_SUMMARY" \
+    --next-goal "第$((CHAPTER_NUMBER + 1))章规划或核对"
+else
+  node bin/ans-tools.cjs state refresh \
+    --latest-completed "已完成第${CHAPTER_NUMBER}章" \
+    --next-goal "第$((CHAPTER_NUMBER + 1))章规划或核对"
+fi
 ```
 
 </state_update>

@@ -133,6 +133,14 @@ Task(
 - 默认硬上限为 `word_target + 1000`
 - 超出硬上限时，优先断章或顺延，不继续无限扩写
 
+### 3.4 规范化草稿
+
+在 writer 完成后，对 quick 草稿做一次 normalize —— 即便 quick 模式下 writer 偷懒写了 `## 章节元数据` 之类的尾段，也会被规范化删除，保证产物干净：
+
+```bash
+node bin/ans-tools.cjs chapter normalize ${CHAPTER_NUMBER} --source quick
+```
+
 </writing>
 
 <output>

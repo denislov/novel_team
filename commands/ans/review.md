@@ -20,11 +20,12 @@ Default target: the latest chapter if no explicit chapter argument is provided.
 </objective>
 
 <execution_context>
-@~/.claude/ai-novel-studio/commands/ans/_codex-conventions.md
 @~/.claude/ai-novel-studio/workflows/review.md
 </execution_context>
 
 <context>
+ARGUMENTS: $ARGUMENTS
+
 **Arguments:**
 - `[N]` — Review a single chapter
 - `[START-END]` — Review a chapter range

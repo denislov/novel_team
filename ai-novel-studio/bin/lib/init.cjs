@@ -12,6 +12,19 @@ const core = require('./core.cjs');
 const { loadConfig } = require('./config.cjs');
 const novelState = require('./novel_state.cjs');
 
+// ─── Support-bundle path resolution ──────────────────────────────────────────
+//
+// init.cjs lives at <support-root>/bin/lib/init.cjs, so the support bundle
+// root is two directories up. This is runtime-agnostic — the same logic
+// resolves correctly whether the install lives at ~/.claude/ai-novel-studio,
+// ~/.codex/ai-novel-studio, ~/.config/opencode/ai-novel-studio, etc.
+
+const SUPPORT_ROOT = path.resolve(__dirname, '..', '..');
+
+function supportPath(...parts) {
+  return path.join(SUPPORT_ROOT, ...parts);
+}
+
 // ─── Helper: attach common project metadata ──────────────────────────────────
 
 function withProjectMeta(root, result) {
@@ -45,6 +58,13 @@ function cmdInitWriteChapter(root, chapter, raw) {
     ? path.join(root, 'chapters', `chapter-${targetChapter - 1}.md`)
     : null;
 
+  // Build canonical files_to_read lists per agent role. Centralizing this
+  // here prevents drift across workflow markdown blocks and keeps each
+  // agent's input contract in one place. Workflows extract via:
+  //   node -e "console.log(JSON.parse(...).files_to_read.<role>.join(' '))"
+  const projectFiles = ['PROJECT.md', 'CHARACTERS.md', 'TIMELINE.md', 'STATE.md'];
+  const filesToRead = buildWriteChapterFilesToRead(root, targetChapter, writeTarget, projectFiles);
+
   const result = {
     // Config
     config,
@@ -75,9 +95,100 @@ function cmdInitWriteChapter(root, chapter, raw) {
     current_chapter: stats.current_chapter,
     total_words: stats.total_words,
     title: stats.title,
+
+    // Centralized files_to_read for each agent role this workflow will dispatch
+    files_to_read: filesToRead,
   };
 
   core.output(withProjectMeta(root, result), raw);
+}
+
+/**
+ * Build the canonical files_to_read map for the write-chapter workflow.
+ * Each key is an agent role; each value is an array of paths (project-relative
+ * for project files, absolute for support-bundle files).
+ *
+ * @param {string} root - novel project root
+ * @param {number} chapter - target chapter number
+ * @param {object} writeTarget - resolved chapter paths from novelState.resolveWriteTarget
+ * @param {string[]} projectFiles - the always-required project state files
+ */
+function buildWriteChapterFilesToRead(root, chapter, writeTarget, projectFiles) {
+  const prevChapter = (n) => path.join(root, 'chapters', `chapter-${n}.md`);
+  const prevOutline = (n) => path.join(root, 'chapters', 'outlines', `outline-${n}.md`);
+
+  const planner = [
+    ...projectFiles,
+    'ROADMAP.md',
+    supportPath('references', 'writing-guide.md'),
+    supportPath('templates', 'CHAPTER-OUTLINE.md'),
+  ];
+  if (chapter > 1 && core.fileExists(prevOutline(chapter - 1))) {
+    planner.push(prevOutline(chapter - 1));
+  }
+
+  const planChecker = [
+    ...projectFiles,
+    'ROADMAP.md',
+    writeTarget.outline_path,
+  ];
+
+  const writer = [
+    ...projectFiles,
+    writeTarget.outline_path,
+    supportPath('references', 'writing-guide.md'),
+    supportPath('templates', 'CHAPTER.md'),
+  ];
+  for (const offset of [1, 2]) {
+    const prev = chapter - offset;
+    if (prev > 0 && core.fileExists(prevChapter(prev))) {
+      writer.push(prevChapter(prev));
+    }
+  }
+
+  const editor = [
+    ...projectFiles,
+    writeTarget.chapter_path,
+    supportPath('references', 'writing-guide.md'),
+    supportPath('references', 'creative-principles.md'),
+    supportPath('references', 'immersion-techniques.md'),
+    supportPath('templates', 'REVIEW.md'),
+    supportPath('templates', 'CHAPTER.md'),
+  ];
+
+  const verifier = [
+    ...projectFiles,
+    writeTarget.outline_path,
+    writeTarget.chapter_path,
+    supportPath('references', 'common-pitfalls.md'),
+    supportPath('templates', 'REVIEW.md'),
+    supportPath('templates', 'STATE.md'),
+    supportPath('templates', 'TIMELINE.md'),
+  ];
+  for (const offset of [1, 2]) {
+    const prev = chapter - offset;
+    if (prev > 0 && core.fileExists(prevChapter(prev))) {
+      verifier.push(prevChapter(prev));
+    }
+  }
+
+  const architectCharacterUpdate = [
+    'PROJECT.md',
+    'CHARACTERS.md',
+    'STATE.md',
+    writeTarget.chapter_path,
+    writeTarget.review_path,
+    supportPath('templates', 'CHARACTER-CARD.md'),
+  ];
+
+  return {
+    planner,
+    plan_checker: planChecker,
+    writer,
+    editor,
+    verifier,
+    architect_character_update: architectCharacterUpdate,
+  };
 }
 
 // ─── init plan-batch [START-END] ─────────────────────────────────────────────
@@ -341,6 +452,8 @@ function cmdInitReview(root, chapterOrRange, raw) {
   const reviewPath = path.join(root, 'reviews', `review-${targetChapter}.md`);
   const outlinePath = path.join(root, 'chapters', 'outlines', `outline-${targetChapter}.md`);
 
+  const filesToRead = buildReviewFilesToRead(root, targetChapter, chapterPath, outlinePath, reviewPath);
+
   const result = {
     config,
     target_chapter: targetChapter,
@@ -355,9 +468,56 @@ function cmdInitReview(root, chapterOrRange, raw) {
     outline_exists: core.fileExists(outlinePath),
     story_format: stats.story_format,
     title: stats.title,
+    files_to_read: filesToRead,
   };
 
   core.output(withProjectMeta(root, result), raw);
+}
+
+/**
+ * Build the canonical files_to_read map for the review workflow.
+ */
+function buildReviewFilesToRead(root, chapter, chapterPath, outlinePath, reviewPath) {
+  const prevChapter = (n) => path.join(root, 'chapters', `chapter-${n}.md`);
+  const projectFiles = ['PROJECT.md', 'CHARACTERS.md', 'TIMELINE.md', 'STATE.md'];
+
+  const verifier = [
+    ...projectFiles,
+    outlinePath,
+    chapterPath,
+    supportPath('references', 'common-pitfalls.md'),
+    supportPath('templates', 'REVIEW.md'),
+    supportPath('templates', 'STATE.md'),
+    supportPath('templates', 'TIMELINE.md'),
+  ];
+  for (const offset of [1, 2]) {
+    const prev = chapter - offset;
+    if (prev > 0 && core.fileExists(prevChapter(prev))) {
+      verifier.push(prevChapter(prev));
+    }
+  }
+
+  const architectCharacterUpdate = [
+    'PROJECT.md',
+    'CHARACTERS.md',
+    'STATE.md',
+    chapterPath,
+    reviewPath,
+    supportPath('templates', 'CHARACTER-CARD.md'),
+  ];
+
+  const consistencyChecker = [
+    ...projectFiles,
+    'ROADMAP.md',
+  ];
+  // For batch consistency-check, the workflow expands chapter list itself;
+  // the verifier role above already includes per-chapter prev-2 context.
+
+  return {
+    verifier,
+    architect_character_update: architectCharacterUpdate,
+    consistency_checker: consistencyChecker,
+  };
 }
 
 // ─── init progress ────────────────────────────────────────────────────────────

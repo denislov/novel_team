@@ -20,11 +20,12 @@ Default target: the latest completed chapter if no explicit chapter argument is 
 </objective>
 
 <execution_context>
-@~/.claude/ai-novel-studio/commands/ans/_codex-conventions.md
 @~/.claude/ai-novel-studio/workflows/polish.md
 </execution_context>
 
 <context>
+ARGUMENTS: $ARGUMENTS
+
 **Arguments:**
 - `[N]` — Polish a single chapter
 - `[START-END]` — Polish a chapter range

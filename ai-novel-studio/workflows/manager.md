@@ -13,7 +13,7 @@ Read all files referenced by the invoking prompt's execution_context before star
 通过 ans-tools.cjs 获取完整项目状态（替代 grep 拼凑）：
 
 ```bash
-INIT=$(node "$HOME/.claude/ai-novel-studio/bin/ans-tools.cjs" init manager 2>/dev/null) || INIT=""
+INIT=$(node bin/ans-tools.cjs init manager 2>/dev/null) || INIT=""
 
 if [[ -z "$INIT" || "$INIT" == *"Error"* ]]; then
   echo "未检测到结构化小说项目。空目录先运行 /ans:new-project；已有资料先运行 /ans:map-base"
