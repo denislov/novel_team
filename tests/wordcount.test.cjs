@@ -92,3 +92,51 @@ test('countBatch on empty input returns empty arrays and zero aggregate', () => 
   assert.strictEqual(result.aggregate.missing_count, 0);
   assert.strictEqual(result.aggregate.total_chars, 0);
 });
+
+test('resolveScope handles single, range, all, and rejects garbage input', () => {
+  const root = makeProjectFixture();
+  writeChapter(root, 1, ['---', 'chapter: 1', '---', '', '# 第1章', '', '## 正文', '', 'A']);
+  writeChapter(root, 2, ['---', 'chapter: 2', '---', '', '# 第2章', '', '## 正文', '', 'B']);
+  writeChapter(root, 5, ['---', 'chapter: 5', '---', '', '# 第5章', '', '## 正文', '', 'C']);
+
+  // Single
+  const single = wordcount.resolveScope(root, { positional: '5', all: false });
+  assert.strictEqual(single.scope, 'single');
+  assert.deepEqual(single.requested, { chapters: [5] });
+
+  // Range
+  const range = wordcount.resolveScope(root, { positional: '1-3', all: false });
+  assert.strictEqual(range.scope, 'range');
+  assert.deepEqual(range.requested, { chapters: [1, 2, 3] });
+
+  // All — walks chapters/ directory
+  const all = wordcount.resolveScope(root, { positional: null, all: true });
+  assert.strictEqual(all.scope, 'all');
+  assert.deepEqual(all.requested, { chapters: [1, 2, 5] });
+
+  // Garbage
+  assert.throws(
+    () => wordcount.resolveScope(root, { positional: 'abc', all: false }),
+    /requires <N>, <N-M>, or --all/
+  );
+});
+
+test('countSingle excludes fenced code blocks from prose count', () => {
+  const root = makeProjectFixture();
+  writeChapter(root, 1, [
+    '---', 'chapter: 1', '---', '',
+    '# 第1章', '',
+    '## 正文', '',
+    '正常一段五字',
+    '',
+    '```',
+    '这段代码不算字数因为在围栏内',
+    '```',
+    '',
+    '又一段六个字。',
+  ]);
+
+  const result = wordcount.countSingle(root, 1, 'formal');
+  // '正常一段五字' (6) + '又一段六个字。' (7) = 13
+  assert.strictEqual(result.prose_chars, 13);
+});

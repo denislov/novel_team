@@ -64,8 +64,35 @@ function countBatch(root, chapterNumbers, source) {
   };
 }
 
+function resolveScope(root, { positional, all }) {
+  if (all) {
+    const files = chapterFiles(root);
+    const chapters = files
+      .map((f) => chapterNumberFromName(path.basename(f), 'chapter'))
+      .filter((n) => Number.isInteger(n))
+      .sort((a, b) => a - b);
+    return { scope: 'all', requested: { chapters } };
+  }
+  if (typeof positional === 'string' && /^\d+$/.test(positional)) {
+    return { scope: 'single', requested: { chapters: [Number.parseInt(positional, 10)] } };
+  }
+  if (typeof positional === 'string' && /^\d+-\d+$/.test(positional)) {
+    const [startStr, endStr] = positional.split('-');
+    const start = Number.parseInt(startStr, 10);
+    const end = Number.parseInt(endStr, 10);
+    if (end < start) {
+      throw new Error(`chapter wordcount range invalid: ${positional} (end < start)`);
+    }
+    const chapters = [];
+    for (let n = start; n <= end; n += 1) chapters.push(n);
+    return { scope: 'range', requested: { chapters } };
+  }
+  throw new Error('chapter wordcount requires <N>, <N-M>, or --all');
+}
+
 module.exports = {
   countSingle,
   countBatch,
+  resolveScope,
   COUNT_BASIS,
 };
