@@ -83,6 +83,8 @@ Commands:
                                     Rewrite chapter to canonical schema
   chapter promote <N> [--source s]  Promote draft to formal
   chapter paths <N>                 Get artifact paths for chapter
+  chapter wordcount <N|N-M|--all>   Reliable prose-only char count
+                                    [--source s] [--raw] [--pick <field>]
 
   init write-chapter [N]            Context for write-chapter workflow
   init plan-batch [START-END]       Context for plan-batch workflow
@@ -119,7 +121,7 @@ function main() {
       case 'state':
         return routeState(root, subcommand, rest, raw);
       case 'chapter':
-        return routeChapter(root, subcommand, rest, raw);
+        return routeChapter(root, subcommand, rest, raw, pick);
       case 'init':
         return routeInit(root, subcommand, rest, raw);
       case 'check':
@@ -187,9 +189,9 @@ function routeState(root, sub, rest, raw) {
 
 // ─── Chapter routes ───────────────────────────────────────────────────────────
 
-function routeChapter(root, sub, rest, raw) {
+function routeChapter(root, sub, rest, raw, pick) {
   const chapter = require('./lib/chapter.cjs');
-  const named = parseNamedArgs(rest, ['source', 'chapter'], ['force', 'dry-run']);
+  const named = parseNamedArgs(rest, ['source', 'chapter'], ['force', 'dry-run', 'all']);
   const chapterNum = rest[0] && /^\d+$/.test(rest[0]) ? rest[0] : null;
 
   switch (sub) {
@@ -207,8 +209,18 @@ function routeChapter(root, sub, rest, raw) {
       return chapter.cmdChapterPromote(root, chapterNum, named.source, named.force, named['dry-run'], raw);
     case 'paths':
       return chapter.cmdChapterPaths(root, chapterNum, raw);
+    case 'wordcount': {
+      const positional = rest[0] && !rest[0].startsWith('--') ? rest[0] : null;
+      return chapter.cmdChapterWordcount(
+        root,
+        { positional, all: named.all },
+        named.source,
+        raw,
+        pick
+      );
+    }
     default:
-      error(`unknown chapter subcommand: ${sub}. Try: inspect, list, budget, budget-sync, normalize, promote, paths`);
+      error(`unknown chapter subcommand: ${sub}. Try: inspect, list, budget, budget-sync, normalize, promote, paths, wordcount`);
   }
 }
 

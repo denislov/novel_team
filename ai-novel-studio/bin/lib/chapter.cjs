@@ -126,6 +126,53 @@ function cmdChapterPaths(root, chapter, raw) {
   core.output({ chapter: Number(chapter), ...paths, ...exists }, raw);
 }
 
+/**
+ * chapter wordcount <N|N-M|--all> — Reliable prose-only character count.
+ *
+ * Single-form errors when the source file is missing; range/--all forms list
+ * absent chapters in `missing[]`. Output schema is the same across all three
+ * forms so workflows do not need to branch on scope.
+ */
+function cmdChapterWordcount(root, scopeInput, source, raw, pick) {
+  const wordcount = require('./wordcount.cjs');
+  const resolved = wordcount.resolveScope(root, scopeInput);
+  const sourceKey = source || 'formal';
+
+  let result;
+  if (resolved.scope === 'single') {
+    const single = wordcount.countSingle(root, resolved.requested.chapters[0], sourceKey);
+    result = {
+      scope: 'single',
+      source: sourceKey,
+      requested: resolved.requested,
+      chapters: [single],
+      missing: [],
+      aggregate: { chapter_count: 1, missing_count: 0, total_chars: single.prose_chars },
+    };
+  } else {
+    const batch = wordcount.countBatch(root, resolved.requested.chapters, sourceKey);
+    result = {
+      scope: resolved.scope,
+      source: sourceKey,
+      requested: resolved.requested,
+      chapters: batch.chapters,
+      missing: batch.missing,
+      aggregate: batch.aggregate,
+    };
+  }
+
+  if (pick) {
+    const picked = pick.split('.').reduce((acc, key) => (acc == null ? acc : acc[key]), result);
+    core.output(result, raw, picked);
+    return;
+  }
+  if (raw) {
+    core.output(result, true, result.aggregate.total_chars);
+    return;
+  }
+  core.output(result, false);
+}
+
 module.exports = {
   cmdChapterInspect,
   cmdChapterList,
@@ -134,4 +181,5 @@ module.exports = {
   cmdChapterNormalize,
   cmdChapterPromote,
   cmdChapterPaths,
+  cmdChapterWordcount,
 };
