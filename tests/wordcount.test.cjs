@@ -140,3 +140,38 @@ test('countSingle excludes fenced code blocks from prose count', () => {
   // '正常一段五字' (6) + '又一段六个字。' (7) = 13
   assert.strictEqual(result.prose_chars, 13);
 });
+
+test('wordcount.countSingle and chapter_budget.analyzeChapter return identical prose_chars', () => {
+  const root = makeProjectFixture();
+  writeChapter(root, 7, [
+    '---', 'chapter: 7', 'title: 综合测试', '---', '',
+    '# 第7章 综合测试',
+    '',
+    '> 故事时间：1980年',
+    '',
+    '## 正文',
+    '',
+    '一段正文 *带强调* 和 [链接文字](https://example.com)。',
+    '',
+    '- 列表项一',
+    '- 列表项二',
+    '',
+    '> 引文也算字数。',
+    '',
+    '```',
+    '代码块不算',
+    '```',
+    '',
+    '最后一段正文。',
+  ]);
+
+  const wc = wordcount.countSingle(root, 7, 'formal');
+  const budget = chapterBudget.analyzeChapter(root, 7, 'formal');
+
+  assert.strictEqual(
+    wc.prose_chars, budget.prose_chars,
+    'wordcount and chapter_budget MUST return the same prose_chars for the same input ' +
+    '(they share the underlying extractProse/countVisibleCharacters algorithm; this test ' +
+    'fails immediately if a future refactor lets them diverge)'
+  );
+});
