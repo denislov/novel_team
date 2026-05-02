@@ -11,7 +11,7 @@ title: ${cleanTitle}
 genre: ${inferGenre(texts)}
 era: ${inferEra(texts, meaningfulLines)}
 target_words: 待定
-chapter_words: 3000
+chapter_words: 2500
 target_chapters: 待定
 status: 导入待整理
 created: ${today}

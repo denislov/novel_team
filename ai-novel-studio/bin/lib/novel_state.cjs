@@ -161,10 +161,10 @@ function loadProjectMetadata(root) {
   const stateText = fileExists(statePath) ? readText(statePath) : '';
   const chapterWordsRaw = frontmatterValue(projectText, 'chapter_words')
     || frontmatterValue(stateText, 'chapter_words')
-    || '3000';
+    || '2500';
   const chapterWordCeilingRaw = frontmatterValue(projectText, 'chapter_word_ceiling')
     || frontmatterValue(stateText, 'chapter_word_ceiling');
-  const chapterWords = Number.parseInt(String(chapterWordsRaw).match(/\d+/)?.[0] || '3000', 10);
+  const chapterWords = Number.parseInt(String(chapterWordsRaw).match(/\d+/)?.[0] || '2500', 10);
   const parsedCeiling = chapterWordCeilingRaw
     ? Number.parseInt(String(chapterWordCeilingRaw).match(/\d+/)?.[0] || '', 10)
     : NaN;

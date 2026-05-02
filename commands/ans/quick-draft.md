@@ -1,6 +1,6 @@
 ---
 description: "Draft a chapter quickly without the full outline, polish, and review pipeline"
-argument-hint: "N [--words=3000] [--context=\"...\"]"
+argument-hint: "N [--words=2500] [--context=\"...\"]"
 allowed-tools:
   - Read
   - Write
@@ -27,7 +27,7 @@ ARGUMENTS: $ARGUMENTS
 
 **Arguments:**
 - `N` — Required chapter number
-- `--words=N` — Target word count, default `3000`
+- `--words=N` — Target word count, default `2500`
 - `--context="..."` — Extra idea prompt, beat, or scene guidance
 </context>
 

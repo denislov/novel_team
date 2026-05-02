@@ -11,7 +11,7 @@ title: [章节标题]
 arc: [卷名/阶段]
 pov: [视角人物]
 story_date: [故事时间]
-target_words: 3000
+target_words: 2500
 hard_ceiling: 4000
 status: draft/polished/published
 version: v1

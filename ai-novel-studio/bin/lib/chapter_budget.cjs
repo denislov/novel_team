@@ -212,7 +212,7 @@ function countVisibleCharacters(text) {
 function loadProjectBudget(root) {
   const projectPath = path.join(root, 'PROJECT.md');
   const projectText = fileExists(projectPath) ? readText(projectPath) : '';
-  const chapterWords = parseIntegerField(frontmatterValue(projectText, 'chapter_words'), 3000);
+  const chapterWords = parseIntegerField(frontmatterValue(projectText, 'chapter_words'), 2500);
   const hardCeiling = parseIntegerField(frontmatterValue(projectText, 'chapter_word_ceiling'), chapterWords + 1000);
   return {
     target_words: chapterWords,

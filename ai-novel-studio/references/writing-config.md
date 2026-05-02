@@ -11,7 +11,7 @@ ANS 使用项目根目录下的 `config.json` 管理项目级配置。
 {
   "story_format": "long_form | short_story | story_collection",
   "language": "zh-CN",
-  "target_words_per_chapter": 3000,
+  "target_words_per_chapter": 2500,
   "chapter_word_ceiling": 4000,
   "review_strictness": "relaxed | standard | strict",
   "batch_size": 3,
@@ -36,7 +36,7 @@ ANS 使用项目根目录下的 `config.json` 管理项目级配置。
 |------|------|--------|------|
 | `story_format` | string | `"long_form"` | 故事格式：`long_form`（长篇连载）、`short_story`（短篇）、`story_collection`（故事集） |
 | `language` | string | `"zh-CN"` | 写作语言 |
-| `target_words_per_chapter` | number | `3000` | 每章目标字数（中文字符数） |
+| `target_words_per_chapter` | number | `2500` | 每章目标字数（中文字符数） |
 | `chapter_word_ceiling` | number | target+1000 | 每章字数硬上限，超出触发分割建议 |
 | `review_strictness` | string | `"standard"` | 审核严格度：`relaxed`（宽松）、`standard`（标准）、`strict`（严格） |
 | `batch_size` | number | `3` | autonomous 模式每批章节数（暂停点） |

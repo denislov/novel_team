@@ -86,7 +86,7 @@
 
 ### 快速草稿
 
-`/ans:quick-draft N [--words=3000] [--context="..."]`
+`/ans:quick-draft N [--words=2500] [--context="..."]`
 
 - 跳过完整流程，快速产出草稿
 - 输出到 `chapters/draft/`

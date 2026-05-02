@@ -39,7 +39,7 @@ const CHAPTER_FRONTMATTER = {
   forbidden: ['characters', 'timeline', 'hooks', 'foreshadowing'],
   defaults: {
     status: 'draft',
-    target_words: 3000,
+    target_words: 2500,
     hard_ceiling: 4000,
     words: 0,
     budget_result: 'within_target',
@@ -65,7 +65,7 @@ const OUTLINE_FRONTMATTER = {
   forbidden: [],
   defaults: {
     status: 'outline',
-    target_words: 3000,
+    target_words: 2500,
     hard_ceiling: 4000,
   },
 };

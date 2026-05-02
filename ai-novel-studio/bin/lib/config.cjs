@@ -12,7 +12,7 @@ const { output, error, fileExists, safeReadFile } = require('./core.cjs');
 const DEFAULTS = {
   story_format: 'long_form',
   language: 'zh-CN',
-  target_words_per_chapter: 3000,
+  target_words_per_chapter: 2500,
   chapter_word_ceiling: null, // null = target + 1000
   review_strictness: 'standard', // relaxed | standard | strict
   batch_size: 3,

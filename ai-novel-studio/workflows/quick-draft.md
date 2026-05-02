@@ -24,7 +24,7 @@ allow_inline_fallback: false
 
 ```bash
 CHAPTER_NUMBER=""
-WORD_COUNT=3000
+WORD_COUNT=2500
 CONTEXT=""
 
 for arg in "$ARGUMENTS"; do
@@ -47,7 +47,7 @@ done
 | 参数 | 说明 | 默认值 |
 |------|------|--------|
 | `[章节号]` | 要创作的章节号 | 必填 |
-| `--words=N` | 目标字数 | 3000 |
+| `--words=N` | 目标字数 | 2500 |
 | `--context="..."` | 额外上下文/灵感 | 无 |
 
 </process>
@@ -191,7 +191,7 @@ node bin/ans-tools.cjs chapter normalize ${CHAPTER_NUMBER} --source quick
 ## 命令示例
 
 ```bash
-# 快速创作第5章，3000字
+# 快速创作第5章，2500字
 /ans:quick-draft 5
 
 # 快速创作，指定字数

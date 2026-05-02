@@ -254,7 +254,7 @@ title: 《书名》
 genre: [类型/题材]
 format: long_form
 language: zh-CN
-chapter_words: 3000
+chapter_words: 2500
 chapter_word_ceiling: 4000
 target_words: [目标总字数]
 target_chapters: [目标章数]
@@ -279,7 +279,7 @@ taboos:
 | 类型/题材 | |
 | 世界线起始 | YYYY年 |
 | 目标字数 | |
-| 章节字数 | 3000 |
+| 章节字数 | 2500 |
 
 ## 一句话简介
 
