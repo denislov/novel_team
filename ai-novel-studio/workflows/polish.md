@@ -138,6 +138,11 @@ CHAPTER=$(cat chapters/chapter-${CHAPTER_NUMBER}.md)
 
 ### 3.2 调用 Editor
 
+```bash
+# Pre-polish 字数（润色前）
+PRE_CHARS=$(node bin/ans-tools.cjs chapter wordcount "${CHAPTER_NUMBER}" --source formal --raw)
+```
+
 ```
 Task(
   subagent_type: "ans-editor",
@@ -164,6 +169,16 @@ Task(
 )
 ```
 
+```bash
+# Post-polish 字数（润色后；polished 文件由 editor 产出）
+POST_CHARS=$(node bin/ans-tools.cjs chapter wordcount "${CHAPTER_NUMBER}" --source polished --raw 2>/dev/null || echo "$PRE_CHARS")
+if [ -n "$PRE_CHARS" ] && [ "$PRE_CHARS" -gt 0 ]; then
+  CHANGE_RATE=$(awk "BEGIN { printf \"%.1f\", (($POST_CHARS - $PRE_CHARS) / $PRE_CHARS) * 100 }")
+else
+  CHANGE_RATE="0.0"
+fi
+```
+
 ### 3.3 展示润色结果
 
 ```
@@ -172,9 +187,9 @@ Task(
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 【修改统计】
-- 原字数：[XXXX] 字
-- 修改后：[XXXX] 字
-- 修改率：[XX]%
+- 原字数：${PRE_CHARS} 字
+- 修改后：${POST_CHARS} 字
+- 修改率：${CHANGE_RATE}%
 
 【问题修正】
 ┌─────────────────┬────────┐
@@ -236,7 +251,12 @@ node bin/ans-tools.cjs chapter normalize ${CHAPTER_NUMBER} --source formal
 
 ```bash
 RESULTS=()
+TOTAL_PRE=0
+TOTAL_POST=0
 for chapter in $CHAPTER_LIST; do
+  PRE=$(node bin/ans-tools.cjs chapter wordcount "$chapter" --source formal --raw 2>/dev/null || echo 0)
+  TOTAL_PRE=$((TOTAL_PRE + PRE))
+
   # 调用 editor，传递完整的上下文
   result=$(Task(
     subagent_type: "ans-editor",
@@ -254,7 +274,11 @@ for chapter in $CHAPTER_LIST; do
       mode: MODE
     }
   ))
-  RESULTS+=("$result")
+
+  POST=$(node bin/ans-tools.cjs chapter wordcount "$chapter" --source polished --raw 2>/dev/null || echo "$PRE")
+  TOTAL_POST=$((TOTAL_POST + POST))
+
+  RESULTS+=("$chapter|$PRE|$POST")
 done
 ```
 
@@ -266,9 +290,9 @@ done
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 【总体统计】
-- 润色章节：${COUNT} 章
-- 总修改：${TOTAL_CHANGES} 处
-- 平均修改率：${AVG_RATE}%
+- 润色章节：${#RESULTS[@]} 章
+- 总字数：${TOTAL_PRE} → ${TOTAL_POST}
+- 整体修改率：$(awk "BEGIN { if ($TOTAL_PRE > 0) printf \"%.1f\", (($TOTAL_POST - $TOTAL_PRE) / $TOTAL_PRE) * 100; else printf \"0.0\" }")%
 
 【分章结果】
 

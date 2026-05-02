@@ -1030,3 +1030,15 @@ test('write-chapter workflow invokes chapter wordcount for the budget gate', () 
     'write-chapter §4.2 must invoke `node bin/ans-tools.cjs chapter wordcount` so the count comes from the canonical tool, not from chapter budget'
   );
 });
+
+test('polish workflow invokes chapter wordcount for pre/post counts', () => {
+  const wf = fs.readFileSync(
+    path.join(SUPPORT_ROOT, 'workflows', 'polish.md'),
+    'utf-8'
+  );
+  const matches = wf.match(/node bin\/ans-tools\.cjs chapter wordcount/g) || [];
+  assert.ok(
+    matches.length >= 2,
+    'polish.md must invoke `chapter wordcount` at least twice (pre and post). Found ' + matches.length
+  );
+});
