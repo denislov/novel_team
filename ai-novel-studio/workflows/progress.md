@@ -10,6 +10,14 @@
 node bin/ans-tools.cjs init progress --raw
 ```
 若返回报错或者 `project_exists` 为 false，告知用户未检测到有效项目（建议 `/ans:new-project` 或 `/ans:map-base`），并终止。
+
+仪表盘上的 `total_words` 字段不使用 init progress 返回的 naive 计数（包含 frontmatter/标题/markdown 语法），改用 chapter wordcount 重新计算可靠的 prose 字数：
+
+```bash
+TOTAL_WORDS=$(node bin/ans-tools.cjs chapter wordcount --all --source formal --pick aggregate.total_chars --raw 2>/dev/null || echo 0)
+```
+
+后续模板里的 `[total_words]` 占位符使用这个变量。
 </step>
 
 <step name="report">

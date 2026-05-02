@@ -1042,3 +1042,15 @@ test('polish workflow invokes chapter wordcount for pre/post counts', () => {
     'polish.md must invoke `chapter wordcount` at least twice (pre and post). Found ' + matches.length
   );
 });
+
+test('progress workflow uses chapter wordcount for total_words display', () => {
+  const wf = fs.readFileSync(
+    path.join(SUPPORT_ROOT, 'workflows', 'progress.md'),
+    'utf-8'
+  );
+  assert.match(
+    wf,
+    /node bin\/ans-tools\.cjs chapter wordcount --all/,
+    'progress.md must compute its dashboard total_words via `chapter wordcount --all` rather than relying on init progress\'s naive value'
+  );
+});
