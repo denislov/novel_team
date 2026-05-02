@@ -208,6 +208,7 @@ test('workflow ans-tools invocations only use supported command pairs', () => {
     'chapter budget',
     'chapter normalize',
     'chapter promote',
+    'chapter wordcount',
     'check budget',
     'config get',
     'config set',
@@ -1002,4 +1003,18 @@ test('init review exposes files_to_read map keyed by agent role', () => {
       `buildReviewFilesToRead must declare the "${role}" role`
     );
   }
+});
+
+test('ans-tools.cjs routeChapter dispatches the wordcount subcommand', () => {
+  const ansToolsContent = fs.readFileSync(ANS_TOOLS_PATH, 'utf-8');
+  assert.match(
+    ansToolsContent,
+    /case 'wordcount':/,
+    'ans-tools.cjs routeChapter must contain a wordcount case so the subcommand reaches lib/chapter.cjs'
+  );
+  assert.match(
+    ansToolsContent,
+    /'all'/,
+    'parseNamedArgs in routeChapter must include --all in its boolean flags so it is parsed correctly'
+  );
 });
