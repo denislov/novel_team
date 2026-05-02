@@ -19,15 +19,20 @@ if [[ -z "$INIT" || "$INIT" == *"Error"* ]]; then
   echo "未检测到结构化小说项目。空目录先运行 /ans:new-project；已有资料先运行 /ans:map-base"
   exit 0
 fi
+
+# total_words 的展示值用可靠的 chapter wordcount 重新计算（不取 init 的 naive 累加）
+TOTAL_WORDS=$(node bin/ans-tools.cjs chapter wordcount --all --source formal --pick aggregate.total_chars --raw 2>/dev/null || echo 0)
 ```
 
 从 `$INIT` JSON 中提取所有面板数据：
 - `title`, `story_format`, `status`, `current_arc`
-- `total_chapters`, `total_outlines`, `total_reviews`, `total_words`
+- `total_chapters`, `total_outlines`, `total_reviews`
 - `completed_count`, `total_count`
 - `chapter_grid[]` — 每章的 outline/chapter/review 状态
 - `recommended_actions[]` — 推荐动作列表
 - `all_complete` — 是否全部完成
+
+`total_words` 不再从 `$INIT` 取，改用上面计算出的 `$TOTAL_WORDS`。
 </step>
 
 <step name="dashboard">
@@ -40,7 +45,7 @@ fi
 
 《{title}》  {status} · {current_arc}
 
-【产物总计】大纲 {total_outlines} · 正文 {total_chapters} · 审核 {total_reviews} · 总字数 {total_words}
+【产物总计】大纲 {total_outlines} · 正文 {total_chapters} · 审核 {total_reviews} · 总字数 ${TOTAL_WORDS}
 
 【章节状态面板】
 

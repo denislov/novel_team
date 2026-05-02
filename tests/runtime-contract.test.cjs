@@ -1054,3 +1054,15 @@ test('progress workflow uses chapter wordcount for total_words display', () => {
     'progress.md must compute its dashboard total_words via `chapter wordcount --all` rather than relying on init progress\'s naive value'
   );
 });
+
+test('manager workflow uses chapter wordcount for total_words display', () => {
+  const wf = fs.readFileSync(
+    path.join(SUPPORT_ROOT, 'workflows', 'manager.md'),
+    'utf-8'
+  );
+  assert.match(
+    wf,
+    /node bin\/ans-tools\.cjs chapter wordcount --all/,
+    'manager.md must compute its dashboard total_words via `chapter wordcount --all` rather than relying on init manager\'s naive value'
+  );
+});
