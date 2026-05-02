@@ -37,7 +37,35 @@ function countSingle(root, chapter, source) {
   };
 }
 
+function countBatch(root, chapterNumbers, source) {
+  const chapters = [];
+  const missing = [];
+  for (const chapter of chapterNumbers) {
+    try {
+      chapters.push(countSingle(root, chapter, source));
+    } catch (e) {
+      const paths = artifactPaths(root, chapter);
+      missing.push({
+        chapter,
+        source,
+        file_path: paths[source] ? path.relative(root, paths[source]) : null,
+      });
+    }
+  }
+  const totalChars = chapters.reduce((sum, c) => sum + c.prose_chars, 0);
+  return {
+    chapters,
+    missing,
+    aggregate: {
+      chapter_count: chapters.length,
+      missing_count: missing.length,
+      total_chars: totalChars,
+    },
+  };
+}
+
 module.exports = {
   countSingle,
+  countBatch,
   COUNT_BASIS,
 };

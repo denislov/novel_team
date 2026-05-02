@@ -54,3 +54,41 @@ test('countSingle throws when source file is missing', () => {
     'countSingle must throw when the source file does not exist'
   );
 });
+
+test('countBatch aggregates prose_chars across chapters and reports missing', () => {
+  const root = makeProjectFixture();
+  writeChapter(root, 1, [
+    '---', 'chapter: 1', '---', '',
+    '# 第1章', '',
+    '## 正文', '',
+    '十个字符的正文测试',
+  ]);
+  writeChapter(root, 3, [
+    '---', 'chapter: 3', '---', '',
+    '# 第3章', '',
+    '## 正文', '',
+    '另外一段五字',
+  ]);
+  // chapter 2 deliberately absent
+
+  const result = wordcount.countBatch(root, [1, 2, 3], 'formal');
+  assert.strictEqual(result.chapters.length, 2, 'present chapters only in chapters[]');
+  assert.strictEqual(result.missing.length, 1, 'absent chapter listed in missing[]');
+  assert.strictEqual(result.missing[0].chapter, 2);
+  assert.strictEqual(result.aggregate.chapter_count, 2);
+  assert.strictEqual(result.aggregate.missing_count, 1);
+  assert.strictEqual(
+    result.aggregate.total_chars,
+    result.chapters[0].prose_chars + result.chapters[1].prose_chars
+  );
+});
+
+test('countBatch on empty input returns empty arrays and zero aggregate', () => {
+  const root = makeProjectFixture();
+  const result = wordcount.countBatch(root, [], 'formal');
+  assert.deepEqual(result.chapters, []);
+  assert.deepEqual(result.missing, []);
+  assert.strictEqual(result.aggregate.chapter_count, 0);
+  assert.strictEqual(result.aggregate.missing_count, 0);
+  assert.strictEqual(result.aggregate.total_chars, 0);
+});
