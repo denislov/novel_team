@@ -168,9 +168,17 @@ fi
 ### 4.2 字数闸门核查
 
 ```bash
-node bin/ans-tools.cjs chapter budget ${CHAPTER_NUMBER} --source formal
+# 字数从 chapter wordcount 取（reliable prose-only count），闸门逻辑在工作流内显式执行
+PROSE_CHARS=$(node bin/ans-tools.cjs chapter wordcount "${CHAPTER_NUMBER}" --source formal --raw)
+HARD_CEILING=$(node bin/ans-tools.cjs state get chapter_word_ceiling --raw)
+TARGET_WORDS=$(node bin/ans-tools.cjs state get chapter_words --raw)
 
-# 如果超出预算，ans-tools 将拦截。后续可在这里实现自主裁切与重新规划。
+echo "【字数】${PROSE_CHARS} 字（目标 ${TARGET_WORDS} / 上限 ${HARD_CEILING}）"
+
+if [ "$PROSE_CHARS" -gt "$HARD_CEILING" ]; then
+  echo "⚠️  超出硬上限：${PROSE_CHARS} > ${HARD_CEILING}。要求 writer 分割或缩减。"
+  # 后续可在这里实现自主裁切与重新规划。
+fi
 ```
 
 </writing_phase>

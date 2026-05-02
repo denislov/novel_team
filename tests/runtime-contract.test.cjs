@@ -1018,3 +1018,15 @@ test('ans-tools.cjs routeChapter dispatches the wordcount subcommand', () => {
     'parseNamedArgs in routeChapter must include --all in its boolean flags so it is parsed correctly'
   );
 });
+
+test('write-chapter workflow invokes chapter wordcount for the budget gate', () => {
+  const wf = fs.readFileSync(
+    path.join(SUPPORT_ROOT, 'workflows', 'write-chapter.md'),
+    'utf-8'
+  );
+  assert.match(
+    wf,
+    /node bin\/ans-tools\.cjs chapter wordcount/,
+    'write-chapter §4.2 must invoke `node bin/ans-tools.cjs chapter wordcount` so the count comes from the canonical tool, not from chapter budget'
+  );
+});
